@@ -36,16 +36,7 @@ def demandRing : Demand CS CR where
     这条引理在下面证明"Z 是极小的"时要用到。 -/
 theorem ringHom_nat_unique {α : Type} [NonAssocSemiring α] (f : ℕ →+* α) :
     f = Nat.castRingHom α := by
-  apply RingHom.ext
-  intro n
-  induction n with
-  | zero => simp
-  | succ n ih =>
-      show f (n + 1) = ((n + 1 : ℕ) : α)
-      calc
-        f (n + 1) = f n + f 1 := by rw [map_add]
-        _ = (n : α) + 1 := by rw [ih, map_one]; rfl
-        _ = ((n + 1 : ℕ) : α) := by rw [Nat.cast_add, Nat.cast_one]
+  exact RingHom.eq_natCast' f
 
 /- ------------------------------------------------------------------ -/
 /- 失败检测                                                            -/
@@ -56,16 +47,39 @@ theorem nat_no_neg_one : ¬ ∃ x : ℕ, x + 1 = 0 := by
   rintro ⟨x, hx⟩
   omega
 
-/-- N 上不存在交换环结构。 -/
-theorem no_commRing_on_nat : ¬ Nonempty (CommRing ℕ) := by
-  rintro ⟨s⟩
-  letI := s
-  exact nat_no_neg_one ⟨(-1 : ℕ), neg_add_cancel 1⟩
+/-- **判定**：N 承载不了"减法闭包"，即这是一个 gap（见下面 `natToInt` 给出见证）。
 
-/-- **判定**：N 承载不了"减法闭包"，即这是一个 gap（见下面 `natExt` 给出见证）。 -/
+    注意不能走"ℕ 上不存在 CommRing 结构"这条路——那是假命题：
+    ℕ 与 ℤ 可数等势，可沿双射把 `CommRing ℤ` 搬到 ℕ 上（`Equiv.commRing`）。
+    真正的约束是 `HasSolution` 里的 `forgetStr s' = natModel.str`，
+    它强制环的**半环部分**等于原生半环；据此把环等式 `-1 + 1 = 0`
+    里的环 `+` / `0` 改写成原生 `+` / `0`，再交给 `nat_no_neg_one`。 -/
 theorem nat_gap : ¬ HasSolution natModel demandRing := by
-  rintro ⟨s', _hstr, _e, _hax⟩
-  exact no_commRing_on_nat ⟨s'⟩
+  rintro ⟨s', hstr, _e, _hax⟩
+  letI : CommRing ℕ := s'
+  have hneg := neg_add_cancel (1 : ℕ)
+  have hbase : commRingToCommSemiring s' = (inferInstance : CommSemiring ℕ) := hstr
+  have hcdef : s'.toCommSemiring = commRingToCommSemiring s' := by rfl
+  have hadd : s'.toAddGroupWithOne.toAddGroup.toAddZeroClass.toAdd = @instAddNat := by
+    calc
+      s'.toAddGroupWithOne.toAddGroup.toAddZeroClass.toAdd = s'.toCommSemiring.toAdd := by rfl
+      _ = (commRingToCommSemiring s').toAdd := by rw [← hcdef]
+      _ = (inferInstance : CommSemiring ℕ).toAdd := by rw [hbase]
+      _ = @instAddNat := by rfl
+  rw [hadd] at hneg
+  have hzeroVal :
+      (s'.toAddGroupWithOne.toAddGroup.toSubNegMonoid.toAddMonoid.toAddZeroClass.toZero : Zero ℕ).zero
+        = (0 : ℕ) := by
+    calc
+      (s'.toAddGroupWithOne.toAddGroup.toSubNegMonoid.toAddMonoid.toAddZeroClass.toZero : Zero ℕ).zero
+        = (s'.toCommSemiring.toAddZeroClass.toZero : Zero ℕ).zero := by rfl
+      _ = ((commRingToCommSemiring s').toAddZeroClass.toZero : Zero ℕ).zero := by rw [← hcdef]
+      _ = ((inferInstance : CommSemiring ℕ).toAddZeroClass.toZero : Zero ℕ).zero := by rw [hbase]
+      _ = (0 : ℕ) := by rfl
+  change (-1 : ℕ) + 1 =
+      (s'.toAddGroupWithOne.toAddGroup.toSubNegMonoid.toAddMonoid.toAddZeroClass.toZero : Zero ℕ).zero at hneg
+  rw [hzeroVal] at hneg
+  exact nat_no_neg_one ⟨(-1 : ℕ), hneg⟩
 
 /- ------------------------------------------------------------------ -/
 /- 极小扩张：Z                                                         -/
@@ -82,7 +96,8 @@ noncomputable def natToInt : Extension natModel demandRing where
     exact Nat.castRingHom ℤ
   emb_inj := by
     intro a b h
-    exact_mod_cast h
+    change (Nat.castRingHom ℤ) a = (Nat.castRingHom ℤ) b at h
+    exact Nat.cast_injective h
   extra := PUnit.unit
   ax := trivial
 
@@ -99,12 +114,11 @@ noncomputable def natToInt_minimal : IsMinimal natModel demandRing natToInt := b
     SemiringLike.toNonAssocSemiring (T := CR) intModel.str
   letI : NonAssocSemiring F.target.carrier :=
     SemiringLike.toNonAssocSemiring (T := CR) F.target.str
-  have hFemb : F.emb = (by
-      letI : NonAssocSemiring natModel.carrier :=
-        SemiringLike.toNonAssocSemiring (T := CS) natModel.str
-      letI : NonAssocSemiring (Model.forget CS CR F.target).carrier :=
-        SemiringLike.toNonAssocSemiring (T := CS) (Model.forget CS CR F.target).str
-      exact Nat.castRingHom F.target.carrier) := by
+  letI : NonAssocSemiring natModel.carrier :=
+    SemiringLike.toNonAssocSemiring (T := CS) natModel.str
+  letI : NonAssocSemiring (Model.forget CS CR F.target).carrier :=
+    SemiringLike.toNonAssocSemiring (T := CS) (Model.forget CS CR F.target).str
+  have hFemb : F.emb = Nat.castRingHom (Model.forget CS CR F.target).carrier := by
     apply ringHom_nat_unique
   constructor
   · refine ⟨{ hom := Int.castRingHom F.target.carrier,
@@ -112,9 +126,10 @@ noncomputable def natToInt_minimal : IsMinimal natModel demandRing natToInt := b
                pres := by rfl }⟩
     intro n
     simp only [Biframed.forget_toFun]
-    change (Int.castRingHom F.target.carrier) ((Nat.castRingHom ℤ) n) = F.emb n
     rw [hFemb]
-    simp
+    show (Int.castRingHom F.target.carrier) ((Nat.castRingHom ℤ) n) =
+      (Nat.castRingHom F.target.carrier) n
+    exact Int.cast_natCast n
   · intro f g
     apply ExtHom.ext
     intro x
