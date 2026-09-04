@@ -47,7 +47,7 @@ def InUnit (s : Score) : Prop :=
   s.novelty ∈ Set.Icc (0 : ℝ) 1
 
 /-- 生成力（等权平均；v0.1 不做权重学习）。 -/
-def generativity (s : Score) : ℝ :=
+noncomputable def generativity (s : Score) : ℝ :=
   (s.coverage + s.relationDensity + s.closureGain + s.minimality + s.novelty) / 5
 
 theorem generativity_nonneg (s : Score) (hs : s.InUnit) : 0 ≤ s.generativity := by
@@ -125,7 +125,7 @@ end Snapshot
 
 /-- 压缩率：用 d 条新公理解释旧现象时的压缩分。
     d = 0 时压缩率为 1（没有新公理 —— 那就不是发现了）。 -/
-def compressionOf (d : ℕ) : ℝ := (1 : ℝ) / (d + 1)
+noncomputable def compressionOf (d : ℕ) : ℝ := (1 : ℝ) / (d + 1)
 
 /-- 已知数学库：一组已经存在的模型。
 
@@ -142,8 +142,9 @@ def IsRenamingOf (L : Library T') (M : Model T') : Prop :=
   ∃ i : L.Index, Nonempty (M.carrier ≃ (L.get i).carrier)
 
 /-- 相对新颖性：重命名 = 0，否则 = 1。 -/
-noncomputable def noveltyAgainst [Framework T'] (L : Library T') (M : Model T') : ℝ :=
-  if IsRenamingOf L M then 0 else 1
+noncomputable def noveltyAgainst (L : Library T') (M : Model T') : ℝ := by
+  classical
+  exact if IsRenamingOf L M then 0 else 1
 
 /-- **闸门定理**：一个候选如果只是在给已知对象改名，
     那么无论它的 U / R / C / M 有多高，目标函数都是 0。
@@ -151,10 +152,11 @@ noncomputable def noveltyAgainst [Framework T'] (L : Library T') (M : Model T') 
     这条定理是 design.md 最后那段话的形式化：
     "一个优秀的新数学对象，应该用很少的新公理/新定义，解释很多原来分散的现象。"
     而"新"本身不是目标，"新且压缩"才是。 -/
-theorem renaming_kills_objective [Framework T'] (L : Library T') (M : Model T')
+theorem renaming_kills_objective (L : Library T') (M : Model T')
     (x : Snapshot) (h : IsRenamingOf L M)
     (hx : x.novelty = noveltyAgainst L M) :
     x.objective = 0 := by
+  classical
   have hv : noveltyAgainst L M = 0 := by
     simp [noveltyAgainst, h]
   exact Snapshot.objective_eq_zero_of_novelty_zero x (by simpa [hx] using hv)
