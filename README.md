@@ -52,7 +52,7 @@ Nods/
     ├── NatToInt.lean         # N → Z   (subtraction closure)
     ├── IntToRat.lean         # Z → Q   (division closure)
     ├── RatToReal.lean        # Q → R   (completeness)
-    └── RealToComplex.lean    # R → C   (j² = -1)  ⚠️ TODO
+    └── RealToComplex.lean    # R → C   (j² = -1)
 ```
 
 The six core layers recreate the classical chain
@@ -64,15 +64,16 @@ pointed at unknown mathematical structures.
 
 ## Status
 
-- The 6 core layers and the instances N→Z, Z→Q, Q→R are formalized.
-- **`RealToComplex.lean` (R→C) is currently an empty file** — the natural next
-  step, and the best test of the "extra constant + initiality" (`IsMinimal`)
-  path.
-- **`lake build` currently fails** in `Nods/Theories/Algebraic.lean`
-  (lines 87–93): the `Refinement` instances use explicit type casts to forget
-  structure, and Lean cannot synthesize the coercion. The likely fix is to
-  delegate along the `SemiringLike` refinement path instead of casting.
-  See `docs/wiki/current-status.md` for details.
+- All 6 core layers and all four instances — N→Z, Z→Q, Q→R, R→C — are
+  formalized, and `lake build` passes (Lean v4.21.0 / mathlib).
+- The classical chain N → Z → Q → R → C is fully reconstructed, with a machine
+  proof that each step is a *gap* in the previous structure (a failed demand),
+  not just an invented symbol.
+- One documented obligation remains: `real_initiality_obligation` (**O1**) — the
+  uniqueness of the ordered-field homomorphism R → K into any complete
+  Archimedean ordered field K. It is recorded as an `axiom` (the ~80-line
+  Dedekind-cut analysis is deferred to v0.2); in v0.1 `IsCutGenerated` stands in
+  for it. See `docs/wiki/current-status.md` for details.
 
 ## Getting started
 

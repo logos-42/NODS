@@ -132,12 +132,65 @@ theorem rat_not_dedekind_complete : ¬ DedekindComplete ℚ := by
     exact_mod_cast hs2R
   exact rat_no_sqrt_two ⟨s, hs2⟩
 
-/-- **未决义务 O2**：ℚ 上的有序域结构唯一。给定一个 `LOF ℚ` 结构，若其域部分
+/-- **有序域 ℚ 刚性**：ℚ 上的有序域结构唯一。给定一个 `LOF ℚ` 结构，若其域部分
     等于标准 `Field ℚ`，则其序（因 `IsStrictOrderedRing` 兼容性）必为标准序。
-    这是"有序域 ℚ 刚性"的标准事实：正性由 `num/den` 表示唯一确定。
-    与 O1 一样，v0.1 以 axiom 记录，v0.2 应替换为证明。 -/
-axiom lofLinearOrder_eq_rat (s : LOF ℚ) (h : s.toField = (inferInstance : Field ℚ)) :
-    s.toLinearOrder = (inferInstance : LinearOrder ℚ)
+
+    证明思路：序完全由非负性 `0 ≤ x` 决定，而 `x = x.num / x.den`（`den > 0`）。
+    于是 `0 ≤ x ⟺ 0 ≤ x.num`（标准 ℤ 序），后者对任意兼容序都成立——
+    关键是把"除以正数保持（严格）序"走 `div_pos_iff_of_pos_right`，
+    `IsStrictOrderedRing` 只给严格单调，故非负方向用 `le_iff_lt_or_eq` 拆成
+    `= 0` 与 `> 0` 两路分别处理，避免依赖 `IsOrderedRing` 的 `div_nonneg`。 -/
+theorem lofLinearOrder_eq_rat (s : LOF ℚ) (h : s.toField = (inferInstance : Field ℚ)) :
+    s.toLinearOrder = (inferInstance : LinearOrder ℚ) := by
+  rcases s with ⟨sf, sl, sir⟩
+  have hsf : sf = Rat.instField := by simpa using h
+  subst sf
+  have hsub_std : ∀ a b : ℚ, (@LE.le ℚ Rat.instLE 0 (a - b)) ↔ (@LE.le ℚ Rat.instLE b a) := by
+    intro a b
+    exact sub_nonneg
+  letI : LinearOrder ℚ := sl
+  letI : PartialOrder ℚ := sl.toPartialOrder
+  letI : Preorder ℚ := sl.toPreorder
+  letI : LE ℚ := sl.toPartialOrder.toPreorder.toLE
+  letI : LT ℚ := sl.toPartialOrder.toPreorder.toLT
+  letI : IsStrictOrderedRing ℚ := sir
+  have hnonneg : ∀ x : ℚ, (0 ≤ x) ↔ (@LE.le ℚ Rat.instLE 0 x) := by
+    intro x
+    have hden_pos : (0 : ℚ) < (x.den : ℚ) := by
+      have hz : (0 : ℤ) < (x.den : ℤ) := by exact_mod_cast (Rat.den_pos x : (0 : ℕ) < x.den)
+      exact (Int.cast_pos (R := ℚ)).mpr hz
+    constructor
+    · intro h0
+      rw [← Rat.num_div_den x] at h0
+      by_cases hnum : (x.num : ℚ) = 0
+      · have hx0 : x = 0 := Rat.num_eq_zero.mp (by exact_mod_cast hnum)
+        subst hx0
+        exact @le_refl ℚ Rat.linearOrder.toPreorder 0
+      · have hne : 0 ≠ (x.num : ℚ) / (x.den : ℚ) := by
+          rw [Rat.num_div_den x]
+          intro hx0
+          exact hnum (by exact_mod_cast (Rat.num_eq_zero.mpr hx0.symm))
+        have hlt : (0 : ℚ) < (x.num : ℚ) / (x.den : ℚ) := lt_of_le_of_ne h0 hne
+        have hpos : (0 : ℚ) < (x.num : ℚ) := (div_pos_iff_of_pos_right hden_pos).mp hlt
+        have hnum_pos : 0 < x.num := (Int.cast_pos (R := ℚ)).mp hpos
+        exact (Rat.num_nonneg).mp (le_of_lt hnum_pos)
+    · intro h0
+      have hnum_nonneg : (0 : ℤ) ≤ x.num := (Rat.num_nonneg).mpr h0
+      rcases (lt_or_eq_of_le hnum_nonneg) with hnum_pos | hnum_zero
+      · have hpos : (0 : ℚ) < (x.num : ℚ) := (Int.cast_pos (R := ℚ)).mpr hnum_pos
+        have hdiv : (0 : ℚ) < (x.num : ℚ) / (x.den : ℚ) := (div_pos_iff_of_pos_right hden_pos).mpr hpos
+        have hx : (0 : ℚ) < x := by
+          rw [← Rat.num_div_den x]
+          exact hdiv
+        exact le_of_lt hx
+      · have hx0 : x = 0 := Rat.num_eq_zero.mp hnum_zero.symm
+        subst hx0
+        exact le_refl 0
+  apply LinearOrder.ext
+  intro q r
+  rw [← sub_nonneg]
+  rw [hnonneg (r - q)]
+  exact hsub_std r q
 
 theorem rat_gap : ¬ HasSolution ratModel demandComplete := by
   rintro ⟨s', hstr, _e, hax⟩

@@ -44,7 +44,7 @@ Nods/
     ├── NatToInt.lean         # N → Z   （减法闭包）
     ├── IntToRat.lean         # Z → Q   （除法闭包）
     ├── RatToReal.lean        # Q → R   （完备性）
-    └── RealToComplex.lean    # R → C   （j² = -1）  ⚠️ 待做
+    └── RealToComplex.lean    # R → C   （j² = -1）
 ```
 
 六个核心层重演经典扩张链
@@ -55,9 +55,9 @@ Nods/
 
 ## 构建状态
 
-- 6 个核心层以及实例 N→Z、Z→Q、Q→R 已完成形式化。
-- **`RealToComplex.lean`（R→C）目前是空文件**——这是理所当然的下一步，也是验证"添常元 + 初始性"（`IsMinimal`）路径的最佳测试。
-- **当前 `lake build` 失败**，集中在 `Nods/Theories/Algebraic.lean`（第 87–93 行）：`Refinement` 实例直接用类型 cast 做忘却，Lean 无法自动合成 coercion。修法大概率是沿 `SemiringLike` 强化路径委托（stronger 委托给 weaker），而不是显式 cast。细节见 `docs/wiki/current-status.md`。
+- 6 个核心层以及四个实例 N→Z、Z→Q、Q→R、R→C 全部完成形式化，`lake build` 全绿（Lean v4.21.0 / mathlib）。
+- 经典扩张链 N → Z → Q → R → C 已完整重建，每一步都有机器证明：**它是在上一结构中的"缺口"（一条失败的 demand），而不是凭空发明的符号**。
+- 仍留一条文档化义务：`real_initiality_obligation`（**O1**）——对任意完备 Archimedean 有序域 K，有序域同态 R → K 的唯一性。它以 `axiom` 记录（约 80 行的 Dedekind 切割分析推迟到 v0.2）；v0.1 用 `IsCutGenerated` 顶上。细节见 `docs/wiki/current-status.md`。
 
 ## 快速开始
 

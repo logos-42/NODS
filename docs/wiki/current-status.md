@@ -32,35 +32,35 @@ compiled_from: [src-code-core-001, src-code-instances-001, src-code-theories-001
 | N → Z | `NatToInt.lean` | 减法闭包失败（`2 - 3` 无解） | ✅ 已实现 |
 | Z → Q | `IntToRat.lean` | 除法闭包失败（`2x = 1`） | ✅ 已实现 |
 | Q → R | `RatToReal.lean` | 完备性（`Rat.castHom` 需 `CharZero`） | ✅ 已实现 |
-| R → C | `RealToComplex.lean` | `j² = -1` | ⚠️ **空文件 — 未实现** |
+| R → C | `RealToComplex.lean` | `j² = -1` | ✅ 已实现 |
 
 ### 理论层 `Nods/Theories/Algebraic.lean`
 
-`CS ⊇ CR ⊇ FL ⊇ LOF`（CommSemiring → CommRing → Field → LinearOrderedField）。
+`CS ⊇ CR ⊇ FL ⊇ LOF`（CommSemiring → CommRing → Field → 有序域 `LOF`）。
+
+> 注：mathlib 已弃用捆绑类 `LinearOrderedField`，故 `LOF` 改为自定义结构
+> （`Field` + `LinearOrder` + `IsStrictOrderedRing` 三字段），见 `Nods/Theories/Algebraic.lean`。
 
 ## 构建状态（2026-09-04 · lake build v4.21.0）
 
-> ⚠️ **当前 `lake build` 失败。** 失败集中在 3 个模块：
-> `Nods.Core.Demand`、`Nods.Core.Minimal`、`Nods.Theories.Algebraic`。
-> 根因在 `Nods/Theories/Algebraic.lean:87/90/93` 的 `Refinement` 实例：
-> `forgetStr := fun {α} s => (s : Field α)` 这类**直接用类型 cast 做忘却**，Lean 找不到对应的自动实例路径，报 `type mismatch`（LOF→Field、FL→CommRing、CR→CommSemiring 均如此）。
-
-这正是 [sources-and-data / project-overview] 里强调的技术要点：`α →+* β` 把 `NonAssocSemiring` 实例当类型参数携带，忘却后同态类型必须仍为同一类型。**修法**大概率不是显式 cast，而是沿 `SemiringLike` 强化路径委托（stronger 委托给 weaker），让 coercion 可由类型类自动合成。
-
-> 其余模块（Framework / Verdict / Score / Engine / NatToInt / IntToRat / RatToReal / Probe）在本次构建中未报错，但**整体仍因上述 3 个模块失败而未通过构建**（lake 需全绿）。
+> ✅ **`lake build` 全绿。** 6 个核心层 + 4 个实例（N→Z、Z→Q、Q→R、R→C）全部编译通过。
+> 修复路线：(1) `LOF` 从弃用的 `LinearOrderedField` 重建成自定义结构
+> （`Field` + `LinearOrder` + `IsStrictOrderedRing`）；(2) 三个 `*_gap` 定理统一改为用
+> `HasSolution` 的 `hstr`（结构匹配约束）转移等式，删除 `no_commRing_on_nat` /
+> `no_field_on_int` 这类**假命题**——可数等势（ℕ≃ℤ、ℤ≃ℚ）可沿双射搬运环/域结构，
+> 所以"ℕ/ℤ 上没有某种结构"根本证不出；真正的 gap 在 `hstr` 这条匹配约束上。
 
 ## 未支持 / 待做
 
-- **`RealToComplex.lean` 为空**：R→C 是四项经典扩张中唯一未形式化的。该实例是"添常元"型（Extra + Axiom `j² = -1`），且有真正的初始性，是验证 `IsMinimal`（非 `IsCutGenerated`）路径的最佳测试。
+- **义务 O1**：`real_initiality_obligation`（R 在"完备 Archimedean 有序域 + 嵌入 Q"中的初始性）仍是 `axiom`——需要"唯一有序域同态 R → K"的构造（Dedekind 切割显式搬运，约 80 行分析），v0.2 应替换为 `IsMinimal` 证明。原义务 O2（ℚ 有序域结构唯一）已在本 session 证成定理 `lofLinearOrder_eq_rat`。
 - 自动化约束生成（Automated Constraint Generator）：v0.1 之后阶段，尚无代码。
 
 ## 在线/风险
 
-_（构建状态以 `lake build` 输出为准，见下方注记验证。）_
+_（构建状态以 `lake build` 输出为准。）_
 
 - 核心层定理的表述依赖构造注释中强调的`simp` 属性（`Framework.id_apply` / `comp_apply`）。
-- `RealToComplex.lean` 的空白是本项目下一步最值得做的单点。
-- 若后续补 R→C，请同步更新本页状态矩阵与 `supersedes` 链（如有旧表述被替代）。
+- 本页早先记录的"构建失败"与"R→C 空文件"已过时：本 session 已修通全链并使构建全绿，R→C 已实现（`realToComplex` / `realToComplex_minimal` / `complex_rigid`）。
 
 ## 最近风险
 
