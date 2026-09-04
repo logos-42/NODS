@@ -1,0 +1,7 @@
+.obsidian/
+raw/
+raw_local/
+raw_vault/
+
+# Lake / Lean 构建产物
+.lake/

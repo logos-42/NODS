@@ -1,0 +1,154 @@
+{
+  "schema_version": 2,
+  "wiki_root": "/Users/apple/NODS/docs/wiki",
+  "nodes": [
+    {
+      "id": "README.md",
+      "type": "meta",
+      "label": "README.md",
+      "tags": "",
+      "stage": "",
+      "audience": "",
+      "source_file": "docs/wiki/README.md"
+    },
+    {
+      "id": "SCHEMA.md",
+      "type": "meta",
+      "label": "SCHEMA.md",
+      "tags": "",
+      "stage": "",
+      "audience": "",
+      "source_file": "docs/wiki/SCHEMA.md"
+    },
+    {
+      "id": "current-status.md",
+      "type": "meta",
+      "label": "NODS — New Object Discovery System 当前状态",
+      "tags": "[status, nods]",
+      "stage": "current",
+      "audience": "internal",
+      "source_file": "docs/wiki/current-status.md"
+    },
+    {
+      "id": "github-and-raw-strategy.md",
+      "type": "meta",
+      "label": "GitHub 与 Raw 仓分工策略",
+      "tags": "[strategy, git]",
+      "stage": "current",
+      "audience": "self",
+      "source_file": "docs/wiki/github-and-raw-strategy.md"
+    },
+    {
+      "id": "index.md",
+      "type": "meta",
+      "label": "index.md",
+      "tags": "",
+      "stage": "",
+      "audience": "",
+      "source_file": "docs/wiki/index.md"
+    },
+    {
+      "id": "log.md",
+      "type": "meta",
+      "label": "log.md",
+      "tags": "",
+      "stage": "",
+      "audience": "",
+      "source_file": "docs/wiki/log.md"
+    },
+    {
+      "id": "project-overview.md",
+      "type": "meta",
+      "label": "NODS — New Object Discovery System 项目概览",
+      "tags": "[overview, nods]",
+      "stage": "current",
+      "audience": "internal",
+      "source_file": "docs/wiki/project-overview.md"
+    },
+    {
+      "id": "runtime-profile.md",
+      "type": "meta",
+      "label": "校验脚本的运行时配置",
+      "tags": "[meta, ci, validation]",
+      "stage": "current",
+      "audience": "self",
+      "source_file": "docs/wiki/runtime-profile.md"
+    },
+    {
+      "id": "sources-and-data.md",
+      "type": "meta",
+      "label": "资料与数据",
+      "tags": "[data, raw]",
+      "stage": "current",
+      "audience": "self",
+      "source_file": "docs/wiki/sources-and-data.md"
+    }
+  ],
+  "edges": [
+    {
+      "from": "index.md",
+      "to": "README.md",
+      "type": "references"
+    },
+    {
+      "from": "index.md",
+      "to": "project-overview.md",
+      "type": "references"
+    },
+    {
+      "from": "index.md",
+      "to": "current-status.md",
+      "type": "references"
+    },
+    {
+      "from": "index.md",
+      "to": "SCHEMA.md",
+      "type": "references"
+    },
+    {
+      "from": "index.md",
+      "to": "runtime-profile.md",
+      "type": "references"
+    },
+    {
+      "from": "index.md",
+      "to": "sources-and-data.md",
+      "type": "references"
+    },
+    {
+      "from": "index.md",
+      "to": "github-and-raw-strategy.md",
+      "type": "references"
+    },
+    {
+      "from": "index.md",
+      "to": "log.md",
+      "type": "references"
+    },
+    {
+      "from": "project-overview.md",
+      "to": "current-status.md",
+      "type": "references"
+    },
+    {
+      "from": "sources-and-data.md",
+      "to": "project-overview.md",
+      "type": "references"
+    },
+    {
+      "from": "sources-and-data.md",
+      "to": "current-status.md",
+      "type": "references"
+    }
+  ],
+  "stats": {
+    "node_count": 9,
+    "edge_count": 11,
+    "node_types": {
+      "meta": 9
+    },
+    "edge_types": {
+      "references": 11
+    }
+  }
+}

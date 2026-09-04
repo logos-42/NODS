@@ -1,0 +1,6 @@
+source_id,company,vendor,kind,filename,raw_rel_path,status,compiled_into,notes
+src-design-001,NODS,NODS,thinking,design.md,(repo)/design.md,compiled,docs/wiki/project-overview.md,新数发现器构思; 结构闭包/扩张评分函数 D(X); Mathematical Object Discovery Engine
+src-skill-001,NODS,NODS,thinking,skill.md,(repo)/skill.md,compiled,docs/wiki/project-overview.md,算法第一版; Closure Failure Detector / Minimal Extension / Relation Miner / Generativity Score; 诚实四函数
+src-code-core-001,NODS,NODS,code,Nods/Core/*.lean,(repo)/Nods/Core,compiled,docs/wiki/current-status.md,6 个核心层形式化 (Framework/Demand/Verdict/Minimal/Score/Engine)
+src-code-instances-001,NODS,NODS,code,Nods/Instances/*.lean,(repo)/Nods/Instances,compiled,docs/wiki/current-status.md,数系扩张实例; RealToComplex.lean 为空(R→C 待做)
+src-code-theories-001,NODS,NODS,code,Nods/Theories/*.lean,(repo)/Nods/Theories,compiled,docs/wiki/current-status.md,CS ⊇ CR ⊇ FL ⊇ LOF 理论阶梯

@@ -1,0 +1,47 @@
+name = "Nods"
+version = "0.1.0"
+keywords = ["math"]
+defaultTargets = ["Nods"]
+
+[leanOptions]
+pp.unicode.fun = true
+
+# --- 本地物化依赖 (不联网) ---
+[[require]]
+name = "mathlib"
+path = ".lake/packages/mathlib"
+
+[[require]]
+name = "batteries"
+path = ".lake/packages/batteries"
+
+[[require]]
+name = "Qq"
+path = ".lake/packages/Qq"
+
+[[require]]
+name = "aesop"
+path = ".lake/packages/aesop"
+
+[[require]]
+name = "proofwidgets"
+path = ".lake/packages/proofwidgets"
+
+[[require]]
+name = "importGraph"
+path = ".lake/packages/importGraph"
+
+[[require]]
+name = "LeanSearchClient"
+path = ".lake/packages/LeanSearchClient"
+
+[[require]]
+name = "plausible"
+path = ".lake/packages/plausible"
+
+[[require]]
+name = "Cli"
+path = ".lake/packages/Cli"
+
+[[lean_lib]]
+name = "Nods"
