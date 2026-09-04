@@ -63,7 +63,8 @@ structure Failure (S : Model T) (D : Demand T T') where
     的内容，属于 v0.2。v0.1 只把失败空间做成一个**类型**，
     由外部（人或生成器）往里填；引擎负责把填进来的东西
     判定、极小化、打分。 -/
-abbrev FailureSpace (S : Model T) (T' : Theory) :=
+abbrev FailureSpace (S : Model T) (T' : Theory)
+    [Framework T'] [Refinement T T'] [Biframed T T'] :=
   Σ D : Demand T T', Failure S D
 
 /-- 从判定里取出失败记录（只对 gap 分支有意义）。 -/
