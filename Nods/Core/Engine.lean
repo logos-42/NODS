@@ -23,7 +23,8 @@ import Nods.Core.Minimal
 
 namespace NODS
 
-variable [Framework T] [Framework T'] [Refinement T T'] [Biframed T T']
+variable {T T' : Theory} [Framework T] [Framework T'] [Refinement T T'] [Biframed T T']
+variable {S : Model T} {D : Demand T T'}
 
 /-- 一次发现：判定 + 候选扩张 + 极小性证明 + 评分。 -/
 structure Discovery (S : Model T) (D : Demand T T') where
@@ -44,12 +45,12 @@ theorem gap_progress (d : Discovery S D) (h : ¬ HasSolution S D) :
     ∃ (M : Model T') (e : D.Extra M), D.Axiom M e :=
   ⟨d.candidate.target, d.candidate.extra, d.candidate.ax⟩
 
-/-- **无进展定理**：已解分支不产生新对象。
+/-- **无进展定理**：已解分支不产生新对象 —— 存在一个与旧世界
+    **同载体**的 T'-模型。也就是说这一步没换来任何新元素。
     配合 `Score.renaming_kills_objective`，这就是"不许把重命名当发现"。 -/
-theorem solved_is_no_progress (d : Discovery S D) (h : HasSolution S D) :
-    ¬ ¬ ∃ (M : Model T'), Nonempty (M.carrier ≃ S.carrier) := by
-  push_neg
-  rintro ⟨s', _, _⟩
+theorem solved_no_new_world (d : Discovery S D) (h : HasSolution S D) :
+    ∃ (M : Model T'), Nonempty (M.carrier ≃ S.carrier) := by
+  rcases h with ⟨s', _hstr, _e, _hax⟩
   exact ⟨⟨S.carrier, s'⟩, ⟨Equiv.refl S.carrier⟩⟩
 
 /-- 极小扩张的唯一性直接继承到 Discovery：
@@ -90,8 +91,7 @@ noncomputable def dispatch (S : Model T) (D : Demand T T')
 
 /-- **安全性定理**：引擎永远不会把一个"死需求"当成缺口扩张出去。
     这防止了 NODS 去追逐自相矛盾的目标（例如"非平凡环里 0 = 1"）。 -/
-theorem dispatch_safe_dead (S : Model T) (D : Demand T T')
-    (v : Verdict S D) (E : Extension S D) (hmin : IsMinimal S D E)
+theorem dispatch_safe_dead (v : Verdict S D) (E : Extension S D) (hmin : IsMinimal S D E)
     (hdead : IsDead S D) : ∃ h, dispatch S D v E hmin = StepResult.unchanged h := by
   cases v with
   | solved hs => exact ⟨Verdict.solved hs, rfl⟩
@@ -99,8 +99,7 @@ theorem dispatch_safe_dead (S : Model T) (D : Demand T T')
   | gap hn hw => exact False.elim (hdead.false hw)
 
 /-- 缺口分支下一定真的扩张了。 -/
-theorem dispatch_gap_extends (S : Model T) (D : Demand T T')
-    (hn : ¬ HasSolution S D) (E : Extension S D)
+theorem dispatch_gap_extends (hn : ¬ HasSolution S D) (E : Extension S D)
     (hmin : IsMinimal S D E) :
     ∃ h, dispatch S D (Verdict.gap hn E) E hmin = StepResult.extended E h := by
   exact ⟨hmin, rfl⟩

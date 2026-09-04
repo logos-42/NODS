@@ -44,7 +44,7 @@ theorem ringHom_nat_unique {α : Type} [NonAssocSemiring α] (f : ℕ →+* α) 
       show f (n + 1) = ((n + 1 : ℕ) : α)
       calc
         f (n + 1) = f n + f 1 := by rw [map_add]
-        _ = (n : α) + 1 := by rw [ih, map_one]
+        _ = (n : α) + 1 := by rw [ih, map_one]; rfl
         _ = ((n + 1 : ℕ) : α) := by rw [Nat.cast_add, Nat.cast_one]
 
 /- ------------------------------------------------------------------ -/
@@ -60,7 +60,7 @@ theorem nat_no_neg_one : ¬ ∃ x : ℕ, x + 1 = 0 := by
 theorem no_commRing_on_nat : ¬ Nonempty (CommRing ℕ) := by
   rintro ⟨s⟩
   letI := s
-  exact nat_no_neg_one ⟨(-1 : ℕ), by simp⟩
+  exact nat_no_neg_one ⟨(-1 : ℕ), neg_add_cancel 1⟩
 
 /-- **判定**：N 承载不了"减法闭包"，即这是一个 gap（见下面 `natExt` 给出见证）。 -/
 theorem nat_gap : ¬ HasSolution natModel demandRing := by
@@ -82,7 +82,7 @@ noncomputable def natToInt : Extension natModel demandRing where
     exact Nat.castRingHom ℤ
   emb_inj := by
     intro a b h
-    exact Nat.cast_injective h
+    exact_mod_cast h
   extra := PUnit.unit
   ax := trivial
 
@@ -107,8 +107,8 @@ noncomputable def natToInt_minimal : IsMinimal natModel demandRing natToInt := b
       exact Nat.castRingHom F.target.carrier) := by
     apply ringHom_nat_unique
   constructor
-  · refine ⟨{ hom := Int.castRingHom F.target.carrier
-               over := ?_
+  · refine ⟨{ hom := Int.castRingHom F.target.carrier,
+               over := ?_,
                pres := by rfl }⟩
     intro n
     simp only [Biframed.forget_toFun]
