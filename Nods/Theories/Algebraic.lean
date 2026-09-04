@@ -53,7 +53,14 @@ instance frameworkOfSemiringLike [SemiringLike T] : Framework T where
 abbrev CS : Theory := fun α : Type => CommSemiring α
 abbrev CR : Theory := fun α : Type => CommRing α
 abbrev FL : Theory := fun α : Type => Field α
-abbrev LOF : Theory := fun α : Type => LinearOrderedField α
+/-- 线性有序域。mathlib 已弃用 `LinearOrderedField` 这一捆绑结构，
+    改用 `[Field] + [LinearOrder] + [IsStrictOrderedRing]` 三个实例。
+    这里把它重新捆成一个结构，好让 `LOF` 继续作为 Theory 使用。 -/
+structure LOF (α : Type) where
+  toField : Field α
+  toLinearOrder : LinearOrder α
+  toIsStrictOrderedRing :
+    @IsStrictOrderedRing α toField.toCommRing.toRing.toSemiring toLinearOrder.toPartialOrder
 
 -- 三条规范忘却路径。**全局只此一份**：
 -- `SemiringLike` 与 `Refinement` 都必须走这几个函数，
@@ -65,7 +72,7 @@ def commRingToCommSemiring {α : Type} (s : CommRing α) : CommSemiring α := by
 
 def fieldToCommRing {α : Type} (s : Field α) : CommRing α := s.toCommRing
 
-def lofToField {α : Type} (s : LinearOrderedField α) : Field α := s.toField
+def lofToField {α : Type} (s : LOF α) : Field α := s.toField
 
 -- 忘到半环的路径：每一级都**委托**给下一级
 instance : SemiringLike CS where

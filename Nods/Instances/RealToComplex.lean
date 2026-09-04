@@ -39,10 +39,12 @@ abbrev complexModel : Model CR := Model.ofType ℂ (inferInstance : CommRing ℂ
 /-- 在交换环语言里添一个常元 j，并要求 j² = -1。 -/
 def demandSqrtNegOne : Demand CR CR where
   Extra := fun M => M.carrier
-  Axiom := fun M j => j * j = -1
-  mapExtra := fun f j => f j
-  mapExtra_id := by intros; rfl
-  mapExtra_comp := by intros; rfl
+  Axiom := fun M j =>
+    letI : CommRing M.carrier := M.str
+    j * j = -1
+  mapExtra := fun {M N} f j => Framework.toFun f j
+  mapExtra_id := by intros; simp
+  mapExtra_comp := by intros; simp
 
 /- ------------------------------------------------------------------ -/
 /- 失败检测                                                            -/
@@ -55,7 +57,9 @@ theorem real_no_sqrt_neg_one : ¬ ∃ x : ℝ, x * x = -1 := by
 
 /-- 判定：R 承载不了这个常元 —— gap。 -/
 theorem real_gap : ¬ HasSolution realModelCR demandSqrtNegOne := by
-  rintro ⟨_s', _hstr, j, hj⟩
+  rintro ⟨s', hstr, j, hj⟩
+  change s' = realModelCR.str at hstr
+  subst s'
   exact real_no_sqrt_neg_one ⟨j, hj⟩
 
 /- ------------------------------------------------------------------ -/
@@ -76,7 +80,8 @@ noncomputable def complexLift {A : Type} [CommRing A]
   map_mul' := by
     intro z w
     simp only [Complex.mul_re, Complex.mul_im, map_add, map_mul, map_sub, map_neg]
-    rw [hj]
+    ring_nf
+    rw [show j ^ 2 = -1 from by simpa [pow_two] using hj]
     ring
 
 /-- 泛同态确实把 i 送到 j。 -/
@@ -143,13 +148,15 @@ noncomputable def realToComplex_minimal :
     SemiringLike.toNonAssocSemiring (T := CR) complexModel.str
   letI : NonAssocSemiring F.target.carrier :=
     SemiringLike.toNonAssocSemiring (T := CR) F.target.str
+  letI : CommRing (Model.forget CR CR F.target).carrier := F.target.str
+  letI : NonAssocSemiring (Model.forget CR CR F.target).carrier :=
+    SemiringLike.toNonAssocSemiring (T := CR) (Model.forget CR CR F.target).str
   constructor
-  · refine ⟨{ hom := complexLift F.emb F.extra F.ax
-               over := ?_
+  · refine ⟨{ hom := complexLift F.emb F.extra F.ax,
+               over := ?_,
                pres := ?_ }⟩
     · intro r
       simp only [Biframed.forget_toFun]
-      change complexLift F.emb F.extra F.ax (Complex.ofRealHom r) = F.emb r
       simpa using complexLift_ofReal F.emb F.extra F.ax r
     · exact complexLift_I F.emb F.extra F.ax
   · intro f g

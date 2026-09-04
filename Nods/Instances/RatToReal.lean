@@ -36,7 +36,11 @@ import Nods.Instances.IntToRat
 
 namespace NODS
 
-abbrev realModel : Model LOF := Model.ofType ℝ (inferInstance : LinearOrderedField ℝ)
+@[reducible] noncomputable def realModel : Model LOF :=
+  Model.ofType ℝ {
+    toField := inferInstance
+    toLinearOrder := inferInstance
+    toIsStrictOrderedRing := inferInstance }
 
 /- ------------------------------------------------------------------ -/
 /- 完备性（作为一个性质，而不是一条等式公理）                          -/
@@ -49,7 +53,11 @@ def DedekindComplete (α : Type) [Preorder α] : Prop :=
 /-- 需求：换到有序域，并且要求完备 + Archimedean。 -/
 def demandComplete : Demand FL LOF where
   Extra := fun _ => PUnit
-  Axiom := fun M _ => DedekindComplete M.carrier ∧ Archimedean M.carrier
+  Axiom := fun M _ =>
+    letI : Field M.carrier := M.str.toField
+    letI : LinearOrder M.carrier := M.str.toLinearOrder
+    letI : IsStrictOrderedRing M.carrier := M.str.toIsStrictOrderedRing
+    DedekindComplete M.carrier ∧ Archimedean M.carrier
   mapExtra := fun _ e => e
   mapExtra_id := by intros; rfl
   mapExtra_comp := by intros; rfl
@@ -66,7 +74,7 @@ theorem rat_no_sqrt_two : ¬ ∃ x : ℚ, x ^ 2 = 2 := by
   have hsq : (x : ℝ) ^ 2 = (Real.sqrt 2) ^ 2 := by rw [hxR, hs]
   rcases (sq_eq_sq_iff_eq_or_eq_neg.mp hsq) with h | h
   · exact irrational_sqrt_two ⟨x, h⟩
-  · exact irrational_sqrt_two ⟨-x, by rw [Rat.cast_neg, neg_neg, h]⟩
+  · exact irrational_sqrt_two ⟨-x, by rw [Rat.cast_neg, h, neg_neg]⟩
 
 /-- **Q 不是 Dedekind 完备的**：`{q | q² < 2}` 在 Q 中没有上确界。
 
@@ -85,7 +93,8 @@ theorem rat_not_dedekind_complete : ¬ DedekindComplete ℚ := by
     intro q hq
     by_contra hle
     have hq2 : (2 : ℚ) < q := lt_of_not_ge hle
-    nlinarith [sq_nonneg (q - 2)]
+    have hq' : q ^ 2 < 2 := by simpa [S] using hq
+    nlinarith [hq', hq2, sq_nonneg (q - 2)]
   rcases hdc S hne hb with ⟨s, hlub⟩
   have hs_nonneg : 0 ≤ s := hlub.1 (by norm_num [S] : (0 : ℚ) ∈ S)
   have hs_eq : (s : ℝ) = Real.sqrt 2 := by
@@ -102,7 +111,7 @@ theorem rat_not_dedekind_complete : ¬ DedekindComplete ℚ := by
           · nlinarith [Real.sqrt_nonneg 2]
         have : (r : ℝ) < (q : ℝ) := lt_trans hr_lt hq_above
         exact_mod_cast le_of_lt this
-      have hs_le_q : s ≤ q := hlub.2 q hq_ub
+      have hs_le_q : s ≤ q := hlub.2 hq_ub
       have : (s : ℝ) ≤ (q : ℝ) := by exact_mod_cast hs_le_q
       linarith
     · by_contra h
@@ -123,9 +132,17 @@ theorem rat_not_dedekind_complete : ¬ DedekindComplete ℚ := by
     exact_mod_cast hs2R
   exact rat_no_sqrt_two ⟨s, hs2⟩
 
+/-- **未决义务 O2**：ℚ 上的有序域结构唯一。给定一个 `LOF ℚ` 结构，若其域部分
+    等于标准 `Field ℚ`，则其序（因 `IsStrictOrderedRing` 兼容性）必为标准序。
+    这是"有序域 ℚ 刚性"的标准事实：正性由 `num/den` 表示唯一确定。
+    与 O1 一样，v0.1 以 axiom 记录，v0.2 应替换为证明。 -/
+axiom lofLinearOrder_eq_rat (s : LOF ℚ) (h : s.toField = (inferInstance : Field ℚ)) :
+    s.toLinearOrder = (inferInstance : LinearOrder ℚ)
+
 theorem rat_gap : ¬ HasSolution ratModel demandComplete := by
-  rintro ⟨_s', _hstr, _e, hax⟩
-  exact rat_not_dedekind_complete hax.1
+  rintro ⟨s', hstr, _e, hax⟩
+  have horder := lofLinearOrder_eq_rat s' hstr
+  exact rat_not_dedekind_complete (by simpa [horder] using hax.1)
 
 /- ------------------------------------------------------------------ -/
 /- 扩张：R                                                             -/
@@ -141,13 +158,16 @@ noncomputable def ratToReal : Extension ratModel demandComplete where
     exact Rat.castHom ℝ
   emb_inj := by
     intro a b h
+    change (Rat.castHom ℝ) a = (Rat.castHom ℝ) b at h
     exact Rat.cast_injective h
   extra := PUnit.unit
   ax := by
     constructor
-    · intro s hs hb
+    · change DedekindComplete ℝ
+      intro s hs hb
       exact ⟨sSup s, isLUB_csSup hs hb⟩
-    · infer_instance
+    · change Archimedean ℝ
+      infer_instance
 
 /- ------------------------------------------------------------------ -/
 /- 极小性（第二类）：切割生成性                                        -/
@@ -158,21 +178,25 @@ noncomputable def ratToReal : Extension ratModel demandComplete where
     这就是"R 里没有多余元素"的精确说法：R 的每一个新元素，
     都是被 Q 的某个切割**逼出来**的。
     换到 NODS 的语言：R 的每个元素都对应失败空间 F 里的一个失败。 -/
-theorem real_cut_generated (r : ℝ) : IsLUB {q : ℚ | (q : ℝ) < r} r := by
+theorem real_cut_generated (r : ℝ) :
+    IsLUB ((fun q : ℚ => (q : ℝ)) '' {q : ℚ | (q : ℝ) < r}) r := by
   constructor
-  · intro q hq
+  · intro x hx
+    rcases hx with ⟨q, hq, rfl⟩
     exact le_of_lt hq
   · intro y hy
     by_contra h
-    have hyr : r < y := lt_of_not_ge h
-    rcases exists_rat_btwn hyr with ⟨q, hqr, hqy⟩
-    have hyq : q ≤ y := hy hqr
-    have : (q : ℝ) ≤ y := by exact_mod_cast hyq
+    have hyr : y < r := lt_of_not_ge h
+    rcases exists_rat_btwn hyr with ⟨q, hyq, hqr⟩
+    have hq_in : (q : ℝ) ∈ ((fun q : ℚ => (q : ℝ)) '' {q : ℚ | (q : ℝ) < r}) :=
+      ⟨q, hqr, rfl⟩
+    have : (q : ℝ) ≤ y := hy hq_in
     linarith
 
 /-- 记录一条切割生成性：R 由 Q 的切割生成，故无冗余。 -/
 theorem real_is_cut_generated :
-    ∀ r : ℝ, IsLUB {q : ℚ | (q : ℝ) < r} r := real_cut_generated
+    ∀ r : ℝ, IsLUB ((fun q : ℚ => (q : ℝ)) '' {q : ℚ | (q : ℝ) < r}) r :=
+  real_cut_generated
 
 /-- **未决义务 O1**：R 在"完备 Archimedean 有序域 + 嵌入 Q"中的初始性。
 

@@ -23,14 +23,8 @@ import Nods.Instances.RealToComplex
 namespace NODS
 
 /- ------------------------------------------------------------------ -/
-/- 打包世界                                                            -/
+/- 打包世界（`AnyWorld` / `packWorld` 已在 Core.Engine 定义）           -/
 /- ------------------------------------------------------------------ -/
-
-/-- 擦掉理论的世界。用于把主循环写成普通递归。 -/
-abbrev AnyWorld := Σ (T : Theory), Model T
-
-/-- 打包。 -/
-def packWorld (M : Model T) : AnyWorld := ⟨T, M⟩
 
 /-- 报告：擦掉类型信息后的可打印轨迹。 -/
 structure StepReport where
@@ -51,7 +45,7 @@ structure StepReport where
 /- ------------------------------------------------------------------ -/
 
 /-- 第 1 步：N → Z（减法闭包失败） -/
-def stepNatToInt : StepReport :=
+noncomputable def stepNatToInt : StepReport :=
   { fromWorld := "N  (CommSemiring)"
     failedConstraint := "x + 1 = 0"
     kind := ClosureFailureKind.subtraction
@@ -67,7 +61,7 @@ def stepNatToInt : StepReport :=
     objectiveText := "0.43" }
 
 /-- 第 2 步：Z → Q（除法闭包失败） -/
-def stepIntToRat : StepReport :=
+noncomputable def stepIntToRat : StepReport :=
   { fromWorld := "Z  (CommRing)"
     failedConstraint := "2 * x = 1"
     kind := ClosureFailureKind.division
@@ -83,7 +77,7 @@ def stepIntToRat : StepReport :=
     objectiveText := "0.42" }
 
 /-- 第 3 步：Q → R（极限闭包失败） -/
-def stepRatToReal : StepReport :=
+noncomputable def stepRatToReal : StepReport :=
   { fromWorld := "Q  (Field)"
     failedConstraint := "sup { q : Q | q² < 2 }"
     kind := ClosureFailureKind.limit
@@ -99,7 +93,7 @@ def stepRatToReal : StepReport :=
     objectiveText := "0.238" }
 
 /-- 第 4 步：R → C（代数闭包失败，添常元） -/
-def stepRealToComplex : StepReport :=
+noncomputable def stepRealToComplex : StepReport :=
   { fromWorld := "R  (CommRing)"
     failedConstraint := "x² = -1"
     kind := ClosureFailureKind.root
@@ -115,7 +109,7 @@ def stepRealToComplex : StepReport :=
     objectiveText := "0.485" }
 
 /-- 完整轨迹。 -/
-def trace : List StepReport :=
+noncomputable def trace : List StepReport :=
   [stepNatToInt, stepIntToRat, stepRatToReal, stepRealToComplex]
 
 /- ------------------------------------------------------------------ -/
@@ -123,7 +117,7 @@ def trace : List StepReport :=
 /- ------------------------------------------------------------------ -/
 
 /-- 四个世界（打包后就可以放进同一个列表里了）。 -/
-def worlds : List AnyWorld :=
+noncomputable def worlds : List AnyWorld :=
   [ packWorld (T := CS) natModel
   , packWorld (T := CR) intModel
   , packWorld (T := FL) ratModel
