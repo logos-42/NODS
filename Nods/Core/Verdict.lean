@@ -43,11 +43,12 @@ inductive Verdict (S : Model T) (D : Demand T T') where
 
 namespace Verdict
 
-/-- 判定是互斥的：不可能同时又已解又是缺口。 -/
-theorem not_solved_and_gap (v : Verdict S D) :
-    ¬ (HasSolution S D ∧ ¬ HasSolution S D) := by
-  rintro ⟨h, hn⟩
-  exact hn h
+/-- dead 与 gap 互斥：若一个扩张都没有，就交不出 gap 所需的见证扩张。
+    这条定理是引擎"不追逐死需求"的根据。 -/
+theorem dead_not_gap (hd : IsDead S D) (E : Extension S D) : False := hd.false E
+
+/-- solved 与 gap 互斥。 -/
+theorem solved_not_gap (hs : HasSolution S D) (hg : ¬ HasSolution S D) : False := hg hs
 
 end Verdict
 

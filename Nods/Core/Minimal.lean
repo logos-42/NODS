@@ -58,12 +58,12 @@ noncomputable def carrierEquiv (hE : IsMinimal S D E) (hF : IsMinimal S D F) :
       intro x
       have heq : ExtHom.comp f g = ExtHom.id E := rigid (S := S) (D := D) hE (ExtHom.comp f g)
       have hpt := congrArg (fun (k : ExtHom S D E E) => Framework.toFun k.hom x) heq
-      simpa [Framework.comp_apply, Framework.id_apply] using hpt
+      simpa [ExtHom.comp, ExtHom.id, Framework.comp_apply, Framework.id_apply] using hpt
     right_inv := by
       intro x
       have heq : ExtHom.comp g f = ExtHom.id F := rigid (S := S) (D := D) hF (ExtHom.comp g f)
       have hpt := congrArg (fun (k : ExtHom S D F F) => Framework.toFun k.hom x) heq
-      simpa [Framework.comp_apply, Framework.id_apply] using hpt }
+      simpa [ExtHom.comp, ExtHom.id, Framework.comp_apply, Framework.id_apply] using hpt }
 
 /-- 上面的等价是**唯一**的连接方式：
     任何从 E 到 F 的扩张态射，底层函数都等于这个等价。 -/
