@@ -143,6 +143,91 @@ theorem radicalGolden_sq : radicalGolden ^ 2 = radicalGolden + 1 := by
   rw [hs]
   ring
 
+/- ------------------------------------------------------------------ -/
+/- 计算层 v1：通用二次根式 solver（示范 → 任意参数）                  -/
+/- ------------------------------------------------------------------ -/
+
+-- 方程形如 x² − b·x − c = 0。判别式 Δ = b² + 4c：
+--   * Δ ≥ 0：两个实根由根式公式 (b ± √Δ)/2 给出，机器验证是解，且多项式
+--     分解为 (x − r₊)(x − r₋)（说明没有别的根）；
+--   * Δ < 0：证明无实根。
+-- 可解性判据 `quad_solvable_iff` 把两半拼成一个 iff（可解证书）。
+
+/-- 正根式解 r₊ = (b + √(b² + 4c)) / 2。 -/
+noncomputable def quadRootPlus (b c : ℝ) : ℝ := (b + Real.sqrt (b ^ 2 + 4 * c)) / 2
+
+/-- 负根式解 r₋ = (b − √(b² + 4c)) / 2。 -/
+noncomputable def quadRootMinus (b c : ℝ) : ℝ := (b - Real.sqrt (b ^ 2 + 4 * c)) / 2
+
+-- ring_nf 会把 4·c 规范成 c·4，故单独给出 c·4 形式的平方引理
+private lemma sqrt_disc_sq (b c : ℝ) (h : 0 ≤ b ^ 2 + 4 * c) :
+    Real.sqrt (b ^ 2 + c * 4) ^ 2 = b ^ 2 + c * 4 := by
+  rw [Real.sq_sqrt]
+  nlinarith [h]
+
+/-- 证书 1：r₊ 解出方程。 -/
+theorem quadRootPlus_sq (b c : ℝ) (h : 0 ≤ b ^ 2 + 4 * c) :
+    quadRootPlus b c ^ 2 - b * quadRootPlus b c - c = 0 := by
+  have hs := sqrt_disc_sq b c h
+  dsimp [quadRootPlus]
+  ring_nf
+  rw [hs]
+  ring
+
+/-- 证书 2：r₋ 解出方程。 -/
+theorem quadRootMinus_sq (b c : ℝ) (h : 0 ≤ b ^ 2 + 4 * c) :
+    quadRootMinus b c ^ 2 - b * quadRootMinus b c - c = 0 := by
+  have hs := sqrt_disc_sq b c h
+  dsimp [quadRootMinus]
+  ring_nf
+  rw [hs]
+  ring
+
+/-- 证书 3（分解 = 没有别的根）：x² − bx − c = (x − r₊)(x − r₋)。 -/
+theorem quadFactor (b c : ℝ) (h : 0 ≤ b ^ 2 + 4 * c) (x : ℝ) :
+    x ^ 2 - b * x - c = (x - quadRootPlus b c) * (x - quadRootMinus b c) := by
+  have hs := sqrt_disc_sq b c h
+  dsimp [quadRootPlus, quadRootMinus]
+  ring_nf
+  rw [hs]
+  ring
+
+/-- 证书 4（配方法）：判别式 < 0 时无实根。 -/
+theorem quad_no_roots (b c : ℝ) (hb : b ^ 2 + 4 * c < 0) :
+    ¬ ∃ x : ℝ, x ^ 2 - b * x - c = 0 := by
+  rintro ⟨x, hx⟩
+  have hsq : (2 * x - b) ^ 2 = b ^ 2 + 4 * c := by
+    calc
+      (2 * x - b) ^ 2 = 4 * x ^ 2 - 4 * b * x + b ^ 2 := by ring
+      _ = 4 * (x ^ 2 - b * x - c) + b ^ 2 + 4 * c := by ring
+      _ = b ^ 2 + 4 * c := by rw [hx]; ring
+  nlinarith [sq_nonneg (2 * x - b), hsq, hb]
+
+/-- 可解证书：方程有实根 ⟺ 判别式 ≥ 0（有根时根式公式给出显式解）。 -/
+theorem quad_solvable_iff (b c : ℝ) :
+    (∃ x : ℝ, x ^ 2 - b * x - c = 0) ↔ 0 ≤ b ^ 2 + 4 * c := by
+  constructor
+  · intro hx
+    by_contra h
+    exact (quad_no_roots b c (lt_of_not_ge h)) hx
+  · intro hd
+    exact ⟨quadRootPlus b c, quadRootPlus_sq b c hd⟩
+
+-- 通用 solver 含示范：b = 1, c = 1 退化成黄金分割。
+example : quadRootPlus 1 1 = radicalGolden := by
+  norm_num [quadRootPlus, radicalGolden]
+
+-- 无实根示例：x² + 3 = 0（判别式 −12 < 0）。
+example : ¬ ∃ x : ℝ, x ^ 2 + 3 = 0 := by
+  simpa using (quad_no_roots 0 (-3) (by norm_num))
+
+-- 精确计算示例：x² − 2x − 3 = 0 的两根是 3 与 −1（norm_num 真算 √16）。
+example : quadRootPlus 2 3 = 3 := by
+  norm_num [quadRootPlus, Real.sqrt_sq_eq_abs]
+
+example : quadRootMinus 2 3 = -1 := by
+  norm_num [quadRootMinus, Real.sqrt_sq_eq_abs]
+
 /-- 同样的 3：开方给 (√3)² = 3，指数/对数给 e^(ln 3) = 3 —— 公式不同。 -/
 example : (Real.sqrt 3 : ℝ) ^ 2 = 3 := by
   rw [Real.sq_sqrt]

@@ -41,14 +41,14 @@ theorem solves (d : Discovery S D) : D.Axiom d.candidate.target d.candidate.extr
   d.candidate.ax
 
 /-- **真进展定理**：在 gap 分支下，新世界里存在一个旧世界承载不了的见证。 -/
-theorem gap_progress (d : Discovery S D) (h : ¬ HasSolution S D) :
+theorem gap_progress (d : Discovery S D) (_h : ¬ HasSolution S D) :
     ∃ (M : Model T') (e : D.Extra M), D.Axiom M e :=
   ⟨d.candidate.target, d.candidate.extra, d.candidate.ax⟩
 
 /-- **无进展定理**：已解分支不产生新对象 —— 存在一个与旧世界
     **同载体**的 T'-模型。也就是说这一步没换来任何新元素。
     配合 `Score.renaming_kills_objective`，这就是"不许把重命名当发现"。 -/
-theorem solved_no_new_world (d : Discovery S D) (h : HasSolution S D) :
+theorem solved_no_new_world (_d : Discovery S D) (h : HasSolution S D) :
     ∃ (M : Model T'), Nonempty (M.carrier ≃ S.carrier) := by
   rcases h with ⟨s', _hstr, _e, _hax⟩
   exact ⟨⟨S.carrier, s'⟩, ⟨Equiv.refl S.carrier⟩⟩
@@ -123,6 +123,7 @@ def packWorld (M : Model T) : AnyWorld := ⟨T, M⟩
 /-- 一轮发现后，新世界 = 把候选扩张的目标忘却回当前理论。 -/
 def newWorld (E : Extension S D) : Model T := Model.forget T T' E.target
 
+omit [Biframed T T'] in
 /-- **单调性**：新世界永远包含旧世界（`emb` 是单射）。
     这保证 NODS 不会在扩张中"丢掉"已发现的对象。 -/
 theorem newWorld_contains_old (E : Extension S D) :

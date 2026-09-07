@@ -53,11 +53,13 @@ compiled_from: [src-code-core-001, src-code-instances-001, src-code-theories-001
 
 同文件含**计算层 v0**（形式化地"解释一个数"，四条函数族给不同公式）：幂 `5²=25`、开方 `Nat.sqrt 25=5`（ℕ 可算）；`¬∃n:ℕ n²=2`、`¬∃q:ℚ (q:ℝ)²=2`（幂解释不了 2 → 逼出根式对象）；开方解可解公式 `φ=(1+√5)/2` 且机器验证 `φ²=φ+1`；指数/对数 `e^(ln 2)=2`、`e^(ln 3)=3`（超越路径，公式与根式不同）。
 
+**计算层 v1（通用二次根式 solver）**：任意 `x²−bx−c=0`，判别式 ≥0 时根式公式 `(b±√(b²+4c))/2` 机器验证为解（`quadRootPlus_sq`/`quadRootMinus_sq`），多项式分解 `(x−r₊)(x−r₋)`（`quadFactor`，无其他根）；判别式 <0 证无实根（`quad_no_roots`）；可解判据 `quad_solvable_iff`。含精确计算示例 `quadRootPlus 2 3 = 3`、`quadRootMinus 2 3 = −1`（norm_num 真算 √16）。
+
 > ✅ 已接主链（`Nods.lean` 顶部 `import Nods.Theories.Radical`，随主构建全绿）；配套示意图 `docs/figures/root_vs_power.png`（src-fig-001，已登记 raw manifest）。
 
-## 构建状态（2026-09-04 · lake build v4.21.0）
+## 构建状态（2026-09-07 · lake build v4.21.0）
 
-> ✅ **`lake build` 全绿。** 6 个核心层 + 4 个实例（N→Z、Z→Q、Q→R、R→C）全部编译通过。
+> ✅ **`lake build` 全绿（0 警告 0 sorry）。** 6 个核心层 + 4 个实例（N→Z、Z→Q、Q→R、R→C）全部编译通过。
 > 修复路线：(1) `LOF` 从弃用的 `LinearOrderedField` 重建成自定义结构
 > （`Field` + `LinearOrder` + `IsStrictOrderedRing`）；(2) 三个 `*_gap` 定理统一改为用
 > `HasSolution` 的 `hstr`（结构匹配约束）转移等式，删除 `no_commRing_on_nat` /
@@ -67,7 +69,7 @@ compiled_from: [src-code-core-001, src-code-instances-001, src-code-theories-001
 ## 未支持 / 待做
 
 - **义务 O1**：`real_initiality_obligation`（R 在"完备 Archimedean 有序域 + 嵌入 Q"中的初始性）仍是 `axiom`——需要"唯一有序域同态 R → K"的构造（Dedekind 切割显式搬运，约 80 行分析），v0.2 应替换为 `IsMinimal` 证明。原义务 O2（ℚ 有序域结构唯一）已在本 session 证成定理 `lofLinearOrder_eq_rat`。
-- **Radical 后续待定**：计算层是否从示范升级为通用 solver（任意 `x² − bx − c = 0` 输出根式解 + 可解性证书）。已接主链（`Nods.lean` import）。
+- **Radical 计算层 v1 已完成**：通用二次根式 solver（判别式判定 + 根式公式 + 分解证书，见上）。后续候选：三次方程根式解（Cardano）、复根支持、更高次。已接主链（`Nods.lean` import）。
 - 自动化约束生成（Automated Constraint Generator）：v0.1 之后阶段，尚无代码。
 
 ## 在线/风险

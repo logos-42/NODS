@@ -1,5 +1,11 @@
 # Wiki 日志
 
+## [2026-09-07] 计算层 v1 | 通用二次根式 solver + 主链 0 警告
+
+- **通用二次根式 solver**（`Nods/Theories/Radical.lean` 计算层 v1）：示范 φ 升级为任意 `x²−bx−c=0`。判别式 ≥0 → 根式公式 `(b±√(b²+4c))/2` 机器验证为解（`quadRootPlus_sq`/`quadRootMinus_sq`）+ 多项式分解证书 `quadFactor`（无其他根）；判别式 <0 → `quad_no_roots` 证无实根；判据合成 `quad_solvable_iff`。含可算示例 `quadRootPlus 2 3 = 3`。
+- **主链警告清零（0 警告 0 sorry）**：Verdict/Engine 三定理 `omit [Biframed T T']`（omit 须在 docstring 之前）；Engine 两处未用绑定改名 `_h`/`_d`；Algebraic 六个 Refinement 实例去掉未用 `{α}`。
+- 全仓 `lake build` 绿；AGENTS.md 已加 §5 commit 门禁（wiki 校验前置）。
+
 ## [2026-09-07] Radical：幂 vs 开方 | 形式化 + 计算层 v0
 
 - **新文件 `Nods/Theories/Radical.lean`**（已接主链 `Nods.lean`）：把「开方 ≠ 分数次幂」的区分落成三条**完整证明**（0 sorry）：

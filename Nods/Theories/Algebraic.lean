@@ -94,22 +94,22 @@ instance : SemiringLike LOF where
 
 -- 理论强化（忘却）
 instance : Refinement CS CR where
-  forgetStr := fun {α} s => commRingToCommSemiring s
+  forgetStr := fun s => commRingToCommSemiring s
 
 instance : Refinement CR FL where
-  forgetStr := fun {α} s => fieldToCommRing s
+  forgetStr := fun s => fieldToCommRing s
 
 instance : Refinement FL LOF where
-  forgetStr := fun {α} s => lofToField s
+  forgetStr := fun s => lofToField s
 
 instance : Refinement CR LOF where
-  forgetStr := fun {α} s => fieldToCommRing (lofToField s)
+  forgetStr := fun s => fieldToCommRing (lofToField s)
 
 instance : Refinement CS FL where
-  forgetStr := fun {α} s => commRingToCommSemiring (fieldToCommRing s)
+  forgetStr := fun s => commRingToCommSemiring (fieldToCommRing s)
 
 instance : Refinement CS LOF where
-  forgetStr := fun {α} s => commRingToCommSemiring (fieldToCommRing (lofToField s))
+  forgetStr := fun s => commRingToCommSemiring (fieldToCommRing (lofToField s))
 
 -- 忘却作用在 RingHom 上是恒等（因为上面把路径对齐了）
 instance biframedSelf (T : Theory) [Framework T] : Biframed T T where

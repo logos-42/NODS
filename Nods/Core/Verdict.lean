@@ -43,10 +43,12 @@ inductive Verdict (S : Model T) (D : Demand T T') where
 
 namespace Verdict
 
+omit [Biframed T T'] in
 /-- dead 与 gap 互斥：若一个扩张都没有，就交不出 gap 所需的见证扩张。
     这条定理是引擎"不追逐死需求"的根据。 -/
 theorem dead_not_gap (hd : IsDead S D) (E : Extension S D) : False := hd.false E
 
+omit [Biframed T T'] in
 /-- solved 与 gap 互斥。 -/
 theorem solved_not_gap (hs : HasSolution S D) (hg : ¬ HasSolution S D) : False := hg hs
 
