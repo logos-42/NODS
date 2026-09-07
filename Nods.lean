@@ -45,6 +45,7 @@ import Nods.Core.Minimal
 import Nods.Core.Score
 import Nods.Core.Engine
 import Nods.Theories.Algebraic
+import Nods.Theories.Radical
 import Nods.Instances.NatToInt
 import Nods.Instances.IntToRat
 import Nods.Instances.RatToReal

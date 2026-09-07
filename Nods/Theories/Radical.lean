@@ -15,7 +15,7 @@
 于是「幂 vs 开方」不是「同一族 x^t 取 t = n 与 t = 1/n」，
 而是范畴论里的 **epi（商/折叠）与 mono（截面/撑开）** 两个不同角色。
 
-本文件把这条区分拆成三个可证的目标（当前为签名，待补证明）：
+本文件把这条区分落成三条定理（均已完整证明）：
 
   1. `powMap_ker_eq_nRoots`       —— pₙ 的核恰是 n 次单位根群 μₙ。
   2. `powMap_fiber_iff`           —— xⁿ 的所有 n 次根 = 陪集 x·μₙ（逐点形式）。
@@ -48,34 +48,108 @@ def nRoots (n : ℕ) (G : Type u) [CommGroup G] : Subgroup G where
     rw [inv_pow a n, ha, inv_one]
 
 /- ------------------------------------------------------------------ -/
-/- 三个目标（签名，待证）                                              -/
+/- 三条定理                                                           -/
 /- ------------------------------------------------------------------ -/
 
 /-- 定理 1：幂映射 `x ↦ xⁿ` 的核恰是 n 次单位根群 μₙ。 -/
 theorem powMap_ker_eq_nRoots (n : ℕ) (G : Type u) [CommGroup G] :
     MonoidHom.ker (powMonoidHom (α := G) n) = nRoots n G := by
-  sorry
+  ext x
+  change x ^ n = 1 ↔ x ^ n = 1
+  exact Iff.rfl
 
 /-- 定理 2：`zⁿ = xⁿ` 当且仅当 `z` 落在陪集 `x · μₙ` 里（逐点形式）。
     即 `xⁿ` 的全部 n 次根 = `{x · ζ | ζⁿ = 1}`。 -/
 theorem powMap_fiber_iff (n : ℕ) (G : Type u) [CommGroup G] (x z : G) :
     z ^ n = x ^ n ↔ ∃ ζ : G, ζ ^ n = 1 ∧ z = x * ζ := by
-  sorry
+  constructor
+  · intro h
+    refine ⟨x⁻¹ * z, ?_, ?_⟩
+    · calc
+        (x⁻¹ * z) ^ n = (x⁻¹) ^ n * z ^ n := mul_pow x⁻¹ z n
+        _ = (x ^ n)⁻¹ * z ^ n := by rw [inv_pow x n]
+        _ = (x ^ n)⁻¹ * x ^ n := by rw [h]
+        _ = 1 := inv_mul_cancel (x ^ n)
+    · exact (mul_inv_cancel_left x z).symm
+  · rintro ⟨ζ, hζ, rfl⟩
+    calc
+      (x * ζ) ^ n = x ^ n * ζ ^ n := mul_pow x ζ n
+      _ = x ^ n * 1 := by rw [hζ]
+      _ = x ^ n := mul_one (x ^ n)
 
 /-- 定理 3：幂映射单射（即开方单值、可退化成「分数次幂」）当且仅当
     μₙ 平凡（无 n 次非平凡单位根）。这是「塌缩条件」的精确形式。 -/
 theorem powMap_injective_iff_nRoots_trivial (n : ℕ) (G : Type u) [CommGroup G] :
     Function.Injective ((powMonoidHom (α := G) n) : G → G) ↔ nRoots n G = ⊥ := by
-  sorry
+  rw [← powMap_ker_eq_nRoots]
+  exact (MonoidHom.ker_eq_bot_iff (powMonoidHom (α := G) n)).symm
 
 /- ------------------------------------------------------------------ -/
-/- 两个示范特化（待后续补，需 ℝ₊ / ℂˣ 的群结构与有限性）              -/
+/- 计算层 v0：形式化地「解释一个数」                                   -/
 /- ------------------------------------------------------------------ -/
 
--- 特化 1（塌缩侧）：正实数乘法群 ℝ₊ 无挠，故 μₙ 平凡、pₙ 单射 —— 开方单值。
--- example (n : ℕ) : nRoots n {x : ℝ // 0 < x} = ⊥ := by sorry
+-- 思路：同一个数，四条函数族给出**不同**的构造公式，且哪些路走得通
+-- 各不相同 —— 这正是「开方 ≠ 幂 ≠ 对数 ≠ 指数」的可计算体现。
+-- ℕ/ℚ 部分真的会算（norm_num）；ℝ 部分是精确定理（sqrt/log/exp 非可计算
+-- 定义，但等式可被机器检查）。
 
--- 特化 2（分歧侧）：ℂ 的单位根群 μₙ 有 n 个元素，故 pₙ n 对 1 —— 开方 n 值。
--- example (n : ℕ) : Nat.card (nRoots n ℂˣ) = n := by sorry
+/-- 幂族解释 25：5² = 25（ℕ，直接可算）。 -/
+example : (5 : ℕ) ^ 2 = 25 := by norm_num
+
+/-- 开方族解释 25：√25 = 5（ℕ 整数平方根，直接可算）。 -/
+example : Nat.sqrt 25 = 5 := by norm_num
+
+/-- 开方族解释 169：√169 = 13（可算）。 -/
+example : Nat.sqrt 169 = 13 := by norm_num
+
+/-- 但 2 是幂族（平方）解释不了的：ℕ 里没有 n 满足 n² = 2。 -/
+theorem two_not_sq_nat : ¬ ∃ n : ℕ, n ^ 2 = 2 := by
+  rintro ⟨n, hn⟩
+  have h1 : n ≤ 1 := by
+    by_contra h
+    have hn2 : 2 ≤ n := by omega
+    have hsq : 4 ≤ n ^ 2 := by nlinarith [sq_nonneg (n - 2), hn2]
+    nlinarith
+  interval_cases n <;> norm_num at hn
+
+/-- 有理数里同样解释不了：x² = 2 无有理根（与 Instances/RatToReal 的
+    `rat_no_sqrt_two` 同款，经 ℚ ↪ ℝ 与 √2 的无理性）。 -/
+theorem two_not_sq_rat : ¬ ∃ q : ℚ, (q : ℝ) ^ 2 = 2 := by
+  rintro ⟨q, hq⟩
+  have hs : (Real.sqrt 2 : ℝ) ^ 2 = 2 := by rw [Real.sq_sqrt]; norm_num
+  have hqsq : (q : ℝ) ^ 2 = (Real.sqrt 2) ^ 2 := hq.trans hs.symm
+  rcases sq_eq_sq_iff_eq_or_eq_neg.mp hqsq with h | h
+  · exact irrational_sqrt_two ⟨q, h⟩
+  · exact irrational_sqrt_two ⟨-q, by rw [Rat.cast_neg, h, neg_neg]⟩
+
+/-- 开方族解释 2：(√2)² = 2 —— 幂族解释不了的数，开方族给出精确公式。 -/
+example : (Real.sqrt 2 : ℝ) ^ 2 = 2 := by
+  rw [Real.sq_sqrt]
+  norm_num
+
+/-- 指数/对数族解释 2：e^(ln 2) = 2 —— 另一条路也走得通，但公式与根式路径不同。 -/
+example : Real.exp (Real.log 2) = 2 := by
+  rw [Real.exp_log]
+  norm_num
+
+/-- 特殊的可解公式：x² − x − 1 = 0，用开方解出 x = (1 + √5)/2（黄金分割）。 -/
+noncomputable def radicalGolden : ℝ := (1 + Real.sqrt 5) / 2
+
+/-- 机器验证这个开方公式确实解出方程：φ² = φ + 1。 -/
+theorem radicalGolden_sq : radicalGolden ^ 2 = radicalGolden + 1 := by
+  dsimp [radicalGolden]
+  have hs : (Real.sqrt 5 : ℝ) ^ 2 = 5 := by rw [Real.sq_sqrt]; norm_num
+  ring_nf
+  rw [hs]
+  ring
+
+/-- 同样的 3：开方给 (√3)² = 3，指数/对数给 e^(ln 3) = 3 —— 公式不同。 -/
+example : (Real.sqrt 3 : ℝ) ^ 2 = 3 := by
+  rw [Real.sq_sqrt]
+  norm_num
+
+example : Real.exp (Real.log 3) = 3 := by
+  rw [Real.exp_log]
+  norm_num
 
 end NODS

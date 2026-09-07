@@ -2,7 +2,7 @@
 title: NODS — New Object Discovery System 当前状态
 source: session
 created: 2026-09-04
-last_confirmed: 2026-09-04
+last_confirmed: 2026-09-07
 schema_version: 2
 audience: internal
 stage: current
@@ -41,6 +41,20 @@ compiled_from: [src-code-core-001, src-code-instances-001, src-code-theories-001
 > 注：mathlib 已弃用捆绑类 `LinearOrderedField`，故 `LOF` 改为自定义结构
 > （`Field` + `LinearOrder` + `IsStrictOrderedRing` 三字段），见 `Nods/Theories/Algebraic.lean`。
 
+### 理论层 `Nods/Theories/Radical.lean`（新方向）
+
+「幂 vs 开方」的结构区分：**开方 ≠ 分数次幂**，区分在挠 μₙ——幂是「按 μₙ 折叠」的商（epi），开方是「把覆盖撑开」的截面（mono）。三条完整证明（0 sorry，`lake build Nods.Theories.Radical` 通过）：
+
+| 定理 | 内容 |
+|------|------|
+| `powMap_ker_eq_nRoots` | 幂映射 `x ↦ xⁿ` 的核 = n 次单位根群 μₙ |
+| `powMap_fiber_iff` | `zⁿ = xⁿ ⟺ ∃ζ, ζⁿ=1 ∧ z = x·ζ`（纤维 = 陪集） |
+| `powMap_injective_iff_nRoots_trivial` | 幂单射 ⟺ μₙ 平凡（塌缩条件） |
+
+同文件含**计算层 v0**（形式化地"解释一个数"，四条函数族给不同公式）：幂 `5²=25`、开方 `Nat.sqrt 25=5`（ℕ 可算）；`¬∃n:ℕ n²=2`、`¬∃q:ℚ (q:ℝ)²=2`（幂解释不了 2 → 逼出根式对象）；开方解可解公式 `φ=(1+√5)/2` 且机器验证 `φ²=φ+1`；指数/对数 `e^(ln 2)=2`、`e^(ln 3)=3`（超越路径，公式与根式不同）。
+
+> ✅ 已接主链（`Nods.lean` 顶部 `import Nods.Theories.Radical`，随主构建全绿）；配套示意图 `docs/figures/root_vs_power.png`（src-fig-001，已登记 raw manifest）。
+
 ## 构建状态（2026-09-04 · lake build v4.21.0）
 
 > ✅ **`lake build` 全绿。** 6 个核心层 + 4 个实例（N→Z、Z→Q、Q→R、R→C）全部编译通过。
@@ -53,6 +67,7 @@ compiled_from: [src-code-core-001, src-code-instances-001, src-code-theories-001
 ## 未支持 / 待做
 
 - **义务 O1**：`real_initiality_obligation`（R 在"完备 Archimedean 有序域 + 嵌入 Q"中的初始性）仍是 `axiom`——需要"唯一有序域同态 R → K"的构造（Dedekind 切割显式搬运，约 80 行分析），v0.2 应替换为 `IsMinimal` 证明。原义务 O2（ℚ 有序域结构唯一）已在本 session 证成定理 `lofLinearOrder_eq_rat`。
+- **Radical 后续待定**：计算层是否从示范升级为通用 solver（任意 `x² − bx − c = 0` 输出根式解 + 可解性证书）。已接主链（`Nods.lean` import）。
 - 自动化约束生成（Automated Constraint Generator）：v0.1 之后阶段，尚无代码。
 
 ## 在线/风险
