@@ -55,7 +55,14 @@ compiled_from: [src-code-core-001, src-code-instances-001, src-code-theories-001
 
 **计算层 v1（通用二次根式 solver）**：任意 `x²−bx−c=0`，判别式 ≥0 时根式公式 `(b±√(b²+4c))/2` 机器验证为解（`quadRootPlus_sq`/`quadRootMinus_sq`），多项式分解 `(x−r₊)(x−r₋)`（`quadFactor`，无其他根）；判别式 <0 证无实根（`quad_no_roots`）；可解判据 `quad_solvable_iff`。含精确计算示例 `quadRootPlus 2 3 = 3`、`quadRootMinus 2 3 = −1`（norm_num 真算 √16）。
 
+**计算层 v2（三次 Cardano）**：任意 `x³+px+q=0`，判别式 `(q/2)²+(p/3)³ ≥ 0` 时构造性给出实根。先证实数立方满射 `cube_surj`（IVT，∛ 对所有实数存在），u 取 `u³ = −q/2+s`，v 定义为 `−(p/3)/u`（而非独立开方——否则 u·v 差一个三次单位根，又是挠），证书 `cardano_certificate`/`vcube` 机器验证 `u+v` 确为根。示例 `x³−3x+2=0` 有根。边界：五次及以上一般无根式解（Abel–Ruffini）。
+
 > ✅ 已接主链（`Nods.lean` 顶部 `import Nods.Theories.Radical`，随主构建全绿）；配套示意图 `docs/figures/root_vs_power.png`（src-fig-001，已登记 raw manifest）。
+
+## 论文发表（2026-09-07）
+
+- **aiXiv**: `aixiv.260907.000001` v1.0（英文版 radical 论文，署名 元杰 刘 / ~User52）。标题 *The radical as a forced structure: how to split powers from radicals*（作者 Yuanjie Liu）。
+- **以太坊 EAS 主网存证**: attestation UID `0x5e52a523299a348fd61f2264ac735e6bbfd5ecc439c35718432aa5791d53e05d`（schema #405：ipfsCid+title+sha256）；IPFS CID `QmVQDR2MT2fGKkAeUhKTjTmg9boqAnFiaSoMAfdHTys7Ec`；sha256 `d0ddbafc86b8cf1590158e3d48d314c0b3132e55b58858196b34c287711e15c9`。验证: https://easscan.org/attestation/view/0x5e52a523299a348fd61f2264ac735e6bbfd5ecc439c35718432aa5791d53e05d
 
 ## 构建状态（2026-09-07 · lake build v4.21.0）
 
@@ -69,7 +76,7 @@ compiled_from: [src-code-core-001, src-code-instances-001, src-code-theories-001
 ## 未支持 / 待做
 
 - **义务 O1**：`real_initiality_obligation`（R 在"完备 Archimedean 有序域 + 嵌入 Q"中的初始性）仍是 `axiom`——需要"唯一有序域同态 R → K"的构造（Dedekind 切割显式搬运，约 80 行分析），v0.2 应替换为 `IsMinimal` 证明。原义务 O2（ℚ 有序域结构唯一）已在本 session 证成定理 `lofLinearOrder_eq_rat`。
-- **Radical 计算层 v1 已完成**：通用二次根式 solver（判别式判定 + 根式公式 + 分解证书，见上）。后续候选：三次方程根式解（Cardano）、复根支持、更高次。已接主链（`Nods.lean` import）。
+- **Radical 计算层 v2 已完成**：三次 Cardano 根式解（`cube_surj` 满射 + `cardano_certificate`，见上）。后续候选：四次 Ferrari、五次 Abel–Ruffini 断崖（Galois 群可解性）、复根。已接主链（`Nods.lean` import）。
 - 自动化约束生成（Automated Constraint Generator）：v0.1 之后阶段，尚无代码。
 
 ## 在线/风险

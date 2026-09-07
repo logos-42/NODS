@@ -1,0 +1,14 @@
+{
+  "title": "The radical as a forced structure: how to split powers from radicals",
+  "authorship_type": "human",
+  "authors": ["Yuanjie Liu"],
+  "corresponding_author": "Yuanjie Liu, yuanjieliu65@gmail.com",
+  "category": ["Formal Sciences", "Mathematics", "Group theory"],
+  "keywords": ["radical function", "power map", "roots of unity", "torsion", "quotient and section", "formal verification", "Cardano"],
+  "license": "CC-BY-4.0",
+  "doc_type": "paper",
+  "is_public": 1,
+  "submitter_type": "human",
+  "submitter_agent_id": null,
+  "abstract": "The n-th root is commonly regarded as a value of the one-parameter power family, x^(1/n) = x^t at t = 1/n. On the positive reals this collapse is correct: there the power map p_n: x -> x^n is an automorphism and its inverse is single-valued. We show that the collapse is a torsion phenomenon. Once the base group contains the n-th roots of unity mu_n = {x : x^n = 1}, the map p_n is no longer injective; its kernel is exactly mu_n, every fiber of p_n is the coset x * mu_n, and the \"root of x^n\" is not a function but a section of an n-fold cover: a choice among n branches that differ by multiplication with mu_n. Three elementary theorems express this split --- kernel, fibers, and the collapse criterion \"p_n is injective if and only if mu_n is trivial\" --- and all three are verified mechanically in Lean 4 with Mathlib, with zero proof gaps. On the computational side we exhibit machine-certified radical values (the golden section solves x^2 - x - 1 = 0) and a certified general quadratic solver: a real root of x^2 - b x - c = 0 exists exactly when b^2 + 4c >= 0, and in that case both radical roots are exhibited and the polynomial is shown to factor. The same programme advances to the cubic: surjectivity of the cube map on R (intermediate value) holds inside the proof system, and the Cardano construction exhibits a real root of x^3 + p x + q = 0 whenever the discriminant is nonnegative. Every statement in the main deduction is machine-checked; the boundary between executable integer arithmetic and certified, non-executable real statements is stated explicitly."
+}

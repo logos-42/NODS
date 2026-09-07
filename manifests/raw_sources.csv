@@ -5,3 +5,8 @@ src-code-core-001,NODS,NODS,code,Nods/Core/*.lean,(repo)/Nods/Core,compiled,docs
 src-code-instances-001,NODS,NODS,code,Nods/Instances/*.lean,(repo)/Nods/Instances,compiled,docs/wiki/current-status.md,数系扩张实例; RealToComplex.lean 为空(R→C 待做)
 src-code-theories-001,NODS,NODS,code,Nods/Theories/*.lean,(repo)/Nods/Theories,compiled,docs/wiki/current-status.md,CS ⊇ CR ⊇ FL ⊇ LOF 理论阶梯
 src-fig-001,NODS,NODS,figure,root_vs_power.png,(repo)/docs/figures/root_vs_power.png,new,,幂 vs 开方示意图: 挠 μₙ 为何必然出现 (折叠 vs 截面); 由 scripts/plot_root_vs_power.py 生成
+src-paper-rh-en-pdf,NODS,NODS,pdf,radical_root_en.pdf,(repo)/paper/radical/radical_root_en.pdf,new,,开方不是分数次幂论文 英文版 PDF（radical_root_en.tex 编译）
+src-paper-rh-zh-pdf,NODS,NODS,pdf,radical_root_zh.pdf,(repo)/paper/radical/radical_root_zh.pdf,new,,开方不是分数次幂论文 中文版 PDF（radical_root_zh.tex 编译）
+src-paper-fig-root,NODS,NODS,figure,root_vs_power.png,(repo)/paper/radical/figures/root_vs_power.png,new,,幂折叠 vs μ₄ 正方形示意图（论文 Figure 1，自 docs/figures 复制）
+src-fig-root-en,NODS,NODS,figure,root_vs_power_en.png,(repo)/docs/figures/root_vs_power_en.png,new,,幂折叠 vs μ₄ 示意图 英文版（plot_root_vs_power.py 双语输出，源）
+src-paper-fig-root-en,NODS,NODS,figure,root_vs_power_en.png,(repo)/paper/radical/figures/root_vs_power_en.png,new,,论文 EN 版 Figure 1（自 docs/figures 复制）

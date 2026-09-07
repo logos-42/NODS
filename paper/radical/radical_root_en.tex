@@ -1,0 +1,389 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% radical_root_en.tex
+%
+% Compile with XeLaTeX, then BibTeX, followed by two XeLaTeX runs.
+%
+% Logical scope.  This paper separates a convention (the fractional-power
+% collapse on the positive reals), exact structural theorems (the torsion
+% split of the power map into quotient and section), and machine-checked
+% formalization and computation.  All theorems of the main deduction are
+% mechanically verified; nothing is left as an open conjecture.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\documentclass[submission,noinfoline]{jsfds}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath,amsthm,amssymb}
+\usepackage{graphicx}
+\usepackage[numbers]{natbib}
+\usepackage{hyperref}
+\makeatletter\let\hy@frontmatter\relax\makeatother
+\setlength{\emergencystretch}{2em}
+\bibliographystyle{unsrt}
+
+\graphicspath{{figures/}}
+
+\startlocaldefs
+\newtheorem{theorem}{Theorem}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem*{remark}{Remark}
+\setattribute{title}{size}{\LARGE\bfseries}
+% Lean identifiers remain in the source as cross-references, but are not printed.
+\newcommand{\Lean}[1]{}
+\def\journal@name{}%
+\setattribute{infoline}{text}{}%
+\setattribute{copyright}{text}{}
+\newcommand{\abs}[1]{\lvert #1\rvert}
+\newcommand{\Norm}[1]{\lVert #1\rVert}
+\endlocaldefs
+
+\setmainlanguageenglish
+\AtBeginDocument{\renewcommand{\refname}{References}}
+\firstpage{1}
+\begin{document}
+\begin{frontmatter}
+
+\title{The radical as a forced structure:
+how to split powers from radicals}
+\runtitle{Splitting powers from radicals}
+
+\begin{aug}
+  \auteur{%
+    \prenom{Yuanjie}
+    \nom{Liu}}
+  \affiliation{Independent Researcher;\quad
+  \href{mailto:yuanjieliu65@gmail.com}{yuanjieliu65@gmail.com}}
+  \runauthor{Yuanjie Liu}
+\end{aug}
+
+\begin{abstract}
+It is common to regard the $n$-th root as a value of the one-parameter power
+family, $x^{1/n}=x^t$ at $t=1/n$. On the positive reals this collapse is
+correct: there the power map $p_n\colon x\mapsto x^n$ is an automorphism and
+its inverse is single-valued. We show that the collapse is a torsion
+phenomenon. Once the base group contains the $n$-th roots of unity
+$\mu_n=\{x:x^n=1\}$, the map $p_n$ is no longer injective; its kernel is
+exactly $\mu_n$, every fiber of $p_n$ is the coset $x\cdot\mu_n$, and the
+``root of $x^n$'' is not a function but a section of an $n$-fold cover:
+a choice among $n$ branches that differ by multiplication with $\mu_n$.
+Three elementary theorems express this split --- kernel, fibers, and the
+collapse criterion ``$p_n$ is injective if and only if $\mu_n$ is trivial''
+--- and all three are verified mechanically in Lean~4 with Mathlib, with
+zero proof gaps. On the computational side we exhibit machine-certified
+radical values (the golden section solves $x^2-x-1=0$) and a certified
+general quadratic solver: a real root of $x^2-bx-c=0$ exists exactly when
+$b^2+4c\ge 0$, and in that case both radical roots are exhibited and the
+polynomial is shown to factor. The same programme advances to the cubic:
+surjectivity of the cube map on $\mathbb R$ (intermediate value) holds
+inside the proof system, and the Cardano construction \citep{Cardano1545}
+exhibits a real root of $x^3+px+q=0$ whenever the discriminant is
+nonnegative. Every statement in the main deduction is
+machine-checked; the boundary between executable integer arithmetic and
+certified, non-executable real statements is stated explicitly.
+\end{abstract}
+
+\begin{keywords}
+\kwd{radical function}
+\kwd{power map}
+\kwd{roots of unity}
+\kwd{torsion}
+\kwd{quotient and section}
+\kwd{formal verification}
+\end{keywords}
+
+\begin{AMSclass}
+\kwd{12F10}
+\kwd{03B35}
+\kwd{26A09}
+\end{AMSclass}
+\end{frontmatter}
+
+\begin{quote}
+  \itshape ``Eternity is a long time.''
+  \par\vspace{2pt}
+  \begin{flushright}
+    \small --- Isaac Asimov, \emph{Foundation}
+  \end{flushright}
+\end{quote}
+\vspace{0.8em}
+
+\section{Question, inputs, and logical order}\label{sec:intro}
+
+Write $p_n$ for the map $x\mapsto x^n$ on a multiplicative structure. The
+statement that interests us is the received identification
+\begin{equation}
+  \text{``the $n$-th root is the power $x^{1/n}$, i.e.\ $p_{1/n}$''}.
+\end{equation}
+As a statement about positive reals it is unproblematic: for every
+$x>0$ there is a unique $y>0$ with $y^n=x$, and one writes
+$y=x^{1/n}=\exp(\tfrac1n\ln x)$ \citep{Euler1748}. But the equation $y^n=x$ does not
+have a unique solution in general, and where it does not, the symbol
+$x^{1/n}$ silently selects one solution among several. The present paper
+asks what is lost by that selection.
+
+We will use three kinds of statements, in the spirit of a
+compile-first exposition:
+
+\begin{description}
+\item[Convention.] On the positive reals the fractional-power collapse
+(1) holds because $\mu_n\cap\mathbb R_+=1$; this is a fact about a
+torsion-free group, spelled out in Section~\ref{sec:collapse}.
+\item[Exact deductions.] Over a commutative group $G$, the map $p_n$ is a
+group endomorphism. Its kernel is the subgroup
+$\mu_n=\{x\in G:x^n=1\}$ of $n$-th roots of unity; every fiber of $p_n$
+is a coset of $\mu_n$; and $p_n$ is injective exactly when $\mu_n$ is
+trivial. These are Theorems~\ref{thm:ker}--\ref{thm:collapse}.
+\item[Machine-checked content.] The three theorems, the radical examples,
+and the quadratic solver of Section~\ref{sec:computation} are formalized in
+Lean~4 \citep{deMoura2015} with Mathlib \citep{MathlibCommunity2020}, inside
+the NODS repository (module \texttt{Nods.Theories.Radical}, wired into the
+main build, zero proof gaps). The original Riemann material of the template
+file from which this article's layout is taken is entirely removed; no
+number-theoretic conjecture is touched here.
+\end{description}
+
+\section{Setting: power maps and roots of unity}\label{sec:setting}
+
+Fix a commutative group $G$, written multiplicatively, and $n\in\mathbb N$.
+We use two objects.
+
+\begin{definition}[Power map]\label{def:power}
+$p_n\colon G\to G$ denotes $p_n(x)=x^n$.
+\end{definition}
+\begin{definition}[Roots of unity]\label{def:mu}
+$\mu_n(G)=\{x\in G:x^n=1\}$ is the subgroup of $n$-th roots of unity.
+\end{definition}
+
+That $\mu_n(G)$ is a subgroup is immediate from commutativity
+($(xy)^n=x^ny^n$) and from $(x^{-1})^n=(x^n)^{-1}$. Its elements are
+the \emph{torsion} of exponent $n$; $\mu_n(G)=\{1\}$ is the statement that
+$G$ has no nontrivial $n$-th root of unity.
+
+$p_n$ is a group homomorphism: $p_n(xy)=(xy)^n=x^ny^n=p_n(x)p_n(y)$,
+again by commutativity.
+
+\section{The collapse and its failure}\label{sec:collapse}
+
+On $G=\mathbb R_+$ (positive reals, multiplication), the equation
+$x^n=1$ has only the solution $1$; indeed $x^n$ is strictly increasing.
+Hence $p_n$ is injective and, being a group endomorphism of $\mathbb R_+$
+with no kernel, it is an automorphism: every $y$ has exactly one $n$-th
+root, the fractional power $y^{1/n}$. The collapse (1) is exactly the
+statement that this inverse is \emph{unique}, and uniqueness is the
+absence of torsion.
+
+Over $\mathbb C^\times$ the same equation has $n$ solutions, namely the
+regular $n$-gon $\mu_n(\mathbb C^\times)=\{e^{2\pi i k/n}:0\le k<n\}$, a
+cyclic group of order $n$ \citep{Gauss1801}. The failure of injectivity is measured by this
+group. The next section states the mechanism once, for every commutative
+group.
+
+\section{Power as quotient, radical as section}\label{sec:quotient}
+
+\begin{theorem}[Kernel is the group of roots of unity]\label{thm:ker}
+For every commutative group $G$ and every $n$,
+$\ker p_n=\mu_n(G)$.
+\end{theorem}
+\begin{proof}
+An element $x$ lies in the kernel of $p_n$ iff $p_n(x)=1$ iff $x^n=1$
+iff $x\in\mu_n(G)$. \Lean{powMap\_ker\_eq\_nRoots}
+\end{proof}
+
+\begin{theorem}[Fibers are cosets]\label{thm:fiber}
+For every commutative group $G$, every $n$, and all $x,z\in G$,
+\[
+  z^n=x^n \quad\Longleftrightarrow\quad \exists \zeta\in G,\;
+  \zeta^n=1\ \wedge\ z=x\,\zeta .
+\]
+Equivalently, the fiber of $p_n$ over $x^n$ is the coset
+$x\cdot\mu_n(G)$.
+\end{theorem}
+\begin{proof}
+($\Leftarrow$) If $z=x\zeta$ with $\zeta^n=1$, then
+$z^n=(x\zeta)^n=x^n\zeta^n=x^n$ by commutativity.
+($\Rightarrow$) If $z^n=x^n$, put $\zeta=x^{-1}z$. Then
+$\zeta^n=(x^{-1}z)^n=(x^n)^{-1}z^n=1$ and $z=x\zeta$.
+\Lean{powMap\_fiber\_iff}
+\end{proof}
+
+\begin{corollary}\label{cor:branches}
+If $x^n$ has one $n$-th root $x_0$, then it has exactly
+$\abs{\mu_n(G)}$ of them, namely $\zeta x_0$ with $\zeta\in\mu_n(G)$.
+Over a field containing $\mu_n$ this number is $n$.
+\end{corollary}
+
+\begin{theorem}[Collapse criterion]\label{thm:collapse}
+For every commutative group $G$ and every $n$,
+$p_n$ is injective if and only if $\mu_n(G)=\{1\}$.
+\end{theorem}
+\begin{proof}
+By Theorem~\ref{thm:ker}, $\ker p_n=\mu_n(G)$; a group homomorphism is
+injective iff its kernel is trivial. \Lean{powMap\_injective\_iff\_nRoots\_trivial}
+\end{proof}
+
+The content of the three theorems is a division of labour between two
+structural roles.
+
+\begin{itemize}
+\item \emph{Power is a quotient.} $p_n$ collapses the orbit of $x$ under
+multiplication by $\mu_n$ to a single point; it is the projection of
+$G$ onto $G/\mu_n$ (up to the canonical identification). Its kernel is
+nontrivial exactly when torsion is present.
+\item \emph{The radical is a section.} A ``root'' is a choice of one
+preimage under $p_n$. Globally this choice cannot be made continuously or
+canonically; it exists only branch by branch, and the branches differ by
+the deck group $\mu_n$. The fractional power $x^{1/n}=e^{(\ln x)/n}$ is
+the section on the principal branch --- the branch on which the torsion
+is invisible. This is why (1) ``works'' on $\mathbb R_+$ and fails on
+$\mathbb C^\times$: not because the algebra changes, but because the cover
+is trivial there.
+\end{itemize}
+
+Figure~\ref{fig:fold} visualizes both roles for $n=4$: four points
+$z\in x_0\mu_4$ are folded by $p_4$ into one image $x_0^4$, and the four
+candidates differ by the square $\mu_4=\{1,i,-1,-i\}$.
+
+\begin{figure}[t]
+\includegraphics[width=0.9\textwidth]{root_vs_power_en}
+\caption{Left: $p_4$ folds four distinct points into one image, so the
+inverse (the radical) has four candidates. Right: the four candidates are
+not isolated; they form the square $\mu_4$, the kernel of $p_4$, and
+multiplication by $i$ cycles through them.}
+\label{fig:fold}
+\end{figure}
+
+\section{What torsion forces: explaining a number}\label{sec:numbers}
+
+Corollary~\ref{cor:branches} has a concrete reading. Over $\mathbb Q$,
+the equation $x^2=2$ has no solution at all; this is a machine-checked
+fact, and it is exactly the sense in which the radical is a
+\emph{forced} object rather than a chosen symbol:
+\begin{itemize}
+\item no $n\in\mathbb N$ satisfies $n^2=2$ \Lean{two\_not\_sq\_nat};
+\item no $q\in\mathbb Q$ satisfies $q^2=2$ \Lean{two\_not\_sq\_rat};
+\item over the reals, $\sqrt 2$ exists and $(\sqrt2)^2=2$, and the
+exponential/logarithm path gives the different exact formula
+$e^{\ln 2}=2$.
+\end{itemize}
+The same number admits \emph{different} exact constructions along the
+four classical families, and which families succeed depends on the number:
+$25$ is $5^2$ (power) and $\sqrt{25}=5$ (radical, executable integer
+square root); $2$ is not a square at all and is only reached by radical
+or transcendental formulas; the golden section
+$\varphi=(1+\sqrt5)/2$ is exhibited as a radical solution of
+$x^2-x-1=0$ and verified to satisfy $\varphi^2=\varphi+1$. These are
+statements, not heuristics; each is checked by the proof system.
+
+\section{Certified radicals and a general quadratic solver}\label{sec:computation}
+
+The examples of Section~\ref{sec:numbers} are instances of a general
+solver. Fix real $b,c$ and the equation
+\begin{equation}\label{eq:quad}
+  x^2-bx-c=0,\qquad \Delta=b^2+4c .
+\end{equation}
+
+\begin{theorem}[Quadratic radical solver]\label{thm:quad}
+Let $\Delta=b^2+4c\ge 0$. Put
+$r_+=(b+\sqrt\Delta)/2$ and $r_-=(b-\sqrt\Delta)/2$. Then
+\begin{enumerate}
+\item $r_+^2-br_+-c=0$ and $r_-^2-br_--c=0$;
+\item for every $x$, $x^2-bx-c=(x-r_+)(x-r_-)$ --- there are no other
+roots;
+\item if $\Delta<0$ there is no real root at all.
+\end{enumerate}
+Consequently a real root exists if and only if $\Delta\ge 0$.
+\end{theorem}
+\begin{proof}
+All claims are obtained by expanding and using
+$(\sqrt\Delta)^2=\Delta$, which is the defining property of the real
+square root; item~1 and item~2 are pure ring identities after that
+substitution, and item~3 is completing the square:
+$(2x-b)^2=\Delta$, impossible for $\Delta<0$.
+\Lean{quadRootPlus\_sq, quadRootMinus\_sq, quadFactor, quad\_no\_roots,
+quad\_solvable\_iff}
+\end{proof}
+
+\begin{theorem}[Cubic radical solution of Cardano]\label{thm:cubic}
+Let $\Delta_3=(q/2)^2+(p/3)^3\ge 0$. Then $x^3+px+q=0$ has a real root,
+constructed as follows. Put $s=\sqrt{\Delta_3}$, choose $u$ with
+$u^3=-q/2+s$ (possible because the cube map is surjective on $\mathbb R$),
+and set $v=-p/(3u)$. Then $v^3=-q/2-s$, $uv=-p/3$, and $u+v$ is a root.
+\end{theorem}
+\begin{proof}
+$u^3+v^3=-q$ together with $3uv=-p$ gives
+$(u+v)^3=u^3+v^3+3uv(u+v)=-q-p(u+v)$, hence $(u+v)^3+p(u+v)+q=0$.
+The identity $v^3=-q/2-s$ follows from $(q/2)^2-s^2=-(p/3)^3$ and
+$u\ne0$ by direct calculation (the case $u=0$ forces $p=0$, reducing to
+$x^3+q$). Note that $v$ cannot be chosen as an \emph{independent} cube
+root of $-q/2-s$: then $uv$ would differ by a cube root of unity --- the
+third appearance of the torsion split of
+Section~\ref{sec:quotient}, which machine verification forces us to face.
+\Lean{cube\_surj, vcube, cardano\_certificate, cubic\_solvable}
+\end{proof}
+
+The statements are machine-checked. Two boundaries are stated explicitly.
+
+\begin{itemize}
+\item \emph{Executability.} On $\mathbb N$ the integer square root
+$\sqrt{25}=5$ is computed and reduced by the proof system itself
+(\texttt{norm\_num}). On $\mathbb R$ the square root is defined by
+completeness and is not executable; the reductions above (for example
+$\sqrt{16}=4$ via $\sqrt{a^2}=\abs a$) are certified theorems, not
+numeric iterations. We do not claim a numeric radical evaluator; we claim
+certified radical statements.
+\item \emph{The next degree.} The same programme now needs a general
+cubic (with an $x^2$ term, first reduced to the depressed form by a
+translation) and a quartic (Ferrari, via a cubic resolvent); these two
+steps are not yet formalized. From degree $5$ the general equation
+escapes the radicals
+(Abel--Ruffini \citep{Abel1824}); stating that boundary precisely is the
+Galois half \citep{Galois1846} of the programme and is not claimed here.
+\end{itemize}
+
+\section{Formalization notes}\label{sec:formal}
+
+All statements marked \Lean{...} are proved in Lean~4 \citep{deMoura2015}
+with Mathlib \citep{MathlibCommunity2020}, in the module
+\texttt{Nods.Theories.\allowbreak Radical} of the NODS repository. Technical choices:
+\begin{itemize}
+\item theorems are stated over an arbitrary commutative group $G$
+(\texttt{CommGroup}), which makes the collapse criterion meaningful as an
+equivalence and not as an accident of $\mathbb R_+$;
+\item the power map is the Mathlib homomorphism \texttt{powMonoidHom};
+the roots of unity form a self-defined subgroup \texttt{nRoots};
+\item the proofs are short and do not use excluded middle beyond Mathlib's
+standard library: Theorem~\ref{thm:ker} is definitional,
+Theorem~\ref{thm:fiber} is one calculation in each direction,
+Theorem~\ref{thm:collapse} follows from the standard
+kernel-trivial-iff-injective lemma;
+\item the analytic primitive of the cubic --- surjectivity of the cube map
+on $\mathbb R$ --- comes from Mathlib's intermediate value theorem
+(\texttt{intermediate\_value\_Icc}), see Theorem~\ref{thm:cubic}; the
+non-executability of \texttt{Real.sqrt} is unchanged;
+\item the module is imported by the main file and the full build is green;
+grep confirms zero \texttt{sorry} in the source tree.
+\end{itemize}
+The template of this article (layout class \texttt{jsfds}, bilingual
+conventions) was taken from the author's earlier preprint; its
+mathematical content has been completely replaced by the material above.
+
+\section{Conclusion}\label{sec:conclusion}
+
+The identification of the $n$-th root with a fractional power is not false;
+it is local. It holds exactly on the branch where the cover is trivial,
+i.e.\ where $\mu_n=\{1\}$. Over a group that carries the $n$-th roots of
+unity, power and radical are two different structural roles --- a quotient
+by $\mu_n$ and a section of the resulting $n$-fold cover --- and the
+torsion subgroup $\mu_n$ is the exact measure of the difference, because
+removing it collapses the distinction (Theorem~\ref{thm:collapse}). Three
+short theorems, radical examples, and certified quadratic and cubic
+solvers carry
+this statement through a proof system end to end, with the boundary
+between executable arithmetic and certified real analysis stated where it
+occurs.
+
+\bibliography{biblio}
+
+\end{document}

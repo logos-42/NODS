@@ -1,5 +1,25 @@
 # Wiki 日志
 
+## [2026-09-07] 论文发表 | radical EN 上 aiXiv + 以太坊 EAS 锚定
+
+- **aiXiv 预印本**：`aixiv.260907.000001` v1.0（submission 1445，Under Review，CC-BY-4.0，is_public=1，authorship_type=human）；公开记录署名「元杰 刘」/ ~User52。
+  - 标题：*The radical as a forced structure: how to split powers from radicals*
+  - 摘要已同步论文当前版（含 Cardano 三次推进段）；元数据模板 `paper/radical/aixiv_meta_radical_en.json` 留档供后续版本更新。
+- **以太坊 EAS 主网锚定**（照黎曼论文流程，`eas-bind-paper.js`，复用 schema #405）：
+  - Attestation UID: `0x5e52a523299a348fd61f2264ac735e6bbfd5ecc439c35718432aa5791d53e05d`
+  - 验证: https://easscan.org/attestation/view/0x5e52a523299a348fd61f2264ac735e6bbfd5ecc439c35718432aa5791d53e05d
+  - 绑定: IPFS CID `QmVQDR2MT2fGKkAeUhKTjTmg9boqAnFiaSoMAfdHTys7Ec`（本地 Kubo pin）+ 标题 + sha256 `d0ddbafc…e15c9`；recipient `0xb4e9dCF79055A8232670ebb1c8c664Dff4E70066`
+- 发布对象 = 计算层 v2（Cardano 三次）落码后的 EN 论文版（2026-09-07 重编译，tex 含新增 thm:cubic）。
+
+## [2026-09-07] 计算层 v2 | Cardano 三次根式解
+
+- **三次 Cardano**（`Nods/Theories/Radical.lean` 计算层 v2）：`x³+px+q=0`，判别式 ≥0 时构造性给根。
+  - `cube_surj`：先证实数立方满射（IVT 于 `[0,max 1 √y]`，负数走对称）——这是 ∛ 的存在性半边；
+  - `cardano_certificate`：纯代数证书（u³、v³ 方程 + uv = −p/3 ⟹ u+v 是根）；
+  - `vcube`：v := −(p/3)/u 技巧自动满足 v³ = −q/2 − s（v 不能独立开方，否则 u·v 差三次单位根——挠第三次出场）；
+  - 示例 `x³−3x+2=0`（判别式 0）有实根。
+- 全仓 `lake build` 绿（0 错误 0 警告 0 sorry）；边界注明：五次及以上一般无根式解（Abel–Ruffini，待后续）。
+
 ## [2026-09-07] 计算层 v1 | 通用二次根式 solver + 主链 0 警告
 
 - **通用二次根式 solver**（`Nods/Theories/Radical.lean` 计算层 v1）：示范 φ 升级为任意 `x²−bx−c=0`。判别式 ≥0 → 根式公式 `(b±√(b²+4c))/2` 机器验证为解（`quadRootPlus_sq`/`quadRootMinus_sq`）+ 多项式分解证书 `quadFactor`（无其他根）；判别式 <0 → `quad_no_roots` 证无实根；判据合成 `quad_solvable_iff`。含可算示例 `quadRootPlus 2 3 = 3`。

@@ -75,6 +75,19 @@ pointed at unknown mathematical structures.
   Dedekind-cut analysis is deferred to v0.2); in v0.1 `IsCutGenerated` stands in
   for it. See `docs/wiki/current-status.md` for details.
 
+## Publications (2026-09-07)
+
+- **Radical / power-splitting paper (EN)** — *The radical as a forced structure:
+  how to split powers from radicals* (Yuanjie Liu). Lean-verified torsion split
+  (kernel / fibers / collapse criterion), certified quadratic + Cardano cubic
+  solvers, 0 proof gaps.
+  - aiXiv preprint: `aixiv.260907.000001` (v1.0)
+  - Ethereum mainnet EAS attestation (schema #405: ipfsCid + title + sha256):
+    `0x5e52a523299a348fd61f2264ac735e6bbfd5ecc439c35718432aa5791d53e05d` —
+    https://easscan.org/attestation/view/0x5e52a523299a348fd61f2264ac735e6bbfd5ecc439c35718432aa5791d53e05d
+  - IPFS: `QmVQDR2MT2fGKkAeUhKTjTmg9boqAnFiaSoMAfdHTys7Ec` (sha256 `d0ddbafc…e15c9`)
+  - Source: `paper/radical/` (zh + en, jsfds template)
+
 ## Getting started
 
 ```bash

@@ -59,6 +59,16 @@ Nods/
 - 经典扩张链 N → Z → Q → R → C 已完整重建，每一步都有机器证明：**它是在上一结构中的"缺口"（一条失败的 demand），而不是凭空发明的符号**。
 - 仍留一条文档化义务：`real_initiality_obligation`（**O1**）——对任意完备 Archimedean 有序域 K，有序域同态 R → K 的唯一性。它以 `axiom` 记录（约 80 行的 Dedekind 切割分析推迟到 v0.2）；v0.1 用 `IsCutGenerated` 顶上。细节见 `docs/wiki/current-status.md`。
 
+## 论文发表（2026-09-07）
+
+- **开方/幂分离论文（英文版）**——*The radical as a forced structure: how to split powers from radicals*（Yuanjie Liu）。Lean 验证挠分离（核/纤维/塌缩判据）+ 带证书二次与 Cardano 三次求解器，0 证明缺口。
+  - aiXiv 预印本：`aixiv.260907.000001`（v1.0）
+  - 以太坊主网 EAS 存证（schema #405：ipfsCid + title + sha256）：
+    `0x5e52a523299a348fd61f2264ac735e6bbfd5ecc439c35718432aa5791d53e05d` —
+    https://easscan.org/attestation/view/0x5e52a523299a348fd61f2264ac735e6bbfd5ecc439c35718432aa5791d53e05d
+  - IPFS：`QmVQDR2MT2fGKkAeUhKTjTmg9boqAnFiaSoMAfdHTys7Ec`（sha256 `d0ddbafc…e15c9`）
+  - 源码：`paper/radical/`（中英双版，jsfds 模板）
+
 ## 快速开始
 
 ```bash

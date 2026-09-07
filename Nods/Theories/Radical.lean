@@ -237,4 +237,117 @@ example : Real.exp (Real.log 3) = 3 := by
   rw [Real.exp_log]
   norm_num
 
+/- ------------------------------------------------------------------ -/
+/- 计算层 v2：三次 Cardano（通用 solver 从二次推到三次）              -/
+/- ------------------------------------------------------------------ -/
+
+-- 三次退化为缺二次项型（depressed）：x³ + p·x + q = 0。
+-- Cardano：令 s = √((q/2)² + (p/3)³)（判别式 ≥ 0），取 u 满足 u³ = −q/2 + s
+-- （∛ 的存在性 = 实数立方满射，下面用 IVT 证），再取 v := −(p/3)/u ——
+-- 则 v³ = −q/2 − s 且 uv = −p/3，于是 u+v 是根。
+-- 注：v 必须从 u 定义而不是独立开方，否则 u·v 会差一个三次单位根（又是挠！）。
+-- 边界：五次及以上一般无根式解（Abel–Ruffini，Galois 群可解性），那是另一章。
+
+/-- 非负实数有立方根（IVT，∛ 的存在性半边）。 -/
+lemma cube_surj_nonneg (y : ℝ) (hy : 0 ≤ y) : ∃ x : ℝ, x ^ 3 = y := by
+  let b : ℝ := max 1 (Real.sqrt y)
+  have hb1 : 1 ≤ b := le_max_left 1 (Real.sqrt y)
+  have hbs : Real.sqrt y ≤ b := le_max_right 1 (Real.sqrt y)
+  have hb : 0 ≤ b := le_trans (by norm_num) hb1
+  have hsqy : Real.sqrt y ^ 2 = y := Real.sq_sqrt hy
+  have h2 : b ^ 2 ≥ y := by
+    rw [← hsqy]
+    have hprod : (b - Real.sqrt y) * (b + Real.sqrt y) ≥ 0 :=
+      mul_nonneg (sub_nonneg.mpr hbs) (add_nonneg hb (Real.sqrt_nonneg y))
+    nlinarith [hprod]
+  have h3 : b ^ 3 ≥ b ^ 2 := by
+    have hp : b ^ 2 * (b - 1) ≥ 0 := mul_nonneg (sq_nonneg b) (sub_nonneg.mpr hb1)
+    nlinarith [hp]
+  have hfb : y ≤ b ^ 3 := by linarith
+  have hf0 : (0 : ℝ) ^ 3 ≤ y := by simp [hy]
+  have hmem : y ∈ Set.Icc ((0 : ℝ) ^ 3) (b ^ 3) := ⟨hf0, hfb⟩
+  rcases (intermediate_value_Icc (α := ℝ) (δ := ℝ) hb (continuous_pow 3).continuousOn hmem) with
+    ⟨x, _hxI, hx⟩
+  exact ⟨x, hx⟩
+
+/-- 实数立方满射：任意实数都是某个实数的立方（∛ 对所有实数存在）。 -/
+lemma cube_surj (y : ℝ) : ∃ x : ℝ, x ^ 3 = y := by
+  by_cases hy : 0 ≤ y
+  · exact cube_surj_nonneg y hy
+  · rcases cube_surj_nonneg (-y) (by linarith) with ⟨z, hz⟩
+    refine ⟨-z, ?_⟩
+    calc
+      (-z) ^ 3 = -z ^ 3 := by ring
+      _ = y := by rw [hz]; ring
+
+/-- Cardano 代数证书：u³、v³ 满足两个根式方程且 uv = −p/3 ⟹ u+v 是 x³+px+q=0 的根。 -/
+lemma cardano_certificate (p q s u v : ℝ)
+    (hu : u ^ 3 = -q / 2 + s) (hv : v ^ 3 = -q / 2 - s) (huv : u * v = -p / 3) :
+    (u + v) ^ 3 + p * (u + v) + q = 0 := by
+  have hsum : u ^ 3 + v ^ 3 = -q := by linarith [hu, hv]
+  have hpow : (u + v) ^ 3 = u ^ 3 + v ^ 3 + 3 * (u * v) * (u + v) := by ring
+  have hmain : (u + v) ^ 3 = -q - p * (u + v) := by
+    rw [hpow, hsum, huv]
+    ring
+  nlinarith [hmain]
+
+/-- v := −(p/3)/u 自动满足 v³ = −q/2 − s（需要 u ≠ 0 与 s² = 判别式）。 -/
+lemma vcube (p q s u : ℝ) (hu : u ^ 3 = -q / 2 + s) (hu0 : u ≠ 0)
+    (hs : s ^ 2 = (q / 2) ^ 2 + (p / 3) ^ 3) :
+    (-(p / 3) / u) ^ 3 = -q / 2 - s := by
+  have hnum : -(p / 3) ^ 3 = (q / 2) ^ 2 - s ^ 2 := by
+    rw [hs]
+    ring
+  calc
+    (-(p / 3) / u) ^ 3 = (-(p / 3)) ^ 3 / u ^ 3 := by rw [div_pow]
+    _ = -(p / 3) ^ 3 / u ^ 3 := by ring
+    _ = ((q / 2) ^ 2 - s ^ 2) / (-q / 2 + s) := by rw [hnum, hu]
+    _ = -q / 2 - s := by
+      have hA : -q / 2 + s ≠ 0 := by
+        intro hz
+        apply hu0
+        exact pow_eq_zero (by rw [hu, hz])
+      rw [div_eq_iff hA]
+      ring
+
+/-- 三次可解（Cardano）：判别式 (q/2)² + (p/3)³ ≥ 0 ⟹ x³ + px + q = 0 有实根。 -/
+theorem cubic_solvable (p q : ℝ) (hD : 0 ≤ (q / 2) ^ 2 + (p / 3) ^ 3) :
+    ∃ x : ℝ, x ^ 3 + p * x + q = 0 := by
+  by_cases hp : p = 0
+  · rcases cube_surj (-q) with ⟨x, hx⟩
+    refine ⟨x, ?_⟩
+    rw [hp]
+    linarith
+  · let s : ℝ := Real.sqrt ((q / 2) ^ 2 + (p / 3) ^ 3)
+    have hs : s ^ 2 = (q / 2) ^ 2 + (p / 3) ^ 3 := by
+      dsimp [s]
+      exact Real.sq_sqrt hD
+    rcases cube_surj (-q / 2 + s) with ⟨u, hu⟩
+    have hu0 : u ≠ 0 := by
+      intro huz
+      apply hp
+      have hA : -q / 2 + s = 0 := by
+        have hup : u ^ 3 = 0 := by rw [huz]; simp
+        linarith [hu, hup]
+      have hs_q2 : s = q / 2 := by linarith
+      have h2 : s ^ 2 = (q / 2) ^ 2 := by rw [hs_q2]
+      have hc : (p / 3) ^ 3 = 0 := by
+        linarith [hs, h2]
+      have hp3 : p / 3 = 0 := pow_eq_zero hc
+      nlinarith
+    let v : ℝ := -(p / 3) / u
+    have hv : v ^ 3 = -q / 2 - s := by
+      dsimp [v]
+      exact vcube p q s u hu hu0 hs
+    have huv : u * v = -p / 3 := by
+      dsimp [v]
+      field_simp [hu0]
+      ring
+    refine ⟨u + v, ?_⟩
+    exact cardano_certificate p q s u v hu hv huv
+
+/-- 示例：x³ − 3x + 2 = 0 有实根（判别式 1 + (−1)³ = 0）。 -/
+example : ∃ x : ℝ, x ^ 3 - 3 * x + 2 = 0 := by
+  simpa using (cubic_solvable (-3) 2 (by norm_num))
+
 end NODS
