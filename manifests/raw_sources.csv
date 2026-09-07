@@ -4,3 +4,4 @@ src-skill-001,NODS,NODS,thinking,skill.md,(repo)/skill.md,compiled,docs/wiki/pro
 src-code-core-001,NODS,NODS,code,Nods/Core/*.lean,(repo)/Nods/Core,compiled,docs/wiki/current-status.md,6 个核心层形式化 (Framework/Demand/Verdict/Minimal/Score/Engine)
 src-code-instances-001,NODS,NODS,code,Nods/Instances/*.lean,(repo)/Nods/Instances,compiled,docs/wiki/current-status.md,数系扩张实例; RealToComplex.lean 为空(R→C 待做)
 src-code-theories-001,NODS,NODS,code,Nods/Theories/*.lean,(repo)/Nods/Theories,compiled,docs/wiki/current-status.md,CS ⊇ CR ⊇ FL ⊇ LOF 理论阶梯
+src-fig-001,NODS,NODS,figure,root_vs_power.png,(repo)/docs/figures/root_vs_power.png,new,,幂 vs 开方示意图: 挠 μₙ 为何必然出现 (折叠 vs 截面); 由 scripts/plot_root_vs_power.py 生成
