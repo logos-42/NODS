@@ -57,12 +57,17 @@ compiled_from: [src-code-core-001, src-code-instances-001, src-code-theories-001
 
 **计算层 v2（三次 Cardano）**：任意 `x³+px+q=0`，判别式 `(q/2)²+(p/3)³ ≥ 0` 时构造性给出实根。先证实数立方满射 `cube_surj`（IVT，∛ 对所有实数存在），u 取 `u³ = −q/2+s`，v 定义为 `−(p/3)/u`（而非独立开方——否则 u·v 差一个三次单位根，又是挠），证书 `cardano_certificate`/`vcube` 机器验证 `u+v` 确为根。示例 `x³−3x+2=0` 有根。边界：五次及以上一般无根式解（Abel–Ruffini）。
 
+**计算层 v3（任意次开方，三次 → 五次 → … → n 次）**：一条 ∀n 形式化覆盖所有次数——`nthrootR n x := e^{(ln x)/n}`（ℝ₊ 的 n 次开方）。三条定理：`nthrootR_pow`（(⁽ⁿ⁾√x)ⁿ = x）、`pow_inj_on_Rpos`（ℝ₊ 上 pₙ 对任意 n 单射 = 定理 3 无挠塌缩的 ∀n 形式）、`nthrootR_eq_of_pow`（a>0 ∧ aⁿ=x ⟹ a=⁽ⁿ⁾√x，开方是幂的单值逆）。示例同一形式化取 n=5（`(nthrootR 5 32)^5 = 32`、`nthrootR 5 (2^5) = 2`）、3（∛27）、2（√9）、7（a⁷=128 ⟹ a=⁷√128）。含义：**纯开方没有次数上限**——五次死掉的是混合根式塔（Abel–Ruffini），不是根式。
+
 > ✅ 已接主链（`Nods.lean` 顶部 `import Nods.Theories.Radical`，随主构建全绿）；配套示意图 `docs/figures/root_vs_power.png`（src-fig-001，已登记 raw manifest）。
 
 ## 论文发表（2026-09-07）
 
-- **aiXiv**: `aixiv.260907.000001` v1.0（英文版 radical 论文，署名 元杰 刘 / ~User52）。标题 *The radical as a forced structure: how to split powers from radicals*（作者 Yuanjie Liu）。
-- **以太坊 EAS 主网存证**: attestation UID `0x5e52a523299a348fd61f2264ac735e6bbfd5ecc439c35718432aa5791d53e05d`（schema #405：ipfsCid+title+sha256）；IPFS CID `QmVQDR2MT2fGKkAeUhKTjTmg9boqAnFiaSoMAfdHTys7Ec`；sha256 `d0ddbafc86b8cf1590158e3d48d314c0b3132e55b58858196b34c287711e15c9`。验证: https://easscan.org/attestation/view/0x5e52a523299a348fd61f2264ac735e6bbfd5ecc439c35718432aa5791d53e05d
+- **aiXiv**: 英文版 `aixiv.260907.000001`（v1.0 保留；**v1.1** = 含任意次开方的新版本，id 1459，Under Review）；中文版 `aixiv.260908.000008` v1.0（id 1460，Under Review），标题《被逼出的真实结构：如何把幂与开方劈开》，署名 元杰 刘。英文标题 *The radical as a forced structure: how to split powers from radicals*（作者 Yuanjie Liu）。
+- **以太坊 EAS 主网存证**（schema #405：ipfsCid+title+sha256）：
+  - EN v1.1: UID `0xd808138983bda69edc418ee6d3dc30a0eb8f634b924a705eda89031d64a7ea68`，CID `QmVgDR916EHoNFb3rg3W4EdDNkmR1hRLDJarJqyhGZcLGj`，sha256 `04d61d07…dd28c`（v1.0: `0x5e52a5…d53e05d`，CID `QmVQDR2MT…ys7Ec`）
+  - ZH v1.0: UID `0x042a1ee3a44f8e0aef91627b70db72b68781a515378bf4d4ca00381d686f2faa`，CID `QmRnfwEUo3LE7qpzu5AnAwvmLomdoUNpAvwocnrtzac3Ed`，sha256 `27a3a42f…9016c`
+  - 验证: https://easscan.org/attestation/view/0xd808138983bda69edc418ee6d3dc30a0eb8f634b924a705eda89031d64a7ea68 与 https://easscan.org/attestation/view/0x042a1ee3a44f8e0aef91627b70db72b68781a515378bf4d4ca00381d686f2faa
 
 ## 构建状态（2026-09-07 · lake build v4.21.0）
 
@@ -76,7 +81,7 @@ compiled_from: [src-code-core-001, src-code-instances-001, src-code-theories-001
 ## 未支持 / 待做
 
 - **义务 O1**：`real_initiality_obligation`（R 在"完备 Archimedean 有序域 + 嵌入 Q"中的初始性）仍是 `axiom`——需要"唯一有序域同态 R → K"的构造（Dedekind 切割显式搬运，约 80 行分析），v0.2 应替换为 `IsMinimal` 证明。原义务 O2（ℚ 有序域结构唯一）已在本 session 证成定理 `lofLinearOrder_eq_rat`。
-- **Radical 计算层 v2 已完成**：三次 Cardano 根式解（`cube_surj` 满射 + `cardano_certificate`，见上）。后续候选：四次 Ferrari、五次 Abel–Ruffini 断崖（Galois 群可解性）、复根。已接主链（`Nods.lean` import）。
+- **Radical 计算层 v3 已完成**：任意次开方（∀n，ℝ₊ 单值）已落码（`nthrootR` + 三条 ∀n 定理，见上）。未落码候选：带 x² 项的一般三次（平移化为缺项型）、四次 Ferrari、五次 Abel–Ruffini 断崖的精确形式化（Galois 群可解性）、复根分支（μₙ 全貌，Nat.card μₙ = n）。已接主链（`Nods.lean` import）。
 - 自动化约束生成（Automated Constraint Generator）：v0.1 之后阶段，尚无代码。
 
 ## 在线/风险

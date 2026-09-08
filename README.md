@@ -77,15 +77,19 @@ pointed at unknown mathematical structures.
 
 ## Publications (2026-09-07)
 
-- **Radical / power-splitting paper (EN)** — *The radical as a forced structure:
-  how to split powers from radicals* (Yuanjie Liu). Lean-verified torsion split
-  (kernel / fibers / collapse criterion), certified quadratic + Cardano cubic
-  solvers, 0 proof gaps.
-  - aiXiv preprint: `aixiv.260907.000001` (v1.0)
-  - Ethereum mainnet EAS attestation (schema #405: ipfsCid + title + sha256):
-    `0x5e52a523299a348fd61f2264ac735e6bbfd5ecc439c35718432aa5791d53e05d` —
-    https://easscan.org/attestation/view/0x5e52a523299a348fd61f2264ac735e6bbfd5ecc439c35718432aa5791d53e05d
-  - IPFS: `QmVQDR2MT2fGKkAeUhKTjTmg9boqAnFiaSoMAfdHTys7Ec` (sha256 `d0ddbafc…e15c9`)
+- **Radical / power-splitting paper (zh + en)** — *The radical as a forced structure:
+  how to split powers from radicals* /《被逼出的真实结构：如何把幂与开方劈开》
+  (Yuanjie Liu). Lean-verified torsion split (kernel / fibers / collapse criterion),
+  certified quadratic + Cardano cubic solvers, and radicals of every degree
+  (∀n, single-valued on ℝ₊), 0 proof gaps.
+  - aiXiv preprints: `aixiv.260907.000001` (v1.1, incl. every-degree roots; v1.0 kept),
+    `aixiv.260908.000008` (Chinese version, v1.0)
+  - Ethereum mainnet EAS attestations (schema #405: ipfsCid + title + sha256):
+    - EN v1.1 `0xd808138983bda69edc418ee6d3dc30a0eb8f634b924a705eda89031d64a7ea68` —
+      https://easscan.org/attestation/view/0xd808138983bda69edc418ee6d3dc30a0eb8f634b924a705eda89031d64a7ea68
+    - ZH v1.0 `0x042a1ee3a44f8e0aef91627b70db72b68781a515378bf4d4ca00381d686f2faa` —
+      https://easscan.org/attestation/view/0x042a1ee3a44f8e0aef91627b70db72b68781a515378bf4d4ca00381d686f2faa
+  - IPFS: EN v1.1 `QmVgDR916EHoNFb3rg3W4EdDNkmR1hRLDJarJqyhGZcLGj`; ZH v1.0 `QmRnfwEUo3LE7qpzu5AnAwvmLomdoUNpAvwocnrtzac3Ed`
   - Source: `paper/radical/` (zh + en, jsfds template)
 
 ## Getting started

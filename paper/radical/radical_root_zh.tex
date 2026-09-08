@@ -102,6 +102,10 @@ $\mu_n$ 平凡''），三条均已在 Lean~4 + Mathlib 中机械验证、零证�
 给出两个根式解并证明多项式可分解。同一纲领推进到三次：立方映射在
 $\mathbb R$ 上的满射（中值定理）在证明系统内成立，Cardano 构造
 \citep{Cardano1545} 给出 $x^3+px+q=0$ 在判别式非负时的显式实根。
+同一纲领在爬完三次后转而变宽：一条定理把纯 $n$ 次开方一次性带到所有
+次数——$\sqrt[n]{x}=\exp(\ln x/n)$ 满足 $(\sqrt[n]{x})^n=x$ 且是唯一正
+解，于是五次开方与一切自然数次的开方不是梯子而是一条陈述。五次扣下的
+不是开方，而是混合塔。
 主推导中每一条陈述都经机器检查；
 可执行的整数算术与只能被认证、不可执行的实数命题之间的边界被明确划出。
 \end{abstract}
@@ -313,6 +317,33 @@ $v^3=-q/2-s$ 由 $(q/2)^2-s^2=-(p/3)^3$ 与 $u\ne0$ 直接算出（$u=0$
 \Lean{cube\_surj, vcube, cardano\_certificate, cubic\_solvable}
 \end{proof}
 
+\begin{theorem}[任意次开方]\label{thm:anydegree}
+设 $n\ge 1$ 是任意次数，$x>0$。在 $\mathbb R_+$ 上幂映射 $p_n$ 单射
+（定理~\ref{thm:collapse}：$\mu_n(\mathbb R_+)=\{1\}$），而 $y^n=x$ 的
+唯一正解是
+\begin{equation}\label{eq:anyroot}
+y=\sqrt[n]{x}:=\exp\!\Big(\frac{\ln x}{n}\Big),
+\end{equation}
+并对每个 $n\ge 1$ 有下列经机器检查的推论：
+\begin{enumerate}
+\item $(\sqrt[n]{x})^n=x$;
+\item 若 $a>0$ 且 $a^n=x$，则 $a=\sqrt[n]{x}$——开方是幂映射的逆，单值;
+\item 因此一条形式化陈述同时覆盖所有次数：$n=2,3,5,\dots$。
+\end{enumerate}
+五次把话说透：$(\sqrt[5]{32})^5=32$ 与 $\sqrt[5]{2^5}=2$ 与
+$\sqrt[3]{27}$、$\sqrt{9}$ 是同一个定理的实例；$a^7=128 \Rightarrow
+a=\sqrt[7]{128}$ 亦然。``任意次开方''在这里的意思是：对每个自然次数
+同时成立——不是一族函数在 $n\to\infty$ 下的极限，而是一条对全体 $n$
+一次性为真的定理。
+\end{theorem}
+\begin{proof}
+由定义，$(\sqrt[n]{x})^n=\exp(n\cdot\ln x/n)=\exp(\ln x)=x$，即第 1 条。
+$\mathbb R_+$ 上的单射：对 $a^n=b^n$ 取 $\ln$，得 $n\ln a=n\ln b$，
+除以 $n\ne0$ 得 $\ln a=\ln b$，再取指数得 $a=b$；第 2 条把这两点合在
+一起，且不需要对 $x$ 单独假设正性——$a>0$ 与 $a^n=x$ 已推出 $x>0$。
+\Lean{nthrootR\_pow, pow\_inj\_on\_Rpos, nthrootR\_eq\_of\_pow}
+\end{proof}
+
 这些陈述均经机器检查。两条边界被明确划出。
 
 \begin{itemize}
@@ -321,10 +352,13 @@ $v^3=-q/2-s$ 由 $(q/2)^2-s^2=-(p/3)^3$ 与 $u\ne0$ 直接算出（$u=0$
 平方根由完备性定义、不可执行；上述化简（例如 $\sqrt{16}=4$，经
 $\sqrt{a^2}=\abs a$）是经认证的定理，不是数值迭代。我们不声称一个
 数值根式求值器；我们声称经认证的根式陈述。
-\item \emph{下一阶.} 一般三次（带 $x^2$ 项）须先经平移化为缺项型，四次
-（Ferrari）以三次预解式铺路——同一纲领的这两步尚未落码。从五次起一般
-方程逃出根式（Abel--Ruffini \citep{Abel1824}）；精确陈述这个边界是纲领的
-Galois 半边 \citep{Galois1846}，本文不声称完成它。
+\item \emph{五次之墙是混合塔之墙，不是根式之墙.} 纯 $n$ 次开方对每个
+次数都存在（定理~\ref{thm:anydegree}）；在五次死掉的是\emph{混合}根式
+表达式：一般五次 $x^5+ax^4+bx^3+cx^2+dx+e=0$ 不能被任何由域运算与
+任意次开方搭成的塔解出（Abel--Ruffini \citep{Abel1824}）；精确陈述这个
+边界是纲领的 Galois 半边 \citep{Galois1846}，本文不声称完成它。同样
+尚未落码：带 $x^2$ 项的一般三次（平移化为缺项型）与四次（Ferrari，
+经三次预解式）。
 \end{itemize}
 
 \section{形式化说明}\label{sec:formal}
@@ -358,6 +392,12 @@ Galois 半边 \citep{Galois1846}，本文不声称完成它。
 （定理~\ref{thm:collapse}）。三条短定理、根式示例与带证书的二次、三次求解器，把这个陈述端到端地
 穿过一个证明系统；可执行的算术与被认证的
 实数分析之间的边界，在它出现的地方被明确标出。
+
+一个对比值得点明。纯根式是民主的：对每个次数 $n$，$\mathbb R_+$ 上的
+$n$ 次开方都存在、单值、是幂映射的逆（定理~\ref{thm:anydegree}）——
+求解器之梯只是混合塔的假象。混合根式塔止于四次、毁于五次
+（Abel--Ruffini \citep{Abel1824}、Galois \citep{Galois1846}）；机器在
+它能处把对比的两侧都立成定理，在不能处只作引用。
 
 \bibliography{biblio}
 

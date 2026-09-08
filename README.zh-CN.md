@@ -61,12 +61,12 @@ Nods/
 
 ## 论文发表（2026-09-07）
 
-- **开方/幂分离论文（英文版）**——*The radical as a forced structure: how to split powers from radicals*（Yuanjie Liu）。Lean 验证挠分离（核/纤维/塌缩判据）+ 带证书二次与 Cardano 三次求解器，0 证明缺口。
-  - aiXiv 预印本：`aixiv.260907.000001`（v1.0）
+- **开方/幂分离论文（中英双版）**——*The radical as a forced structure: how to split powers from radicals* /《被逼出的真实结构：如何把幂与开方劈开》（Yuanjie Liu）。Lean 验证挠分离（核/纤维/塌缩判据）+ 带证书二次、Cardano 三次求解器 + **任意次开方（∀n，ℝ₊ 单值）**，0 证明缺口。
+  - aiXiv 预印本：`aixiv.260907.000001`（v1.1，含任意次开方；v1.0 保留）、`aixiv.260908.000008`（中文版 v1.0）
   - 以太坊主网 EAS 存证（schema #405：ipfsCid + title + sha256）：
-    `0x5e52a523299a348fd61f2264ac735e6bbfd5ecc439c35718432aa5791d53e05d` —
-    https://easscan.org/attestation/view/0x5e52a523299a348fd61f2264ac735e6bbfd5ecc439c35718432aa5791d53e05d
-  - IPFS：`QmVQDR2MT2fGKkAeUhKTjTmg9boqAnFiaSoMAfdHTys7Ec`（sha256 `d0ddbafc…e15c9`）
+    - EN v1.1 `0xd808138983bda69edc418ee6d3dc30a0eb8f634b924a705eda89031d64a7ea68` — https://easscan.org/attestation/view/0xd808138983bda69edc418ee6d3dc30a0eb8f634b924a705eda89031d64a7ea68
+    - ZH v1.0 `0x042a1ee3a44f8e0aef91627b70db72b68781a515378bf4d4ca00381d686f2faa` — https://easscan.org/attestation/view/0x042a1ee3a44f8e0aef91627b70db72b68781a515378bf4d4ca00381d686f2faa
+  - IPFS：EN v1.1 `QmVgDR916EHoNFb3rg3W4EdDNkmR1hRLDJarJqyhGZcLGj`；ZH v1.0 `QmRnfwEUo3LE7qpzu5AnAwvmLomdoUNpAvwocnrtzac3Ed`
   - 源码：`paper/radical/`（中英双版，jsfds 模板）
 
 ## 快速开始

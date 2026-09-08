@@ -1,5 +1,14 @@
 # Wiki 日志
 
+## [2026-09-07] 计算层 v3 | 任意次开方（∀n）+ 论文双语发布 EN v1.1 / ZH v1.0
+
+- **计算层 v3（任意次开方）**：Radical.lean 新增 `nthrootR n x := e^{(ln x)/n}`（ℝ₊ 的 n 次开方）与三条 ∀n 定理——`nthrootR_pow`（(⁽ⁿ⁾√x)ⁿ=x）、`pow_inj_on_Rpos`（ℝ₊ 上 pₙ 对任意 n 单值 = μₙ 平凡塌缩的 ∀n 形式）、`nthrootR_eq_of_pow`（a>0 ∧ aⁿ=x ⟹ a=⁽ⁿ⁾√x，单值逆）。同一定理覆盖 √（n=2）、∛（3）、⁵√（5）与任意 n：示例 `(nthrootR 5 32)^5 = 32`、`nthrootR 5 (2^5) = 2`、∛27、√9、`a^7 = 128 ⟹ a = ⁷√128`。0 sorry 0 warning，`lake build` 全绿。
+- **论文扩展（中英双版）**：新增 Theorem（任意次开方）——纯开方无次数上限（对每个 n 同时成立，非 n→∞ 极限）；五次之墙是**混合塔**之墙（一般五次逃出根式塔，Abel–Ruffini），纯根式民主。摘要/结论/边界措辞同步；`aixiv_meta_radical_en.json` 摘要刷新，新建 `aixiv_meta_radical_zh.json`。
+- **发布（双语）**：
+  - aiXiv EN：`aixiv.260907.000001` v1.0 → **v1.1**（id 1459，Under Review，public）——含任意次开方的新 PDF + 新摘要；v1.0 保留。
+  - aiXiv ZH（新）：`aixiv.260908.000008` v1.0（id 1460，Under Review，public），标题《被逼出的真实结构：如何把幂与开方劈开》。
+  - EAS 主网（schema #405）：EN v1.1 UID `0xd808138983bda69edc418ee6d3dc30a0eb8f634b924a705eda89031d64a7ea68`（CID `QmVgDR916EHoNFb3rg3W4EdDNkmR1hRLDJarJqyhGZcLGj`）；ZH v1.0 UID `0x042a1ee3a44f8e0aef91627b70db72b68781a515378bf4d4ca00381d686f2faa`（CID `QmRnfwEUo3LE7qpzu5AnAwvmLomdoUNpAvwocnrtzac3Ed`）。链上 getAttestation 验证通过；台账 `~/.hermes/eas-bind/README.md` 已记录。
+
 ## [2026-09-07] 论文发表 | radical EN 上 aiXiv + 以太坊 EAS 锚定
 
 - **aiXiv 预印本**：`aixiv.260907.000001` v1.0（submission 1445，Under Review，CC-BY-4.0，is_public=1，authorship_type=human）；公开记录署名「元杰 刘」/ ~User52。

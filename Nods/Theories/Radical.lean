@@ -350,4 +350,87 @@ theorem cubic_solvable (p q : ℝ) (hD : 0 ≤ (q / 2) ^ 2 + (p / 3) ^ 3) :
 example : ∃ x : ℝ, x ^ 3 - 3 * x + 2 = 0 := by
   simpa using (cubic_solvable (-3) 2 (by norm_num))
 
+/- ------------------------------------------------------------------ -/
+/- 计算层 v3：任意次开方（三次 → 五次 → … → n 次，一次形式化覆盖全部次数） -/
+/- ------------------------------------------------------------------ -/
+
+-- 三次 Cardano 是「凑根式塔」的一阶；五次及以上一般方程逃出根式
+-- （Abel–Ruffini，那是壁，不是洞）。但**纯开方**没有次数上限：
+-- 对任意 n ≥ 1，ℝ₊ 上的 n 次开方都存在、单值、就是幂的逆 ——
+-- 因为 ℝ₊ 无挠（μₙ = {1}，定理 3 的塌缩侧）。
+-- 下面的定义与三条定理只写一次，n = 2（√）、3（∛）、5（⁵√）乃至
+-- 任意自然数 n 都落在同一形式化里 —— 这就是「无限次开方」的精确含义：
+-- 不是极限意义上的某种 n → ∞ 函数，而是**每个**次数都同时被证明。
+-- 定义走旧图景公式 x^(1/n) = e^{(ln x)/n} —— 它只在无挠世界 ℝ₊ 合法，
+-- 恰好印证本文：单值开方 ⇔ 无挠。
+
+/-- ℝ₊ 上的 n 次开方（任意次数 n ≥ 1）：x^(1/n) = e^{(ln x)/n}。
+    用指数/对数定义，非计算分支，但证书（下面三条定理）全部机器验证。 -/
+noncomputable def nthrootR (n : ℕ) (x : ℝ) : ℝ :=
+  Real.exp (Real.log x / (n : ℝ))
+
+/-- 主定理（任意次）：开方真的是「开方」——(x^(1/n))ⁿ = x。
+    ⁵√32、∛27、√9 是同一个定理取 n = 5、3、2。 -/
+theorem nthrootR_pow (n : ℕ) (hn : 0 < n) {x : ℝ} (hx : 0 < x) :
+    nthrootR n x ^ n = x := by
+  have hn0 : (n : ℝ) ≠ 0 := by exact_mod_cast (ne_of_gt hn)
+  unfold nthrootR
+  rw [← Real.exp_nat_mul]
+  rw [← mul_div_assoc]
+  have hcancel : ((n : ℝ) * Real.log x) / (n : ℝ) = Real.log x := by
+    rw [mul_div_assoc]
+    exact mul_div_cancel₀ (Real.log x) hn0
+  rw [hcancel]
+  exact Real.exp_log hx
+
+/-- 无挠塌缩的 ∀n 形式：ℝ₊ 上幂映射 pₙ 对**任意**次数都单射 ——
+    aⁿ = bⁿ 且 a, b > 0 ⟹ a = b（μₙ(ℝ₊) = {1}，定理 3 的 ℝ₊ 实例化）。 -/
+theorem pow_inj_on_Rpos (n : ℕ) (hn : 0 < n) {a b : ℝ} (ha : 0 < a) (hb : 0 < b) :
+    a ^ n = b ^ n → a = b := by
+  intro h
+  have hn0 : (n : ℝ) ≠ 0 := by exact_mod_cast (ne_of_gt hn)
+  have hla : Real.log (a ^ n) = Real.log (b ^ n) := by rw [h]
+  have hlog : (n : ℝ) * Real.log a = (n : ℝ) * Real.log b := by
+    simpa [Real.log_pow] using hla
+  have hlc : Real.log a = Real.log b := mul_left_cancel₀ hn0 hlog
+  have he : Real.exp (Real.log a) = Real.exp (Real.log b) := by rw [hlc]
+  simpa [Real.exp_log ha, Real.exp_log hb] using he
+
+/-- 开方是幂的逆（ℝ₊、任意次、单值）：a > 0 且 aⁿ = x ⟹ a = x^(1/n)。
+    x > 0 自动由 a > 0 推出，故不需单独假设。 -/
+theorem nthrootR_eq_of_pow (n : ℕ) (hn : 0 < n) {x a : ℝ} (ha : 0 < a)
+    (hp : a ^ n = x) : a = nthrootR n x := by
+  have hn0 : (n : ℝ) ≠ 0 := by exact_mod_cast (ne_of_gt hn)
+  have hla : Real.log (a ^ n) = Real.log x := by rw [hp]
+  have hlog : (n : ℝ) * Real.log a = Real.log x := by
+    simpa [Real.log_pow] using hla
+  have hdiv : Real.log a = Real.log x / (n : ℝ) := by
+    have hdiv0 : ((n : ℝ) * Real.log a) / (n : ℝ) = Real.log x / (n : ℝ) := by
+      rw [hlog]
+    rw [mul_div_assoc] at hdiv0
+    rw [mul_div_cancel₀ (Real.log a) hn0] at hdiv0
+    exact hdiv0
+  have he : Real.exp (Real.log a) = Real.exp (Real.log x / (n : ℝ)) := by rw [hdiv]
+  unfold nthrootR
+  simpa [Real.exp_log ha] using he
+
+-- 精确计算示例（同一形式化覆盖各次数）：
+-- 五次：⁵√32 真的五次方回 32；且 ⁵√(2⁵) = 2（开方是幂的逆）。
+example : (nthrootR 5 32) ^ 5 = 32 := by
+  exact nthrootR_pow 5 (by norm_num) (by norm_num)
+
+example (ha : (0 : ℝ) < 2) : nthrootR 5 (2 ^ 5) = 2 := by
+  exact (nthrootR_eq_of_pow 5 (by norm_num) ha rfl).symm
+
+-- 三次与二次也落进同一语句（∛27、√9）：
+example (hx : (0 : ℝ) < 27) : (nthrootR 3 27) ^ 3 = 27 := by
+  exact nthrootR_pow 3 (by norm_num) hx
+
+example (hx : (0 : ℝ) < 9) : (nthrootR 2 9) ^ 2 = 9 := by
+  exact nthrootR_pow 2 (by norm_num) hx
+
+-- 任意次（这里 n = 7）的单值性：a⁷ = 128, a > 0 ⟹ a = ⁷√128。
+example (ha : (0 : ℝ) < a) (hp : a ^ 7 = 128) : a = nthrootR 7 128 := by
+  exact nthrootR_eq_of_pow 7 (by norm_num) ha hp
+
 end NODS

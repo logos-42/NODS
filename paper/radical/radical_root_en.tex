@@ -79,7 +79,12 @@ polynomial is shown to factor. The same programme advances to the cubic:
 surjectivity of the cube map on $\mathbb R$ (intermediate value) holds
 inside the proof system, and the Cardano construction \citep{Cardano1545}
 exhibits a real root of $x^3+px+q=0$ whenever the discriminant is
-nonnegative. Every statement in the main deduction is
+nonnegative. The programme then stops climbing and widens: one theorem
+carries the pure $n$-th root to every degree at once ---
+$\sqrt[n]{x}=\exp(\ln x/n)$ satisfies $(\sqrt[n]{x})^n=x$ and is the unique
+positive solution, so quintic roots and roots of every natural degree are
+not a ladder but a single statement. Degree five withholds not the root
+but the mixed tower. Every statement in the main deduction is
 machine-checked; the boundary between executable integer arithmetic and
 certified, non-executable real statements is stated explicitly.
 \end{abstract}
@@ -323,6 +328,37 @@ Section~\ref{sec:quotient}, which machine verification forces us to face.
 \Lean{cube\_surj, vcube, cardano\_certificate, cubic\_solvable}
 \end{proof}
 
+\begin{theorem}[Radical of every degree]\label{thm:anydegree}
+Let $n\ge 1$ be any degree and let $x>0$. On $\mathbb R_+$ the power map
+$p_n$ is injective (Theorem~\ref{thm:collapse}: $\mu_n(\mathbb R_+)=\{1\}$),
+and the unique positive solution $y$ of $y^n=x$ is
+\begin{equation}\label{eq:anyroot}
+y=\sqrt[n]{x}:=\exp\!\Big(\frac{\ln x}{n}\Big),
+\end{equation}
+with the following machine-checked consequences, for every $n\ge 1$:
+\begin{enumerate}
+\item $(\sqrt[n]{x})^n=x$;
+\item if $a>0$ and $a^n=x$ then $a=\sqrt[n]{x}$ --- the radical is the
+inverse of the power map, single-valued;
+\item accordingly one formal statement covers every degree:
+$n=2,3,5,\dots$ at once.
+\end{enumerate}
+The quintic makes the point: $(\sqrt[5]{32})^5=32$ and $\sqrt[5]{2^5}=2$
+are instances of the same theorem as $\sqrt[3]{27}$ and $\sqrt{9}$; so is
+$a^7=128 \Rightarrow a=\sqrt[7]{128}$. ``Roots of arbitrary degree'' here
+means: for every natural degree simultaneously --- not a limit of a family
+of functions as $n\to\infty$, but one theorem true for all $n$ at once.
+\end{theorem}
+\begin{proof}
+By the definition, $(\sqrt[n]{x})^n=\exp(n\cdot\ln x/n)=\exp(\ln x)=x$,
+which is item~1. For injectivity on $\mathbb R_+$, apply $\ln$ to
+$a^n=b^n$: $n\ln a=n\ln b$, hence $\ln a=\ln b$ (division by $n\ne0$),
+hence $a=b$ by exponentiation; item~2 combines this with item~1 and needs
+no separate positivity hypothesis on $x$, since $a>0$ together with
+$a^n=x$ already forces $x>0$.
+\Lean{nthrootR\_pow, pow\_inj\_on\_Rpos, nthrootR\_eq\_of\_pow}
+\end{proof}
+
 The statements are machine-checked. Two boundaries are stated explicitly.
 
 \begin{itemize}
@@ -333,13 +369,16 @@ completeness and is not executable; the reductions above (for example
 $\sqrt{16}=4$ via $\sqrt{a^2}=\abs a$) are certified theorems, not
 numeric iterations. We do not claim a numeric radical evaluator; we claim
 certified radical statements.
-\item \emph{The next degree.} The same programme now needs a general
-cubic (with an $x^2$ term, first reduced to the depressed form by a
-translation) and a quartic (Ferrari, via a cubic resolvent); these two
-steps are not yet formalized. From degree $5$ the general equation
-escapes the radicals
-(Abel--Ruffini \citep{Abel1824}); stating that boundary precisely is the
-Galois half \citep{Galois1846} of the programme and is not claimed here.
+\item \emph{The wall at degree five is a wall against mixed towers, not
+against roots.} Pure $n$-th roots exist for every degree
+(Theorem~\ref{thm:anydegree}); what dies at degree~5 is the
+\emph{mixed} radical expression: the general quintic
+$x^5+ax^4+bx^3+cx^2+dx+e=0$ is not solvable by any tower of field
+operations and roots of arbitrary degree (Abel--Ruffini \citep{Abel1824});
+stating that boundary precisely is the Galois half \citep{Galois1846} of
+the programme and is not claimed here. Also not yet formalized: the
+general cubic with an $x^2$ term (translation to the depressed form) and
+the quartic (Ferrari, via a cubic resolvent).
 \end{itemize}
 
 \section{Formalization notes}\label{sec:formal}
@@ -383,6 +422,14 @@ solvers carry
 this statement through a proof system end to end, with the boundary
 between executable arithmetic and certified real analysis stated where it
 occurs.
+
+One contrast is worth naming. The pure radical is democratic: for every
+degree $n$ the $n$-th root on $\mathbb R_+$ exists, is single-valued, and
+inverts the power map (Theorem~\ref{thm:anydegree}) --- the ladder of
+solvers was an artifact of the mixed tower. Mixed towers of radicals end
+at degree four and fail at five (Abel--Ruffini \citep{Abel1824}, Galois
+\citep{Galois1846}); the machine states both sides of this contrast as
+theorems where it can, and cites where it cannot.
 
 \bibliography{biblio}
 
