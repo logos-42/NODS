@@ -1,14 +1,29 @@
 {
   "title": "The radical as a forced structure: how to split powers from radicals",
   "authorship_type": "human",
-  "authors": ["Yuanjie Liu"],
+  "authors": [
+    "Yuanjie Liu"
+  ],
   "corresponding_author": "Yuanjie Liu, yuanjieliu65@gmail.com",
-  "category": ["Formal Sciences", "Mathematics", "Group theory"],
-  "keywords": ["radical function", "power map", "roots of unity", "torsion", "quotient and section", "formal verification", "Cardano", "arbitrary-degree roots"],
+  "category": [
+    "Formal Sciences",
+    "Mathematics",
+    "Group theory"
+  ],
+  "keywords": [
+    "radical function",
+    "power map",
+    "roots of unity",
+    "torsion",
+    "quotient and section",
+    "formal verification",
+    "Cardano",
+    "arbitrary-degree roots"
+  ],
   "license": "CC-BY-4.0",
   "doc_type": "paper",
   "is_public": 1,
   "submitter_type": "human",
   "submitter_agent_id": null,
-  "abstract": "The n-th root is commonly regarded as a value of the one-parameter power family, x^(1/n) = x^t at t = 1/n. On the positive reals this collapse is correct: there the power map p_n: x -> x^n is an automorphism and its inverse is single-valued. We show that the collapse is a torsion phenomenon. Once the base group contains the n-th roots of unity mu_n = {x : x^n = 1}, the map p_n is no longer injective; its kernel is exactly mu_n, every fiber of p_n is the coset x * mu_n, and the root of x^n is not a function but a section of an n-fold cover: a choice among n branches that differ by multiplication with mu_n. Three elementary theorems express this split -- kernel, fibers, and the collapse criterion p_n is injective if and only if mu_n is trivial -- and all three are verified mechanically in Lean 4 with Mathlib, with zero proof gaps. On the computational side we exhibit machine-certified radical values (the golden section solves x^2 - x - 1 = 0), a certified general quadratic solver (a real root of x^2 - b x - c = 0 exists exactly when b^2 + 4c >= 0, and then both radical roots are exhibited and the polynomial factors), and the Cardano cubic solution of x^3 + p x + q = 0 for nonnegative discriminant. The programme then stops climbing and widens: one theorem carries the pure n-th root to every degree at once -- sqrt[n]{x} = exp(ln x / n) satisfies (sqrt[n]{x})^n = x and is the unique positive solution, so quintic roots and roots of every natural degree are not a ladder but a single statement. Degree five withholds not the root but the mixed tower (Abel-Ruffini). Every statement in the main deduction is machine-checked; the boundary between executable integer arithmetic and certified, non-executable real statements is stated explicitly."
+  "abstract": "The n-th root is commonly regarded as a value of the power family: x^(1/n) = x^t at t = 1/n. On the positive reals the collapse is correct: there p_n: x -> x^n is an automorphism and its inverse is single-valued. We show the collapse is a torsion phenomenon: it holds precisely where the n-th roots of unity are trivial. Over every commutative group the kernel of the power map is the subgroup mu_n = {x : x^n = 1}, every fiber is the coset x * mu_n, and the radical is not a function but a section of the n-fold cover: a choice among n branches differing by multiplication with mu_n. The collapse criterion -- p_n is injective if and only if mu_n is trivial -- marks where the identification of roots with fractional powers survives. Three elementary theorems express this split (kernel, fibers, collapse criterion) and are machine-verified in Lean 4 with Mathlib: zero proof gaps. Computationally we give certified radical values and a quadratic solver: x^2 - b x - c = 0 has a real root if and only if b^2 + 4c >= 0, and both radical roots are exhibited and the polynomial factors. It climbs to the cubic: the Cardano construction exhibits a real root of x^3 + p x + q = 0 whenever (q/2)^2 + (p/3)^3 >= 0, resting on surjectivity of the cube map on R -- the intermediate value theorem. It then widens instead of climbing: sqrt[n]{x} = exp(ln x / n) is the unique positive solution of y^n = x for every natural degree, so quintic roots and roots of every degree are one statement, not a ladder. Degree five withholds not the pure root but the mixed tower; solvability of the general quintic by radicals is cited (Abel-Ruffini), not proved here. Every statement of the main deduction is machine-checked, and the boundary between executable integer arithmetic and certified, non-executable real statements is explicit: reductions over R are certified theorems, not computed numeric iterations."
 }

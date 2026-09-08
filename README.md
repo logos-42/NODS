@@ -82,8 +82,8 @@ pointed at unknown mathematical structures.
   (Yuanjie Liu). Lean-verified torsion split (kernel / fibers / collapse criterion),
   certified quadratic + Cardano cubic solvers, and radicals of every degree
   (∀n, single-valued on ℝ₊), 0 proof gaps.
-  - aiXiv preprints: `aixiv.260907.000001` (v1.1, incl. every-degree roots; v1.0 kept),
-    `aixiv.260908.000008` (Chinese version, v1.0)
+  - aiXiv preprints: `aixiv.260907.000001` (v1.2, top-journal expansion; v1.0/v1.1 kept),
+    `aixiv.260908.000008` (Chinese version, v1.1; v1.0 kept)
   - Ethereum mainnet EAS attestations (schema #405: ipfsCid + title + sha256):
     - EN v1.1 `0xd808138983bda69edc418ee6d3dc30a0eb8f634b924a705eda89031d64a7ea68` —
       https://easscan.org/attestation/view/0xd808138983bda69edc418ee6d3dc30a0eb8f634b924a705eda89031d64a7ea68

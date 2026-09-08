@@ -88,26 +88,26 @@
 \end{aug}
 
 \begin{abstract}
-通常把 $n$ 次开方看成单参数幂族的一个取值：$x^{1/n}$ 即 $x^t$ 在
-$t=1/n$ 处。在正实数上这一塌缩是对的：那里幂映射
-$p_n\colon x\mapsto x^n$ 是自同构，逆是单值的。本文证明这一塌缩是
-\textbf{挠现象}。一旦底群含有 $n$ 次单位根
-$\mu_n=\{x:x^n=1\}$，幂映射便不再单射：它的核恰是 $\mu_n$，每个纤维是
-陪集 $x\cdot\mu_n$，而``$x^n$ 的开方''不再是函数，而是 $n$ 叶覆盖的
-\textbf{截面}——在彼此相差 $\mu_n$ 因子的 $n$ 个分支中选一个。三条初等
-定理刻画了这一分裂（核、纤维、以及塌缩判据``$p_n$ 单射当且仅当
-$\mu_n$ 平凡''），三条均已在 Lean~4 + Mathlib 中机械验证、零证明缺口。
-计算端给出机器认证的根式值（黄金分割解出 $x^2-x-1=0$）与一个带证书的
-通用二次求解器：$x^2-bx-c=0$ 有实根当且仅当 $b^2+4c\ge 0$，此时显式
-给出两个根式解并证明多项式可分解。同一纲领推进到三次：立方映射在
-$\mathbb R$ 上的满射（中值定理）在证明系统内成立，Cardano 构造
-\citep{Cardano1545} 给出 $x^3+px+q=0$ 在判别式非负时的显式实根。
-同一纲领在爬完三次后转而变宽：一条定理把纯 $n$ 次开方一次性带到所有
-次数——$\sqrt[n]{x}=\exp(\ln x/n)$ 满足 $(\sqrt[n]{x})^n=x$ 且是唯一正
-解，于是五次开方与一切自然数次的开方不是梯子而是一条陈述。五次扣下的
-不是开方，而是混合塔。
-主推导中每一条陈述都经机器检查；
-可执行的整数算术与只能被认证、不可执行的实数命题之间的边界被明确划出。
+通常把 $n$ 次开方看成幂族的一个取值：$x^{1/n}$ 即 $x^t$ 在
+$t=1/n$ 处。在正实数上这个塌缩是对的：那里幂映射
+$p_n\colon x\mapsto x^n$ 是自同构，其逆是单值的。本文证明这个塌缩是
+\textbf{挠}现象：它恰在 $n$ 次单位根平凡之处成立。在每个交换群上，
+幂映射的核是子群 $\mu_n=\{x:x^n=1\}$，每个纤维都是陪集 $x\cdot\mu_n$，
+而开方不是函数，而是 $n$ 叶覆盖的一个\textbf{截面}：在彼此相差
+$\mu_n$ 因子乘法的 $n$ 个分支中作一个选择。塌缩判据——$p_n$ 单射当且仅当
+$\mu_n$ 平凡——标出``根与分数次幂的同一化''仍然存活的边界。表达这一
+分裂的三条初等定理（核、纤维、塌缩判据）已在 Lean~4 + Mathlib 中机械
+验证：零证明缺口。计算端给出带证书的根式值与一个二次求解器：
+$x^2-bx-c=0$ 有实根当且仅当 $b^2+4c\ge0$，有实根时两个根式根都被显式
+给出且多项式可分解。同一纲领爬到三次：只要 $(q/2)^2+(p/3)^3\ge0$，
+Cardano 构造就显式给出 $x^3+px+q=0$ 的一个实根，其依据是 $\mathbb R$
+上立方映射的满射性——中值定理。随后它不再爬升而是变宽：
+$\sqrt[n]{x}=\exp(\ln x/n)$ 对每个自然次数都是 $y^n=x$ 的唯一正解，
+于是五次根与任意次数的根是一条陈述，而不是一架梯子。五次扣下的不是
+纯根，而是混合塔；一般五次能否用根式求解（Abel--Ruffini）在此只被
+引用，不被证明。主推导中的每一条陈述都经机器检查；可执行的整数算术与
+被认证的、不可执行的实数陈述之间的边界被明确划出：在 $\mathbb R$ 上
+的化简是被认证的定理，而不是被计算的数值迭代。
 \end{abstract}
 
 \begin{keywords}
@@ -137,61 +137,184 @@ $\mathbb R$ 上的满射（中值定理）在证明系统内成立，Cardano 构
 
 \section{问题、输入与逻辑次序}\label{sec:intro}
 
-记 $p_n$ 为乘法结构上的映射 $x\mapsto x^n$。我们关心的陈述是众所周知的
-同一化
+对 $t\in\mathbb R$ 与 $x>0$，幂 $x^t=\exp(t\ln x)$ \citep{Euler1748}
+是两个自变量的函数，单值，没有任何东西阻止我们在 $t=1/n$ 处对它求值。
+这给出公认的约定
 \begin{equation}
-  \text{``$n$ 次开方就是幂 $x^{1/n}$，即 $p_{1/n}$''}.
+  \text{``$n$ 次开方就是分数次幂 $x^{1/n}$，
+  即 $x^t$ 在 $t=1/n$ 处''}.
 \end{equation}
-作为正实数上的陈述它没有问题：每个 $x>0$ 都有唯一的 $y>0$ 满足
-$y^n=x$，记 $y=x^{1/n}=\exp(\tfrac1n\ln x)$ \citep{Euler1748}。但方程 $y^n=x$ 一般不只有
-一个解；在没有唯一解的地方，符号 $x^{1/n}$ 就悄悄地从若干解里选了一个。
-本文问：这个选择丢掉了什么。
+在正实数上这个约定看上去无害，也确实无害：幂映射 $p_n\colon x\mapsto x^n$
+严格递增，故单射；作为 $\mathbb R_+$ 的群自同态它是自同构，其逆恰好是
+(1) 的取值。这里从不作任何选择，因为 $\exp$ 与 $\ln$ 是函数，不是关系。
 
-我们沿用 compile-first 的写作纪律，把陈述分成三类：
+约定在被问之前就回答了如何反转映射 $x\mapsto x^n$ 的问题。本文问的是：
+这种反转在哪里失效，失效又把什么结构逼进存在。在一般的乘法结构上
+$p_n$ 并不单射；而对群同态来说，单射等价于核平凡。$p_n$ 的核是
+$n$ 次单位根子群 $\mu_n=\{x:x^n=1\}$；在 $\mathbb C^\times$ 上它是
+$n$ 阶循环群 \citep{Gauss1801}。失效不是某一公式的缺陷；它由 $\mu_n$
+度量。一旦 $\mu_n$ 在场，$p_n$ 在 $x^n$ 上的纤维就是整个陪集
+$x\cdot\mu_n$，而符号 $x^{1/n}$——若它指称什么——所指称的便是
+$n$ 个原像中的一个选择。因此反转幂映射逼出三个对象的存在：作为核的
+子群 $\mu_n$、作为纤维的陪集、以及教科书写作``根''的那些截面——分支
+选择。开方是 $n$ 叶覆盖的一个截面，不是一个函数。
 
-\begin{description}
-\item[约定.] 在正实数上，分数次幂塌缩 (1) 成立是因为
-$\mu_n\cap\mathbb R_+=\{1\}$；这是无挠群的事实，第~\ref{sec:collapse}
-节展开。
-\item[精确推论.] 在交换群 $G$ 上，$p_n$ 是群自同态。它的核是 $n$ 次
-单位根子群 $\mu_n=\{x\in G:x^n=1\}$；$p_n$ 的每个纤维都是 $\mu_n$ 的陪集；
-$p_n$ 单射当且仅当 $\mu_n$ 平凡。这就是定理~\ref{thm:ker}--\ref{thm:collapse}。
-\item[机器验证的内容.] 三条定理、根式示例与第~\ref{sec:computation} 节
-的二次求解器，均已在 Lean~4 \citep{deMoura2015} + Mathlib
-\citep{MathlibCommunity2020} 中形式化，位于 NODS 仓库
-（模块 \texttt{Nods.Theories.Radical}，已接入主构建，零证明缺口）。
-本文排版取自作者早前预印本的模板文件，其数学内容已完全替换；此处
-不涉及任何数论猜想。
-\end{description}
+主要结果不需要任何机制即可陈述，我们在此先把它们说出来；证明在下列各节
+给出。
+
+\begin{itemize}
+\item \emph{挠分裂。} 对每个交换群 $G$ 与每个 $n$，$p_n$ 的核恰是
+$\mu_n(G)$（定理~\ref{thm:ker}），$p_n$ 的每个纤维都是陪集
+$x\cdot\mu_n(G)$（定理~\ref{thm:fiber}），而 $p_n$ 单射当且仅当
+$\mu_n(G)$ 平凡（定理~\ref{thm:collapse}）。同一化 (1) 恰在最后一条
+判据成立的范围内存活；在 $\mathbb R_+$ 上它成立，因为 $\mathbb R_+$
+无挠。三条定理均已在 Lean~4 + Mathlib 中机械验证，零证明缺口。
+\item \emph{证书求解梯。} 在 $\mathbb R$ 上整个纲领在证明系统内部被
+认证。对实数 $b,c$，方程 $x^2-bx-c=0$ 有实根当且仅当
+$\Delta=b^2+4c\ge0$；有实根时，两个根式根都被显式给出且多项式可分解
+（定理~\ref{thm:quad}）。梯子爬到三次：只要 $(q/2)^2+(p/3)^3\ge0$，
+Cardano 构造就显式给出 $x^3+px+q=0$ 的一个实根，其唯一的解析输入是
+立方映射在 $\mathbb R$ 上的满射性（定理~\ref{thm:cubic}）。梯子随后
+停止爬升而变宽：一条陈述 $\sqrt[n]{x}=\exp(\ln x/n)$ 对每个次数
+$n$ 一次性给出 $y^n=x$ 的唯一正解（定理~\ref{thm:anydegree}）。没有
+单独的五次定理。
+\item \emph{墙在哪。} 纯 $n$ 次根对每个次数都存在。在五次处扣住不放的是
+混合塔：一般五次不能由域运算与提取任意次根解出。那条陈述
+（Abel--Ruffini \citep{Abel1824}，Galois 表述
+\citep{Galois1846}）作为本文的边界被引用，不在本文证明；其形式化不在
+声称之列。
+\end{itemize}
+
+策略是统一的。在 $\mathbb R_+$ 上每个幂与每个根都由 $\ln$ 与 $\exp$
+构造出来，那里 $p_n$ 是自同构，故 (1) 逐字成立。在任意交换群上没有
+解析工具，证明归结为环恒等式 $(xy)^n=x^ny^n$ 及其推论：核、纤维、
+塌缩判据。证书求解器以同样方式分裂：代换 $(\sqrt\Delta)^2=\Delta$
+之后二次是纯代数，把 $x^2-bx-c$ 分解为 $(x-r_+)(x-r_-)$；判别式为
+负的情形是配方。三次恰好需要一条解析输入——$\mathbb R$ 上立方映射的
+满射性，即 Mathlib 的中值定理——此后 Cardano 恒等式又回到纯代数。
+整条推导只含一个中值论证。
+
+全文始终明确划着一条边界：证明系统内证出的内容，与被引用的内容。
+系统内：三条结构定理、根式示例、二次/三次/任意次定理都已在 Lean~4
+\citep{deMoura2015} + Mathlib \citep{MathlibCommunity2020} 中形式化，
+位于 NODS 仓库的模块 \texttt{Nods.Theories.\allowbreak Radical}；模块
+在主构建中，对源码树的一次检索确认零 \texttt{sorry}。引用而不重证：
+单位根的经典语境 \citep{Gauss1801}、Cardano 构造的出处
+\citep{Cardano1545}、以及关于混合塔的 Abel--Ruffini 与 Galois 陈述
+\citep{Abel1824,Galois1846}。在实数上算术是被认证的，不是被执行的：
+$\sqrt{\,}$ 由完备性定义、不可执行，而 $\sqrt{16}=4$ 这类化简（经
+$\sqrt{a^2}=\abs a$）是被认证的定理，不是数值迭代。我们声称带证书的
+根式陈述，不声称数值根式求值器。
+
+论文的次序跟随刚提出的问题。第~\ref{sec:setting} 节在任意交换群上固定
+两个对象：幂映射与单位根子群。第~\ref{sec:collapse} 节记录
+$\mathbb R_+$ 上的塌缩及其在 $\mathbb C^\times$ 上的失效。
+第~\ref{sec:quotient} 节陈述并证明三条结构定理——核、作为陪集的纤维、
+塌缩判据——并把它们读作商与截面。第~\ref{sec:numbers} 节为单个的数
+画出具体推论。第~\ref{sec:computation} 节给出带证书的二次求解器、
+Cardano 三次与任意次开方，并陈述两条边界（可执行性，以及针对混合塔的
+五次之墙）。第~\ref{sec:formal} 节记录形式化选择，第~\ref{sec:conclusion}
+节收束全文。
+
+\subsection{相关工作}
+
+本文触及的文献古老而已经定型；贡献不是新数学，而是对一条约定在何处成立
+的带证书陈述。单位根被 Gauss 系统地研究 \citep{Gauss1801}；一般五次不
+能用根式求解由 Abel 证明 \citep{Abel1824}，Galois 把障碍变成群论
+\citep{Galois1846}。分数次幂、以及使 $x^{1/n}$ 成为 $\mathbb R_+$ 上
+函数的指数--对数演算是 Euler 的 \citep{Euler1748}。本文认证的三次解法
+可上溯到 Cardano 的 \emph{Ars Magna} \citep{Cardano1545}。在形式化一侧，
+Lean \citep{deMoura2015} 与其数学库 Mathlib \citep{MathlibCommunity2020}
+提供了实分析——$\exp$、$\ln$、$\sqrt{\,}$、中值定理——被认证的陈述
+复用它们而不是重建它们。
+
+\begin{itemize}
+\item 经典根式代数问的是哪些方程可以通过添加根来求解；本文问更窄的问题：
+对单个幂映射，它的核是什么、它的截面是什么，并对每个交换群给出答案。
+\item Euler 的 $x^{1/n}$ 在 $\mathbb R_+$ 上正确，不是因为 $\exp$ 有
+任何特殊性质，而是因为 $\mu_n\cap\mathbb R_+=1$；这里的分析把原因定位
+在挠上。
+\item Cardano 构造已有四个世纪；定理~\ref{thm:cubic} 加上证书，并使挠
+分裂的第三次出场显式化——$v$ 不能取成独立的立方根。
+\item Mathlib 已有实根与幂；本模块的贡献是分裂陈述（任意交换群上的核、
+纤维、塌缩判据）与带证书的求解器，零证明缺口。
+\item Abel--Ruffini 与 Galois 保持被引用而不被形式化；可执行的整数算术
+与被认证的、不可执行的实数陈述之间的边界被陈述出来，而不是被抹掉。
+\end{itemize}
 
 \section{设定：幂映射与单位根}\label{sec:setting}
 
 固定交换群 $G$（乘法书写）与 $n\in\mathbb N$。我们使用两个对象。
 
 \begin{definition}[幂映射]\label{def:power}
-$p_n\colon G\to G$，$p_n(x)=x^n$。
+$p_n\colon G\to G$ 记 $p_n(x)=x^n$。
 \end{definition}
 \begin{definition}[单位根]\label{def:mu}
 $\mu_n(G)=\{x\in G:x^n=1\}$ 是 $n$ 次单位根子群。
 \end{definition}
 
-$\mu_n(G)$ 是子群由交换性直接给出（$(xy)^n=x^ny^n$、
-$(x^{-1})^n=(x^n)^{-1}$）。它的元素是阶为 $n$ 之因子的\textbf{挠}；
-$\mu_n(G)=\{1\}$ 即``$G$ 无非平凡 $n$ 次单位根''。
+$\mu_n(G)$ 是子群由交换性直接给出（$(xy)^n=x^ny^n$、且
+$(x^{-1})^n=(x^n)^{-1}$）。它的元素是指数为 $n$ 的\emph{挠}；
+$\mu_n(G)=\{1\}$ 即``$G$ 没有非平凡 $n$ 次单位根''。
 
 $p_n$ 是群同态：$p_n(xy)=(xy)^n=x^ny^n=p_n(x)p_n(y)$（仍由交换性）。
 
+\textbf{两个底群。} 这套设定有两个实例贯穿全文。在
+$G=\mathbb R_+$（正实数乘法群）上，方程 $x^n=1$ 迫使 $x=1$，故
+$\mu_n(\mathbb R_+)=\{1\}$：单位根平凡，群无挠。在 $G=\mathbb C^\times$
+上同一个子群是正 $n$ 边形 $\mu_n(\mathbb C^\times)=\{e^{2\pi i k/n}:0\le
+k<n\}$，一个有 $n$ 个元素的循环群 \citep{Gauss1801}。抽象地看，基数
+从来不需要：第~\ref{sec:quotient} 节的定理对任意交换 $G$ 陈述，从不数
+单位根。$\mu_n(\mathbb C^\times)$ 恰有 $n$ 个元素是关于复指数的一条
+具体事实，不是机制的输入；在 $\mathbb R_+$ 上同一个子群平凡，而那一条
+事实就是两个世界之间的全部差别。
+
+\textbf{微例（$n=2$）。} 在 $G=\mathbb C^\times$ 上 $\mu_2=\{1,-1\}$，
+$p_2$ 在 $x^2$ 上的纤维是 $\{x,-x\}$：两片叶都平方得 $x^2$，群中没有任何
+东西偏爱其一。因此 $x^2$ 的平方根是一个二元素选择；两个值相差核元素
+$-1$。在 $G=\mathbb R_+$ 上对照鲜明：对 $x>0$，$x^2$ 上方的纤维是单点集
+$\{x\}$，因为 $-x\notin\mathbb R_+$。二元素选择塌缩为一个元素，
+$\sqrt{x^2}=x$ 被逼出，而第~\ref{sec:collapse} 节的塌缩在这里已以最简
+形式可见。
+
 \section{塌缩及其失效}\label{sec:collapse}
 
-在 $G=\mathbb R_+$（正实数乘法群）上，方程 $x^n=1$ 只有解 $x=1$
-（$x^n$ 严格递增）。故 $p_n$ 单射，作为无核的群自同态它是自同构：每个
-$y$ 恰有一个 $n$ 次根，即分数次幂 $y^{1/n}$。塌缩 (1) 恰是说这个逆
-\emph{唯一}；唯一性就是没有挠。
+在 $G=\mathbb R_+$（正实数，乘法）上，方程 $x^n=1$ 只有解 $1$；事实上
+$x^n$ 严格递增。故 $p_n$ 在 $\mathbb R_+$ 上单射。它也满射：每个 $y>0$
+都是 $y=\bigl(\exp(\tfrac1n\ln y)\bigr)^n$。作为既单又满的群自同态，
+$p_n$ 是自同构，每个 $y$ 恰有一个 $n$ 次根，即分数次幂
+$y^{1/n}=\exp(\tfrac1n\ln y)$。塌缩 (1) 恰是说这个逆\emph{唯一}，而唯一性
+就是没有挠。
 
 在 $\mathbb C^\times$ 上同一个方程有 $n$ 个解，即正 $n$ 边形
 $\mu_n(\mathbb C^\times)=\{e^{2\pi i k/n}:0\le k<n\}$，一个 $n$ 阶循环群
 \citep{Gauss1801}。
 不单射的程度就由这个群度量。下一节对每个交换群一次性说出机制。
+
+塌缩把挠藏在哪里？在对数的分支族里。固定 $x>0$，把 $\mathbb R_+$ 看成
+$\mathbb C^\times$ 的子集，写 $\zeta=e^{2\pi i/n}$。$x$ 的复 $n$ 次根是
+\[
+  \exp\!\Big(\frac{\ln x+2\pi i k}{n}\Big)
+  =\exp\!\Big(\frac{\ln x}{n}\Big)\,\zeta^k
+  =x^{1/n}\zeta^k,\qquad k=0,\dots,n-1,
+\]
+其中 $\ln$ 是实对数。指数内部相加的分支修正 $2\pi i k/n$ 在取指数之后
+恰好变成其外的核元素 $\zeta^k$：这个分支族已经携带 $\mu_n$ 因子，它不是
+别的，正是定理~\ref{thm:fiber} 的纤维 $x^{1/n}\mu_n$。正实分支是单叶
+$k=0$，那里 $\zeta^k=1$：在这片叶上 $\mu_n$ 不可见，因为在 $n$ 片叶中
+恰好一片——核因子为单位元的那片——落在正实轴上。复对数的主分支用割线
+而不是用群作出同样的选择：它不连续地选出叶 $k=0$，把挠挡在视线之外。
+
+\begin{remark}
+写 $x^{1/n}$ 从未使某个方程单值；它只是记录该方程本来就是单值的。塌缩
+在 $\mathbb R_+$ 上成立是因为这个群无挠、$\mu_n(\mathbb R_+)=\{1\}$，
+而不是因为某一种记号比另一种更好。在 $\mathbb C^\times$ 上任何记号的
+改革都无法修复它：$\mu_n(\mathbb C^\times)\ne\{1\}$，纤维有多片叶，
+且 $p_n$ 的任何右逆都不可能既连续（主分支就是不连续的选择）又与群律
+相容（同态截面 $s$ 会满足 $s(1)=1$，又因 $\zeta^n=1$ 而对任意非平凡
+$\zeta\in\mu_n(\mathbb C^\times)$ 有 $s(1)=s(\zeta^n)=\zeta$）。换符号
+改变不了任何东西，因为障碍活在群里，不在字母表里。
+\end{remark}
 
 \section{幂是商，开方是截面}\label{sec:quotient}
 
@@ -199,9 +322,18 @@ $\mu_n(\mathbb C^\times)=\{e^{2\pi i k/n}:0\le k<n\}$，一个 $n$ 阶循环群
 对每个交换群 $G$ 与每个 $n$，$\ker p_n=\mu_n(G)$。
 \end{theorem}
 \begin{proof}
-$x\in\ker p_n$ 当且仅当 $p_n(x)=1$ 当且仅当 $x^n=1$ 当且仅当
-$x\in\mu_n(G)$。 \Lean{powMap\_ker\_eq\_nRoots}
+一个元素 $x$ 属于 $p_n$ 的核，当且仅当 $p_n(x)=1$，当且仅当 $x^n=1$，
+当且仅当 $x\in\mu_n(G)$。 \Lean{powMap\_ker\_eq\_nRoots}
 \end{proof}
+
+\textit{它说的是什么。} 被幂映射杀掉的元素——即满足 $x^n=1$ 者——恰是
+$n$ 次单位根：$p_n$ 的核就是 $G$ 中指数为 $n$ 的挠。在 $\mathbb R_+$
+上这个核平凡；在 $\mathbb C^\times$ 上它是整个正 $n$ 边形。
+
+\textit{策略。} 按外延性证明子群相等：一个元素属于 $\ker p_n$ 当且仅当它
+属于 $\mu_n(G)$，而每一步都是定义性相等——展开核、$p_n$ 与 $\mu_n$ 的
+定义，把 $p_n(x)=1$ 逐字变成 $x^n=1$。这就是形式证明是一个定义性检查
+\Lean{powMap\_ker\_eq\_nRoots} 的原因：除定义之外不需要任何输入。
 
 \begin{theorem}[纤维是陪集]\label{thm:fiber}
 对每个交换群 $G$、每个 $n$ 以及任意 $x,z\in G$，
@@ -209,7 +341,7 @@ $x\in\mu_n(G)$。 \Lean{powMap\_ker\_eq\_nRoots}
   z^n=x^n \quad\Longleftrightarrow\quad \exists \zeta\in G,\;
   \zeta^n=1\ \wedge\ z=x\,\zeta .
 \]
-即 $p_n$ 在 $x^n$ 上的纤维是陪集 $x\cdot\mu_n(G)$。
+等价地说，$p_n$ 在 $x^n$ 上的纤维是陪集 $x\cdot\mu_n(G)$。
 \end{theorem}
 \begin{proof}
 ($\Leftarrow$) 若 $z=x\zeta$ 且 $\zeta^n=1$，则
@@ -219,9 +351,33 @@ $\zeta^n=(x^{-1}z)^n=(x^n)^{-1}z^n=1$，且 $z=x\zeta$。
 \Lean{powMap\_fiber\_iff}
 \end{proof}
 
-\begin{corollary}[分支数]\label{cor:branches}
-若 $x^n$ 有一个 $n$ 次根 $x_0$，则恰有 $\abs{\mu_n(G)}$ 个，
-即 $\zeta x_0$（$\zeta\in\mu_n(G)$）。在含 $\mu_n$ 的域上这个数是 $n$。
+\textit{它说的是什么。} 两个元素被 $p_n$ 折进同一个像，当且仅当它们落在
+$\mu_n$ 的同一个陪集里：$n$ 次幂相等当且仅当两个元素相差一个 $n$ 次单位根。
+在值 $x^n$ 上的纤维是叶集 $x\cdot\mu_n(G)$——一个点的全部原像——这就是
+为什么``$x^n$ 的开方''是叶丛中的选择而不是一次计算。
+
+\textit{策略。} 两个方向，各一行。($\Leftarrow$) 写 $z=x\zeta$（其中
+$\zeta^n=1$）并展开，用交换性：$z^n=x^n\zeta^n=x^n$。($\Rightarrow$)
+已知 $z^n=x^n$，像上面的证明那样取 $\zeta=x^{-1}z$。每个方向都是 $p_n$
+的定义加上同态性质。
+
+\begin{corollary}[一个值的所有根成一个陪集]\label{cor:rootset-coset}
+对任意 $x,z\in G$，
+\[
+  z^n=x^n \quad\Longleftrightarrow\quad z\in x\cdot\mu_n(G),
+\]
+即 $p_n$ 在其 $x$ 处取值之上的纤维是陪集
+$x\cdot\mu_n(G)=\{x\zeta:\zeta^n=1\}$。特别地，若 $z$ 是 $x^n$ 的一个根，
+则对每个 $\zeta\in\mu_n(G)$，$z\zeta$ 也是。
+\end{corollary}
+\begin{proof}
+定理~\ref{thm:fiber} 的直接重述。
+\end{proof}
+
+\begin{corollary}\label{cor:branches}
+若 $x^n$ 有一个 $n$ 次根 $x_0$，则它恰有 $\abs{\mu_n(G)}$ 个，
+即 $\zeta x_0$（$\zeta\in\mu_n(G)$）。在特征不整除 $n$ 且含一个本原
+$n$ 次单位根的域上——例如 $\mathbb C$——这个数恰为 $n$。
 \end{corollary}
 
 \begin{theorem}[塌缩判据]\label{thm:collapse}
@@ -233,7 +389,27 @@ $p_n$ 单射当且仅当 $\mu_n(G)=\{1\}$。
 \Lean{powMap\_injective\_iff\_nRoots\_trivial}
 \end{proof}
 
-三条定理的内容是两个结构角色的分工：
+\textit{它说的是什么。} 幂映射一一当且仅当唯一的 $n$ 次单位根是 $1$：
+单射性恰以挠在场为度而失效。在 $\mathbb R_+$ 上判据平凡地成立——这正是
+第~\ref{sec:collapse} 节塌缩的依据；在 $\mathbb C^\times$ 上它失效，
+那里没有单值塌缩可用。
+
+\textit{策略。} 对群同态，单射等价于核平凡。代入定理~\ref{thm:ker}
+算出的核：$p_n$ 单射当且仅当 $\mu_n(G)=\{1\}$。在证明系统里这是等价式
+\Lean{powMap\_injective\_iff\_nRoots\_trivial}：把标准的``核平凡当且仅当
+单射''引理套到``幂映射之核即单位根''这一识别上。
+
+\begin{corollary}[幂映射在正实数上单射]\label{cor:p-inj-Rpos}
+对每个 $n$，$p_n\colon\mathbb R_+\to\mathbb R_+$ 单射：正实数没有非平凡
+的 $n$ 次单位根。
+\end{corollary}
+\begin{proof}
+对 $y>0$，$y^n=1$ 迫使 $y=1$（映射 $t\mapsto t^n$ 在 $\mathbb R_+$ 上
+严格递增）；故 $\mu_n(\mathbb R_+)=\{1\}$，定理~\ref{thm:collapse}
+适用。 \Lean{pow\_inj\_on\_Rpos}
+\end{proof}
+
+三条定理的内容是两个结构角色的分工。
 
 \begin{itemize}
 \item \emph{幂是商。} $p_n$ 把 $x$ 在 $\mu_n$ 乘法作用下的整条轨道压成
@@ -246,34 +422,67 @@ $p_n$ 单射当且仅当 $\mu_n(G)=\{1\}$。
 $\mathbb C^\times$ 上失效的原因：不是代数变了，而是那里的覆盖平凡。
 \end{itemize}
 
-图~\ref{fig:fold} 以 $n=4$ 展示两个角色：四个点 $z\in x_0\mu_4$ 被
-$p_4$ 折进同一个像 $x_0^4$，而四个候选彼此相差正方形
-$\mu_4=\{1,i,-1,-i\}$。
+把图~\ref{fig:fold} 的两幅分栏读作本节两个角色在 $n=4$ 处的体现。左图
+盯住一个像值：$p_4$ 把四片不同的叶折进它，于是逆问题——哪个点映到这里？
+——有四个答案；这是商的角色，是整个陪集的同一化。右图盯住一片叶：乘以
+$i$ 把它移到下一片叶，四步之后回来：核在纤维上的自由传递作用。两幅分栏
+之间站着定理~\ref{thm:fiber}：同一个像上方的叶构成 $\mu_4$ 的一个陪集，
+而一次开方就是选取其中一片。
 
 \begin{figure}[t]
 \includegraphics[width=0.9\textwidth]{root_vs_power}
-\caption{左：$p_4$ 把四个不同的点折进同一个像，故逆（开方）有四个候选。
-右：四个候选不是孤立的；它们构成正方形 $\mu_4$（$p_4$ 的核），
-乘以 $i$ 便在其中循环。}
+\caption{左：$p_4$ 把同一纤维的四个不同点 $x_0,ix_0,-x_0,-ix_0$ 折进
+单一像 $x_0^4$，故逆问题``哪个点映到这里？''有四个答案，开方是叶丛中的
+选择而非一个取值。右：四片叶并不孤立；它们构成 $p_4$ 之核
+$\mu_4=\{1,i,-1,-i\}$ 的陪集 $x_0\mu_4$，乘以 $i$ 在其中循环，四步后
+回到起点。幂映射把整个陪集同一化为一个点，而核在该点之上的叶丛上自由
+且传递地作用——一次开方选择必须打破的 torsor（主齐性空间）结构。}
 \label{fig:fold}
 \end{figure}
 
 \section{挠逼出了什么：解释一个数}\label{sec:numbers}
 
-推论~\ref{cor:branches} 有一个具体读法。在 $\mathbb Q$ 上方程
-$x^2=2$ 无解；这是机器检查过的事实，也正是开方作为\emph{被逼出的对象}
-而非被选的符号的意义所在：
+下面的内容里有两套机制在起作用，值得把它们分开。一个纤维是否非空是
+\emph{算术}问题：在 $\mathbb Q$ 上方程 $x^2=2$ 根本没有解（下文机器
+检查过），开方作为新对象被逼进存在，而不是作为符号被选择。当纤维非空
+时，它的大小是\emph{挠}问题（推论~\ref{cor:branches}）：在 $\mathbb R$
+上 $x^2=2$ 的两个根是 $\pm\sqrt2$，它们相差 $\mu_2=\{\pm1\}$。存在是
+算术的；重数是挠的。
 \begin{itemize}
 \item 没有 $n\in\mathbb N$ 满足 $n^2=2$ \Lean{two\_not\_sq\_nat};
 \item 没有 $q\in\mathbb Q$ 满足 $q^2=2$ \Lean{two\_not\_sq\_rat};
-\item 在实数上 $\sqrt2$ 存在且 $(\sqrt2)^2=2$，而指数/对数路径给出
-另一个精确公式 $e^{\ln 2}=2$。
+\item 在实数上 $\sqrt2$ 存在且 $(\sqrt2)^2=2$，而指数/对数路径给出另一
+条不同的精确公式 $e^{\ln 2}=2$。
 \end{itemize}
-同一个数沿四条经典函数族有\emph{不同的}精确构造，而哪些族走得通依数
-而定：$25=5^2$（幂）且 $\sqrt{25}=5$（开方，可执行的整数平方根）；
-$2$ 根本不是平方，只能由根式或超越公式抵达；黄金分割
-$\varphi=(1+\sqrt5)/2$ 作为 $x^2-x-1=0$ 的根式解被显式给出，并验证
-$\varphi^2=\varphi+1$。这些是陈述，不是启发；每一条都由证明系统检查。
+同一个数容许\emph{不同的}精确构造，哪些函数族走得通依数而定。三条函数族
+贯穿本文：纯幂（$25=5^2$）、根式（$\sqrt{25}=5$，可执行的整数平方根）、
+指数--对数公式（$\exp(\ln 25)=25$，即 $\mathbb R_+$ 上
+$\exp\circ\ln=\mathrm{id}$ 这条恒等式）。数 $2$ 把第一族与另两族分开：
+没有自然数、也没有有理数平方得 $2$，故没有幂公式能解释它；只有当根式
+对象被逼进存在之后才能抵达它。黄金分割 $\varphi$ 本身就是一种根式对象：
+$\varphi=(1+\sqrt5)/2$ 解出 $x^2-x-1=0$，而验证就是
+$\varphi^2=\varphi+1$。表~\ref{tab:exhibit} 记录这份陈列；em 破折号标出
+该族在该数上失效的列。
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{lccc}
+  & \emph{幂} & \emph{开方} & \emph{指数对数}\\
+  \hline
+  $25$ & $25=5^2$ & $\sqrt{25}=5$ & $\exp(\ln 25)=25$\\
+  $2$ & --- & $(\sqrt2)^2=2$ & $e^{\ln 2}=2$\\
+  $\varphi$ & --- & $\varphi^2=\varphi+1$ & ---\\
+  \hline
+\end{tabular}
+\caption{一个数，由在它身上走得通的函数族来解释。条目或在该模块内被认证，
+或是其定理的直接实例（$\mathbb R_+$ 上的恒等式 $\exp\circ\ln=\mathrm{id}$）；
+em 破折号标出在该数上失效的函数族。}
+\label{tab:exhibit}
+\end{table}
+
+这些是陈述，不是启发：幂的断言是环计算，$\sqrt{25}=5$ 是可执行的整数
+化简，指数--对数的断言是恒等式 $\exp\circ\ln=\mathrm{id}$ 的实例。
+每一行都是同一证明系统内一条不同的带证书路径。
 
 \section{带证书的根式与通用二次求解器}\label{sec:computation}
 
@@ -282,6 +491,20 @@ $\varphi^2=\varphi+1$。这些是陈述，不是启发；每一条都由证明�
 \begin{equation}\label{eq:quad}
   x^2-bx-c=0,\qquad \Delta=b^2+4c .
 \end{equation}
+
+根式从何而来。配方在给两个根命名之前就把它们显式写出。由
+$x^2-bx-c=0$，
+\begin{equation*}
+  x^2-bx=\Bigl(x-\frac b2\Bigr)^2-\frac{b^2}{4}=c,
+\end{equation*}
+于是
+\begin{equation*}
+  (2x-b)^2=b^2+4c=\Delta.
+\end{equation*}
+因此每个根都满足上面写出的恒等式；反过来，任何满足它的 $x$ 都是根——
+把两步倒回去即可。当 $\Delta\ge0$ 时平方根 $\sqrt\Delta$ 在 $\mathbb R$
+上存在，$2x-b=\pm\sqrt\Delta$ 恰好给出定理~\ref{thm:quad} 的两个候选。
+失效的方向在同一方程里可见：当 $\Delta<0$ 时，左边 $(2x-b)^2$ 永不为负。
 
 \begin{theorem}[二次根式求解器]\label{thm:quad}
 设 $\Delta=b^2+4c\ge 0$。记
@@ -295,32 +518,64 @@ $r_+=(b+\sqrt\Delta)/2$、$r_-=(b-\sqrt\Delta)/2$。则
 \end{theorem}
 \begin{proof}
 一切断言由展开并使用 $(\sqrt\Delta)^2=\Delta$（实数平方根的定义性质）
-得到；第 1、2 条在代换后是纯环恒等式，第 3 条是配方法：
+得到；第 1、2 条在代换后是纯环恒等式，第 3 条是配方：
 $(2x-b)^2=\Delta$，$\Delta<0$ 时不可能。
 \Lean{quadRootPlus\_sq, quadRootMinus\_sq, quadFactor, quad\_no\_roots,
 quad\_solvable\_iff}
 \end{proof}
 
+这些根式又从哪里来。Cardano 的代换是两个未知量之间的分工。令 $x=u+v$
+并施加 $3uv=-p$；这是对两个自由度的一条标量条件，剩下的自由度恰好是
+第~\ref{sec:quotient} 节的 $\mu_3$-torsor（主齐性空间）：对每个三次单位
+根 $\zeta$，数对 $(u,v)$ 与 $(\zeta u,\zeta^{-1}v)$ 满足同一条条件。在
+这条条件下三次塌缩：
+\begin{align*}
+  x^3+px+q &=(u+v)^3+p(u+v)+q\\
+           &=u^3+v^3+(3uv+p)(u+v)+q
+            =u^3+v^3+q ,\\
+  u^3\,v^3 &=(uv)^3=(-p/3)^3=-p^3/27 .
+\end{align*}
+于是 $u^3$ 与 $v^3$ 之和为 $-q$、之积为 $-p^3/27$：它们是辅助二次
+\begin{equation*}
+  z^2+qz-\frac{p^3}{27}=0
+\end{equation*}
+的两个根，其判别式是 $\Delta_3=(q/2)^2+(p/3)^3$。若 $\Delta_3\ge0$，
+令 $s=\sqrt{\Delta_3}$；两个辅助根是 $-q/2\pm s$，下面的定理由它们造出
+一个实根。注意 $u$ 必须在 $-q/2+s$ 的三个立方根中选取——那个自由度又是
+$\mu_3$-torsor——而 $v$ 随后由 $u$ \emph{定义}为 $v=-p/(3u)$，从不独立
+选取：独立选取会让 $uv$ 与 $-p/3$ 相差一个三次单位根，$u+v$ 便不再是根。
+机器验证迫使这个定义性的选择 \Lean{vcube, cardano\_certificate}。
+
 \begin{theorem}[三次 Cardano 根式解]\label{thm:cubic}
 设 $\Delta_3=(q/2)^2+(p/3)^3\ge 0$。则 $x^3+px+q=0$ 有实根，构造如下：
-取 $s=\sqrt{\Delta_3}$，选 $u$ 满足 $u^3=-q/2+s$（存在，因立方映射在
+令 $s=\sqrt{\Delta_3}$，选 $u$ 满足 $u^3=-q/2+s$（可能，因立方映射在
 $\mathbb R$ 上满射），并令 $v=-p/(3u)$。则 $v^3=-q/2-s$、$uv=-p/3$，
 而 $u+v$ 是根。
 \end{theorem}
 \begin{proof}
 $u^3+v^3=-q$ 与 $3uv=-p$ 合起来给出
-$(u+v)^3=u^3+v^3+3uv(u+v)=-q-p(u+v)$，故 $(u+v)^3+p(u+v)+q=0$。
-$v^3=-q/2-s$ 由 $(q/2)^2-s^2=-(p/3)^3$ 与 $u\ne0$ 直接算出（$u=0$
-的情形迫使 $p=0$，退化为 $x^3+q$）。注意 $v$ 不能取成 $-q/2-s$ 的
-\emph{独立}立方根：那样 $uv$ 会差一个三次单位根——这是
-第~\ref{sec:quotient} 节挠区分的第三次出场，机器验证迫使我们正视它。
+$(u+v)^3=u^3+v^3+3uv(u+v)=-q-p(u+v)$，故
+$(u+v)^3+p(u+v)+q=0$。恒等式 $v^3=-q/2-s$ 由
+$(q/2)^2-s^2=-(p/3)^3$ 与 $u\ne0$ 直接算出（$u=0$ 的情形迫使 $p=0$，
+退化为 $x^3+q$）。注意 $v$ 不能取成 $-q/2-s$ 的\emph{独立}立方根：那样
+$uv$ 会相差一个三次单位根——这是第~\ref{sec:quotient} 节挠分裂的第三次
+出场，机器验证迫使我们正视它。
 \Lean{cube\_surj, vcube, cardano\_certificate, cubic\_solvable}
 \end{proof}
+
+\textbf{为什么用 $\exp$ 与 $\log$，而且只在这里。} 公式
+$\sqrt[n]{x}=\exp(\ln x/n)$ 需要 $\ln$ 是单值函数、需要塌缩 (1) 成立；
+两者在 $\mathbb R_+$ 上都为真，而 $\mathbb R_+$ 无挠
+（$\mu_n(\mathbb R_+)=\{1\}$，定理~\ref{thm:collapse}）。在
+$\mathbb C^\times$ 上同一个公式会迫使 $\ln$ 选一个分支，而分支选择恰好
+就是穿过 $\mu_n$ 的选择：exp/log 路线是写在挠不可见的分支上的截面。
+这就是为什么该构造是关于 $\mathbb R_+$ 的陈述，而不是关于公式便利性的
+陈述。
 
 \begin{theorem}[任意次开方]\label{thm:anydegree}
 设 $n\ge 1$ 是任意次数，$x>0$。在 $\mathbb R_+$ 上幂映射 $p_n$ 单射
 （定理~\ref{thm:collapse}：$\mu_n(\mathbb R_+)=\{1\}$），而 $y^n=x$ 的
-唯一正解是
+唯一正解 $y$ 是
 \begin{equation}\label{eq:anyroot}
 y=\sqrt[n]{x}:=\exp\!\Big(\frac{\ln x}{n}\Big),
 \end{equation}
@@ -328,7 +583,7 @@ y=\sqrt[n]{x}:=\exp\!\Big(\frac{\ln x}{n}\Big),
 \begin{enumerate}
 \item $(\sqrt[n]{x})^n=x$;
 \item 若 $a>0$ 且 $a^n=x$，则 $a=\sqrt[n]{x}$——开方是幂映射的逆，单值;
-\item 因此一条形式化陈述同时覆盖所有次数：$n=2,3,5,\dots$。
+\item 因此一条形式化陈述同时覆盖所有次数：$n=2,3,5,\dots$ 一次性成立。
 \end{enumerate}
 五次把话说透：$(\sqrt[5]{32})^5=32$ 与 $\sqrt[5]{2^5}=2$ 与
 $\sqrt[3]{27}$、$\sqrt{9}$ 是同一个定理的实例；$a^7=128 \Rightarrow
@@ -340,7 +595,7 @@ a=\sqrt[7]{128}$ 亦然。``任意次开方''在这里的意思是：对每个�
 由定义，$(\sqrt[n]{x})^n=\exp(n\cdot\ln x/n)=\exp(\ln x)=x$，即第 1 条。
 $\mathbb R_+$ 上的单射：对 $a^n=b^n$ 取 $\ln$，得 $n\ln a=n\ln b$，
 除以 $n\ne0$ 得 $\ln a=\ln b$，再取指数得 $a=b$；第 2 条把这两点合在
-一起，且不需要对 $x$ 单独假设正性——$a>0$ 与 $a^n=x$ 已推出 $x>0$。
+一起，且不需要对 $x$ 单独假设正性——$a>0$ 与 $a^n=x$ 已经推出 $x>0$。
 \Lean{nthrootR\_pow, pow\_inj\_on\_Rpos, nthrootR\_eq\_of\_pow}
 \end{proof}
 
@@ -350,54 +605,109 @@ $\mathbb R_+$ 上的单射：对 $a^n=b^n$ 取 $\ln$，得 $n\ln a=n\ln b$，
 \item \emph{可执行性.} 在 $\mathbb N$ 上整数平方根 $\sqrt{25}=5$
 由证明系统本身算出并化简（\texttt{norm\_num}）。在 $\mathbb R$ 上
 平方根由完备性定义、不可执行；上述化简（例如 $\sqrt{16}=4$，经
-$\sqrt{a^2}=\abs a$）是经认证的定理，不是数值迭代。我们不声称一个
-数值根式求值器；我们声称经认证的根式陈述。
+$\sqrt{a^2}=\abs a$）是被认证的定理，不是数值迭代。我们不声称一个
+数值根式求值器；我们声称带证书的根式陈述。
 \item \emph{五次之墙是混合塔之墙，不是根式之墙.} 纯 $n$ 次开方对每个
-次数都存在（定理~\ref{thm:anydegree}）；在五次死掉的是\emph{混合}根式
+次数都存在（定理~\ref{thm:anydegree}）；在五次死去的是\emph{混合}根式
 表达式：一般五次 $x^5+ax^4+bx^3+cx^2+dx+e=0$ 不能被任何由域运算与
-任意次开方搭成的塔解出（Abel--Ruffini \citep{Abel1824}）；精确陈述这个
-边界是纲领的 Galois 半边 \citep{Galois1846}，本文不声称完成它。同样
-尚未落码：带 $x^2$ 项的一般三次（平移化为缺项型）与四次（Ferrari，
-经三次预解式）。
+任意次开方搭成的塔解出（Abel--Ruffini \citep{Abel1824}）；精确陈述那个
+边界是纲领的 Galois 半边 \citep{Galois1846}，本文不声称完成它。
 \end{itemize}
 
 \section{形式化说明}\label{sec:formal}
 
-所有标 \Lean{...} 的陈述均在 Lean~4 \citep{deMoura2015} + Mathlib
-\citep{MathlibCommunity2020} 中证明，位于 NODS 仓库的模块
-\texttt{Nods.Theories.\allowbreak Radical}。技术选择：
+上面标有 Lean 交叉引用的全部陈述，均以 Lean~4 \citep{deMoura2015}
+（版本 4.21.0）+ Mathlib \citep{MathlibCommunity2020} 证明，位于 NODS
+仓库的单一模块 \texttt{Nods.Theories.}\allowbreak\texttt{Radical}，由主链
+文件 \texttt{Nods.lean} 导入。证明都很短——定理~\ref{thm:ker} 是定义性的，
+定理~\ref{thm:fiber} 每个方向各一步计算，定理~\ref{thm:collapse} 是标准
+``核平凡当且仅当单射''引理的一个实例——而下面的每一条工程选择，记录的
+都是让这些证明通过时遇到的一道障碍。
 \begin{itemize}
-\item 定理陈述于任意交换群 $G$（\texttt{CommGroup}），使塌缩判据作为
-等价而非 $\mathbb R_+$ 的偶然成立；
-\item 幂映射取 Mathlib 同态 \texttt{powMonoidHom}；单位根为自定义子群
-\texttt{nRoots}；
-\item 证明都很短，不超出 Mathlib 标准库：定理~\ref{thm:ker} 是定义性的，
-定理~\ref{thm:fiber} 两个方向各一步计算，
-定理~\ref{thm:collapse} 由标准的``核平凡当且仅当单射''推出；
-\item 三次的解析原语——立方映射在 $\mathbb R$ 上满射——由 Mathlib 的
-中值定理（\texttt{intermediate\_value\_Icc}）给出，见定理~\ref{thm:cubic}；
-\texttt{Real.sqrt} 不可执行的边界不变；
-\item 模块已被主文件 import，全仓构建通过；源码树中 grep 确认零
-\texttt{sorry}。
+\item \emph{一般性陈述。} 每条定理都陈述于任意交换群 $G$
+（\texttt{CommGroup}）而非只限于 $\mathbb R_+$，于是塌缩判据读作关于任何
+群中挠的定理，而不是正实数的一个偶然——这个选择零成本，因为论证只用
+交换性与群公理。
+\item \emph{文件内的核子群。} 单位根在文件内构造成 \texttt{nRoots}
+$n$ $G$，载体是满足 $x^n=1$ 的 $x$ 之集，而不是从 Mathlib 基于单位的
+\texttt{rootsOfUnity} 导入；那个库对象活在单位群上（$G^\times$ 的元素
+连同逆的见证），而幂映射的核是 $G$ 的普通子集，在两者之间转换只会为
+每次使用添上搬运引理，一无所获。
+\item \emph{复用幂映射。} $p_n$ 没有被重新定义：定理直接使用 Mathlib 的
+\texttt{powMonoidHom}，于是同态事实、核引理与子群 API 无需胶水即可
+套用。
+\item \emph{零 \texttt{sorry}、零警告方针。} 模块执行严格标准：源码树中
+无任何 \texttt{sorry}，模块不新增自己的 \texttt{axiom}，构建干净——
+``机器检查''指的是检入仓库的文件，而不是某次会话的记录誊本。
+\item \emph{立方根是证出来的，不是导入的。} $\mathbb R$ 上立方映射的
+满射性——Cardano 一步背后的解析原语——是在系统内由 Mathlib 在有界区间
+上的中值定理（\texttt{intermediate\_value\_Icc}）证出的，因为 Mathlib
+没有立方根本原语；IVT 证明就是那个原语（定理~\ref{thm:cubic}）。
+\item \emph{经 $\exp$ 与 $\log$ 的任意次开方。} 对任意次数也不再新建
+原语：$\sqrt[n]{x}$ 定义为 $\exp(\ln x/n)$，两条断言
+$(\sqrt[n]{x})^n=x$ 与唯一性由 \texttt{exp\_nat\_mul} 和
+\texttt{log\_pow} 推出（经由 $\ln$ 在 $\mathbb R_+$ 上的单射），于是
+一条定理同时覆盖每个 $n\ge1$（定理~\ref{thm:anydegree}）。
+\item \emph{不可执行的实数，可执行的整数。} 可执行性只在它存在的地方被
+声称：\texttt{Real.sqrt}、\texttt{Real.exp}、\texttt{Real.log} 与
+$n$ 次根是由实分析固定的不可执行常量，而 \texttt{Nat.sqrt} 可计算；
+被执行的示例是整数性的，由 \texttt{norm\_num} 化简（$\sqrt{25}=5$），
+而 $\sqrt{16}=4$ 这类实数恒等式是由 $\sqrt{a^2}=\abs a$ 推出的被认证
+定理——被陈述并被证明，而不是被计算。
+\item \emph{主链集成。} 集成是声称的一部分：模块经由 \texttt{Nods.lean}
+的导入而编入仓库的每次完整构建，故本文的形式内容被持续运行，而不是被
+一次性归档。
 \end{itemize}
-本文的排版模板（版式类 \texttt{jsfds}、双语惯例）取自作者早前预印本；
-其数学内容已完全替换为上述材料。
+与本文他处一样，模块不触碰任何数论猜想；本文版式继承自作者早前的一篇
+预印本，不携带其任何原有数学内容。
 
 \section{结论}\label{sec:conclusion}
 
-``$n$ 次开方是分数次幂''并不是错的；它是局部的。它恰好在覆盖平凡的
-分支上成立，即 $\mu_n=\{1\}$ 处。在携带 $n$ 次单位根的群上，幂与开方是
-两个不同的结构角色——按 $\mu_n$ 折叠的商，与由此得到的 $n$ 叶覆盖的
-截面——而挠子群 $\mu_n$ 正是差异的精确度量：删掉它，区分立即塌缩
-（定理~\ref{thm:collapse}）。三条短定理、根式示例与带证书的二次、三次求解器，把这个陈述端到端地
-穿过一个证明系统；可执行的算术与被认证的
-实数分析之间的边界，在它出现的地方被明确标出。
+把 $n$ 次开方等同于分数次幂并不为假；它是局部的。在 $\mathbb C^\times$
+上符号 $x^{1/n}$ 指名 $n$ 个候选之一却不说是哪一个：幂与开方不是一件
+操作穿两件外衣，而是两个结构角色——按 $\mu_n$ 的商，与由此得到的
+$n$ 叶覆盖的截面——而挠子群 $\mu_n$ 正是差异的精确度量，因为删掉它
+区分立即塌缩：恰在 $\mu_n=\{1\}$ 时 $p_n$ 变得单射，开方回归为幂映射的
+逆（定理~\ref{thm:collapse}）。在 $\mathbb R_+$ 上塌缩于是不是实分析的
+奇迹：$\mu_n\cap\mathbb R_+=\{1\}$，覆盖没有可使之非平凡的东西，截面
+成为一个函数。
 
-一个对比值得点明。纯根式是民主的：对每个次数 $n$，$\mathbb R_+$ 上的
-$n$ 次开方都存在、单值、是幂映射的逆（定理~\ref{thm:anydegree}）——
-求解器之梯只是混合塔的假象。混合根式塔止于四次、毁于五次
-（Abel--Ruffini \citep{Abel1824}、Galois \citep{Galois1846}）；机器在
-它能处把对比的两侧都立成定理，在不能处只作引用。
+分裂是结构性的而非修辞性的——这是证书求解梯的分量所在。二次求解器在
+$\Delta\ge0$ 时同时给出 $x^2-bx-c=0$ 的两个根并把多项式分解
+（定理~\ref{thm:quad}）；Cardano 构造给出缺项三次的一个实根，并在其
+证明中被逼着正面撞上挠分裂，因为 $v$ 不能取成 $-q/2-s$ 的独立立方根
+（定理~\ref{thm:cubic}）；而纯 $n$ 次根随后把整架梯子夷平，因为一条
+$\exp/\log$ 陈述对每个次数一次性给出唯一正根——五次根不是更高一级的
+横档，而是同一定理在 $n=5$ 处的样子（定理~\ref{thm:anydegree}）。
+
+声称的边界是声称的一部分。五次处死去的不是根，而是混合塔：对任意次根
+封闭的域运算解出一切四次以下的多项式，却在一般五次处失败；Abel--Ruffini
+与 Galois 理论 \citep{Abel1824,Galois1846} 固定了那条边界——此处只引用
+而不证明，也理应如此，因为形式证明是另一项纲领，不是一段缺失的文字。
+同样地，本文展示的实数算术是被认证的而非被执行的：整数根式由证明系统
+计算（\texttt{norm\_num}），而 $\sqrt{16}=4$ 这类陈述是关于不可执行
+常量的定理，经由 $\sqrt{a^2}=\abs a$ 验证；两种体制相接之处，正文明确
+写出边界。
+
+\section{后续工作}\label{sec:future}
+
+下面各项都还没有完成；每一项标出的是本文工作的边界，而不是一项声称。
+\begin{itemize}
+\item \emph{复情形的完整图景。} 在 $\mathbb C^\times$ 中应当有
+$|\mu_n|=n$ 与一个 $n$ 值根，其单值群按 $\mu_n$ 置换分支，从而把
+第~\ref{sec:quotient} 节的代数分裂与分数次幂记号背后的解析图景熔为
+一体。代价：$\mu_n(\mathbb C^\times)$ 的分圆理论，加上覆叠空间的机制。
+\item \emph{形式化的 Galois 之墙。} 在 Lean 内部证明——而不是引用——
+关于五次的 Abel--Ruffini，会使五次处的边界成为系统内部的边界。代价：
+可解群理论、域扩张与 $S_5$ 的不可解性——一项庞大而独立的工程。
+\item \emph{混合塔的补全。} 把一般三次平移为缺项型的代换步骤，以及经
+三次预解式的 Ferrari 四次，会把被认证的可解范围补到四次以内。代价：
+中等；预解式的根选择又是第~\ref{sec:quotient} 节的挠分支问题。
+\item \emph{带证书的数值开方。} 携带证明的区间方法会把第~\ref{sec:computation}
+节中被认证但不可执行的实数根式变成验证过的包含区间——从陈述通向计算的
+一座桥。代价：为 $\exp$、$\log$ 与根建立一层近似；分量不轻，但相对本
+工程是常规工作。
+\end{itemize}
 
 \bibliography{biblio}
 

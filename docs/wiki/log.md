@@ -1,5 +1,15 @@
 # Wiki 日志
 
+## [2026-09-08] 论文顶刊标准扩写 | 双语发布 EN v1.2 / ZH v1.1（aiXiv，无 EAS）
+
+- **顶刊标准扩写（leo 要求）**：内容从 436 行扩到 EN 855 / ZH 714 行。阅读流重排（摘要独立成文、主结果前置、路线图）、详略重分配（该详处：配方法/Cardano 替换推导、每定理 What-it-says+策略段、数字展览表 tab:exhibit、分支隐藏挠的 Remark、图引导段与新 caption；该略处：删模板残留、剪掉与后续工作重复的边界句）。新增：引言重写 + 相关工作子节、两条推论（cor:rootset-coset / cor:p-inj-Rpos）、后续工作节（复根全貌/形式化 Galois 墙/混合塔补齐/区间法数值根式——均声明未完成）。数学简洁性保持：不发明新定理，\Lean 标识符全部真实存在。
+- **Skill 落库**：`topjournal-math-paper`（顶刊写作标准：single-pass 阅读流、重点分层、详略规则、自查清单、配子智能体扩写工作流）——以后写论文照此标准。
+- **发布（版本更新，按新规无 EAS）**：
+  - aiXiv EN：`aixiv.260907.000001` v1.1 → **v1.2**（id 1461，Under Review，public）——扩写版 PDF + 新摘要。
+  - aiXiv ZH：`aixiv.260908.000008` v1.0 → **v1.1**（id 1462，Under Review，public）——中文镜像同步扩写。
+  - 元数据模板两版摘要已同步（`aixiv_meta_radical_{en,zh}.json`）。
+  - EAS 自本版本起停用（leo 决定：成本过高）；历史 attestation 记录保留在 `~/.hermes/eas-bind/README.md` 与旧 wiki 条目。
+
 ## [2026-09-07] 计算层 v3 | 任意次开方（∀n）+ 论文双语发布 EN v1.1 / ZH v1.0
 
 - **计算层 v3（任意次开方）**：Radical.lean 新增 `nthrootR n x := e^{(ln x)/n}`（ℝ₊ 的 n 次开方）与三条 ∀n 定理——`nthrootR_pow`（(⁽ⁿ⁾√x)ⁿ=x）、`pow_inj_on_Rpos`（ℝ₊ 上 pₙ 对任意 n 单值 = μₙ 平凡塌缩的 ∀n 形式）、`nthrootR_eq_of_pow`（a>0 ∧ aⁿ=x ⟹ a=⁽ⁿ⁾√x，单值逆）。同一定理覆盖 √（n=2）、∛（3）、⁵√（5）与任意 n：示例 `(nthrootR 5 32)^5 = 32`、`nthrootR 5 (2^5) = 2`、∛27、√9、`a^7 = 128 ⟹ a = ⁷√128`。0 sorry 0 warning，`lake build` 全绿。

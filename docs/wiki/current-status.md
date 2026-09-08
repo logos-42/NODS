@@ -2,7 +2,7 @@
 title: NODS — New Object Discovery System 当前状态
 source: session
 created: 2026-09-04
-last_confirmed: 2026-09-07
+last_confirmed: 2026-09-08
 schema_version: 2
 audience: internal
 stage: current
@@ -61,10 +61,10 @@ compiled_from: [src-code-core-001, src-code-instances-001, src-code-theories-001
 
 > ✅ 已接主链（`Nods.lean` 顶部 `import Nods.Theories.Radical`，随主构建全绿）；配套示意图 `docs/figures/root_vs_power.png`（src-fig-001，已登记 raw manifest）。
 
-## 论文发表（2026-09-07）
+## 论文发表（2026-09-08）
 
-- **aiXiv**: 英文版 `aixiv.260907.000001`（v1.0 保留；**v1.1** = 含任意次开方的新版本，id 1459，Under Review）；中文版 `aixiv.260908.000008` v1.0（id 1460，Under Review），标题《被逼出的真实结构：如何把幂与开方劈开》，署名 元杰 刘。英文标题 *The radical as a forced structure: how to split powers from radicals*（作者 Yuanjie Liu）。
-- **以太坊 EAS 主网存证**（schema #405：ipfsCid+title+sha256）：
+- **aiXiv**: 英文版 `aixiv.260907.000001`（v1.0/v1.1 保留；**v1.2** = 顶刊标准扩写版，id 1461，Under Review）；中文版 `aixiv.260908.000008`（v1.0 保留；**v1.1** = 扩写版，id 1462，Under Review），标题《被逼出的真实结构：如何把幂与开方劈开》，署名 元杰 刘。英文标题 *The radical as a forced structure: how to split powers from radicals*（作者 Yuanjie Liu）。
+- **以太坊 EAS 主网存证**（schema #405 —— **2026-09-08 起停用**，以下为历史记录）：
   - EN v1.1: UID `0xd808138983bda69edc418ee6d3dc30a0eb8f634b924a705eda89031d64a7ea68`，CID `QmVgDR916EHoNFb3rg3W4EdDNkmR1hRLDJarJqyhGZcLGj`，sha256 `04d61d07…dd28c`（v1.0: `0x5e52a5…d53e05d`，CID `QmVQDR2MT…ys7Ec`）
   - ZH v1.0: UID `0x042a1ee3a44f8e0aef91627b70db72b68781a515378bf4d4ca00381d686f2faa`，CID `QmRnfwEUo3LE7qpzu5AnAwvmLomdoUNpAvwocnrtzac3Ed`，sha256 `27a3a42f…9016c`
   - 验证: https://easscan.org/attestation/view/0xd808138983bda69edc418ee6d3dc30a0eb8f634b924a705eda89031d64a7ea68 与 https://easscan.org/attestation/view/0x042a1ee3a44f8e0aef91627b70db72b68781a515378bf4d4ca00381d686f2faa
