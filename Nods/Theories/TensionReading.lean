@@ -57,6 +57,10 @@ structure AtomicReading (X : Type*) where
   share_le_size : ∀ a b, share a b ≤ size a
   /-- 共享是对称的 -/
   share_comm : ∀ a b, share a b = share b a
+  /-- **自共享**：一条东西与自己**全部**共享（没有任何「独有」）。
+      三条里最没有争议的一条 —— 它就是「共享」这个词的意思。
+      它的推论是：**自张力自动为零**（`onlyA_self` / `onlyB_self`）。 -/
+  share_self : ∀ a, share a a = size a
 
 namespace AtomicReading
 
@@ -73,8 +77,22 @@ theorem share_le_size_right (a b : X) : R.share a b ≤ R.size b := by
   rw [R.share_comm a b]
   exact R.share_le_size b a
 
+/-- **自共享 ⟹ 无自独有**：一条东西与自己的「独有条数」为零。
+    ⇒ 「自己与自己无张力」不是一条额外公理，而是读数的性质。 -/
+theorem onlyA_self (a : X) : R.onlyA a a = 0 := by
+  simp only [onlyA, R.share_self a, Nat.sub_self]
+
+/-- 同上（b 侧）。 -/
+theorem onlyB_self (a : X) : R.onlyB a a = 0 := by
+  simp only [onlyB, R.share_self a, Nat.sub_self]
+
 /-- 剖面：喂给逼出定理的三元组 `(共享, a 独有, b 独有)`。 -/
 def toProfile (a b : X) : ℕ × ℕ × ℕ := (R.share a b, R.onlyA a b, R.onlyB a b)
+
+/-- **对角线上的剖面就是「全共享」剖面** `(size a, 0, 0)`。
+    ⇒ T5（自零）在读数层不是额外公理，而是「对角线剖面长什么样」的叙述。 -/
+theorem toProfile_self (a : X) : R.toProfile a a = (R.size a, 0, 0) := by
+  simp only [toProfile, R.onlyA_self a, R.onlyB_self a, R.share_self a]
 
 /-- **逼出（读数版）**：在任何读数上，满足公理的计数张力只能是 `onlyA − onlyB`（唯一到取向）。 -/
 theorem forced (τ : AddTension) (h5 : τ.SelfZero) (h7 : τ.Unit) (h4 : τ.Reciprocal)
@@ -134,6 +152,7 @@ def AtomicReading.ofFinset {X A : Type*} [DecidableEq A] (supp : X → Finset A)
   size a := (supp a).card
   share_le_size a b := Finset.card_le_card Finset.inter_subset_left
   share_comm a b := by rw [Finset.inter_comm]
+  share_self a := by rw [Finset.inter_self]
 
 /- ------------------------------------------------------------------ -/
 /- 3. 实例 B：序列（自由幺半群）—— 共享 = 最长公共前缀                  -/
@@ -170,6 +189,15 @@ theorem lcpLen_comm {α : Type*} [DecidableEq α] :
       · have h' : ¬ (b = a) := fun hba => h hba.symm
         simp [h, h']
 
+/-- 序列与自己全共享。 -/
+theorem lcpLen_self {α : Type*} [DecidableEq α] : ∀ s : List α, lcpLen s s = s.length
+  | [] => rfl
+  | a :: as => by
+      show (if a = a then 1 + lcpLen as as else 0) = (a :: as).length
+      rw [if_pos rfl, lcpLen_self as]
+      simp only [List.length_cons]
+      omega
+
 /-- **序列读数（自由幺半群）**：`share` = 最长公共前缀长度、`size` = 长度。
     ⇒ 序列成了合法载体 —— 这是本轮升级要拿的东西。 -/
 def AtomicReading.listLCP {α : Type*} [DecidableEq α] : AtomicReading (List α) where
@@ -177,6 +205,7 @@ def AtomicReading.listLCP {α : Type*} [DecidableEq α] : AtomicReading (List α
   size := List.length
   share_le_size := lcpLen_le_left
   share_comm := lcpLen_comm
+  share_self := lcpLen_self
 
 /-- 序列上的张力：**就是两条序列的长度差** —— LCP 属于共享，被塌缩约掉。 -/
 theorem list_tension_is_length_diff {α : Type*} [DecidableEq α] (τ : AddTension)

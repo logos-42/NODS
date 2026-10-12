@@ -1,5 +1,50 @@
 # Wiki 日志
 
+## [2026-10-12] 张力计数法 | 公理优化（T5 出列）+ 扩到 ℝ/ℂ（代数数的次数读数）
+
+- **两个新文件**（均接主链，`lake build Nods` 0 sorry 0 warning，`#print axioms` 无 `sorryAx`）：
+  `Nods/Theories/TensionOptimal.lean`（11 定理）、`Nods/Theories/TensionAlgebraic.lean`（5 定理）。
+
+### ① 公理优化：T5 出列（`TensionOptimal.lean`）
+
+- **主结果 `share_coeff_zero`：T4′ 反号自己就把共享项系数消掉。**
+  全共享剖面 `(t,0,0)` 反着读还是自己 ⟹ 反号要求该处张力等于自己的相反数 ⟹ ℤ 里只能为 0。
+  原来这一步靠 T5（自零：两力各自为零）来做，**现在证明不需要它**。
+- `grade_linear_free`（不带任何假设的线性化）→ `grade_eq_scale`（**T6 + T4′ ⟹ 张力 = 刻度 × 条数差**）
+  → `scale_cases`（**T7 ⟹ 刻度 ∈ {−1, 0, +1}**）→ `forced_three`（±条数差 或 恒零，不假设 T5/T3b）
+  → **`forced_four`：T6 + T7 + T4′ + T3b ⟹ `τ = ±条数差`，不需要 T5**。
+- `nonfull_iff_scale_ne_zero`：**T3b ⟺ 刻度 ≠ 0** —— 它是「去零力」的非退化要求，不是结构公理。
+- 读数版：`AtomicReading.collapse_three` / `collapse_four`。
+- 读数接口补一条自然性质 **`share_self`（自共享）**：⟹ `onlyA_self` / `onlyB_self` / `toProfile_self`
+  ⇒ **「自张力为零」不是公理，而是读数的性质**。
+- ⇒ **权威表 6 条 → 4 条**，分工变干净的三层：**T4′ 管形状 / T7 管刻度 / T3b 管去零**；
+  T5 的真正作用只有一个：把 `K` 与 `L` 各自钉住（对**张力差** —— 唯一可观测的东西 —— 无影响）。
+
+### ② 扩到 ℝ 与 ℂ：代数数的次数读数（`TensionAlgebraic.lean`）
+
+- 前一层结论是「ℝ/ℂ 作为**域**没有乘法原子 ⇒ 乘法路堵死」。本层换路：**不数因子，数共轭。**
+  对代数数 `x`（`IsIntegral ℚ x`）：`size(x) := deg (minpoly ℚ x)` = **共轭个数 = 域扩张次数**；
+  `share(x,y) := 极小多项式相同时取全部，否则 0`。
+- `algReading` 只要求 `L` 是 ℚ 的域扩张 ⟹ **ℝ 与 ℂ 共用同一个读数**（`algReadingR` / `algReadingC`）。
+- **`alg_tension_is_degree_diff`：张力 = 次数差**（用优化后的四条表，不需要 T5）。
+- `alg_tension_zero_of_same_size`；`natDegree_minpoly_rat_real` / `_complex`（**有理数条数 = 1**，已机器核对）；
+  `size_of_minpoly_X_pow_sub_C`（`Xⁿ − c` 型 ⟹ 条数 `n`；`√2` 与 `i` 都是这一型）。
+- **三条边界**：
+  1. **超越数仍进不来**（无有限极小多项式）⟹ **修正早先结论**：「ℝ 的缺口是结构性的」应改为
+     「**ℝ 的非代数部分**进不来」—— 代数部分有一条**内蕴的路（次数），且这条路不是乘法**。
+  2. **次数读数很粗**：有理数全是 1 条 ⟹ 有理数之间张力恒为零；共轭数（极小多项式相同）也全共享。
+     这是**读数的分辨率**问题，不是公理的问题。
+  3. `share` 取「极小多项式相同」而非「共同因子的次数」：更细的 gcd 版本需要多项式 gcd 的
+     归一化引理（`gcd m m = m`）；而按塌缩定理，**共享项对张力毫无影响**，故不必要。
+- **结构性观察**：ℂ 现在有**两个**读数（ℤ[i] 数高斯素数 / 次数数共轭）⟹
+  **同一载体可以有多个读数，读数不同、张力不同**，但每个读数内部张力仍被逼死。
+
+### 回写
+
+- `tension-counting.md`：**页首权威表升级为 TCM-3（4 条）** + 「公理优化」节 + 「扩到 ℝ 与 ℂ」节
+  + 两条台账行 + 下一步重写（读数已有三种口味：乘法条数 / 次序条数 / 共轭条数）。
+- `current-status.md`；`manifests/raw_sources.csv` 登记 `src-code-tension-006` / `-007`。
+
 ## [2026-10-12] 张力计数法 | 塌缩的哲学含义 + 对合层（临界线 = 对合的不动点）
 
 - **新文件** `Nods/Theories/TensionDuality.lean`（13 定理，已接主链，`lake build Nods` 0 sorry 0 warning，`#print axioms` 无 `sorryAx`）。
