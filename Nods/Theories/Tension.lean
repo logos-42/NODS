@@ -34,6 +34,17 @@ TCM-1（第 5–6 节）—— 加判别公理，把 τ **逼出来**
   最小化副产物：`nontrivialCrit_free` 证 T3a 是**定理**而非公理；
   `T5_needed` 证 T5 不可省（否则同一个张力差可由不同 `(K, L)` 对给出）。
 
+§7–9 继续收尾：
+  · 最小化审计（§7–8）：分工定理 `form_up_to_scale` / `unit_fixes_scale`（T6 管形状、T7 管刻度，
+    不能合并）；`Unit_of_bound` / `Bound_of_unit`（T7 可换成「计数界」）；
+    逐条反模型 `T3b_needed` / `T4'_independent` / `T5_needed` / `additivity_needed`。
+  · 收紧（§9）：`form_up_to_scale'` —— **形状的逼出不需要 T5**；
+    `kernel_forces` —— **核路**：把临界流形直接写进公理也能逼出同一个 τ；
+    `scale_free_without_bound` —— 无「计数界」时只剩整数刻度自由（`c = 2` 反模型）。
+  · 刚性：`two_solutions` 证解**恰两个**（τ 与 −τ），`forced_grade_swap` 证二者互为「反着读」
+    ⇒ NODS 的 `IsMinimal`（初始对象 + 刚性）。
+  · 否证：`not_leibniz` —— 乘法性/Leibniz 路通向**另一个**对象，不是逼出 τ 的替代路线。
+
 总纲（NODS）：**证明不了「被迫」，就只能说「我选了一个记号」。**
 本文件先诚实证出前者在 TCM-0 上的失败，再用 TCM-1 把它补成「被迫」。
 -/
@@ -564,5 +575,120 @@ theorem additivity_needed :
     simp [sqForce] at h1 h2
     omega
   · exact ⟨(0, 1, 0), (0, 1, 0), by simp [sqForce]⟩
+
+/- ------------------------------------------------------------------ -/
+/- 9. 收尾：收紧、其它逼出路线、刚性                                      -/
+/- ------------------------------------------------------------------ -/
+
+namespace AddTension
+
+variable (τ : AddTension)
+
+/-- 张力差的线性形式，**不假设 T5**：`grade` 只由三个系数决定。 -/
+theorem grade_linear_gen (u : ℕ × ℕ × ℕ) :
+    τ.grade u = (u.1 : ℤ) * (τ.K (1, 0, 0) - τ.L (1, 0, 0))
+              + (u.2.1 : ℤ) * (τ.K (0, 1, 0) - τ.L (0, 1, 0))
+              + (u.2.2 : ℤ) * (τ.K (0, 0, 1) - τ.L (0, 0, 1)) := by
+  simp only [grade, K_linear τ u, L_linear τ u]
+  ring
+
+/-- **收紧版形状定理**：逼出形状（`c · (|S∖T| − |T∖S|)`）**不需要 T5** ——
+    T4′ 已经单独杀掉「共享坐标」那一项（`diagonal_grade_zero`），T3b 保证 `c ≠ 0`。
+    T5 的活只是去管 `(K, L)` 这一对（见 `T5_needed`）。 -/
+theorem form_up_to_scale' (h4 : τ.Reciprocal) (h3b : τ.NonfullCrit) :
+    ∃ c : ℤ, c ≠ 0 ∧ ∀ u : ℕ × ℕ × ℕ, τ.grade u = c * ((u.2.1 : ℤ) - (u.2.2 : ℤ)) := by
+  have hx : τ.K (1, 0, 0) - τ.L (1, 0, 0) = 0 := by
+    simpa only [grade] using diagonal_grade_zero τ h4 1
+  have hq : τ.K (0, 0, 1) - τ.L (0, 0, 1) = -(τ.K (0, 1, 0) - τ.L (0, 1, 0)) := by
+    simpa only [grade] using h4 (0, 1, 0)
+  have hne : τ.K (0, 1, 0) - τ.L (0, 1, 0) ≠ 0 := by
+    intro h0
+    obtain ⟨u, hu⟩ := h3b
+    exact hu (by rw [grade_linear_gen τ u, hx, hq, h0]; ring)
+  refine ⟨τ.K (0, 1, 0) - τ.L (0, 1, 0), hne, ?_⟩
+  intro u
+  rw [grade_linear_gen τ u, hx, hq]
+  ring
+
+/-- **另一条逼出路线（核路）**：不靠 T3b，而是**把要发现的对象直接写进公理** ——
+    要求临界流形恰为 `{ |S∖T| = |T∖S| }`（即 `crit u ↔ u.2.1 = u.2.2`），
+    外加一个归一值 `grade (0,1,0) = 1`。T6（可加）+ T4′ + 这两条 ⇒ τ 被逼成 `|S∖T| − |T∖S|`。
+
+    ⇒ 逼出张力**不止一条路**：T3b 路（只说非全）与核路（指定临界流形本身）都到同一个 τ。
+    核路更贴 NODS —— 它指定的是**要被发现的那个对象**。 -/
+theorem kernel_forces (h4 : τ.Reciprocal)
+    (hk : ∀ u : ℕ × ℕ × ℕ, τ.grade u = 0 ↔ u.2.1 = u.2.2)
+    (hn : τ.grade (0, 1, 0) = 1) :
+    ∀ u : ℕ × ℕ × ℕ, τ.grade u = (u.2.1 : ℤ) - (u.2.2 : ℤ) := by
+  have hx : τ.K (1, 0, 0) - τ.L (1, 0, 0) = 0 := by
+    have h := (hk (1, 0, 0)).mpr (show ((1, 0, 0) : ℕ × ℕ × ℕ).2.1 = (1, 0, 0).2.2 from rfl)
+    simpa only [grade] using h
+  have hp : τ.K (0, 1, 0) - τ.L (0, 1, 0) = 1 := by
+    simpa only [grade] using hn
+  have hq : τ.K (0, 0, 1) - τ.L (0, 0, 1) = -(τ.K (0, 1, 0) - τ.L (0, 1, 0)) := by
+    simpa only [grade] using h4 (0, 1, 0)
+  have hq' : τ.K (0, 0, 1) - τ.L (0, 0, 1) = -1 := by rw [hq, hp]
+  intro u
+  rw [grade_linear_gen τ u, hx, hp, hq']
+  ring
+
+/-- **刚性（恰两个解）**：满足公理的张力只有两个 —— `τ` 与 `−τ`。
+    ⇒ 解集是两点集，商掉取向是**单点** —— 这就是 NODS 的 `IsMinimal`（初始对象 + 态射唯一）。 -/
+theorem two_solutions (h5 : τ.SelfZero) (h7 : τ.Unit) (h4 : τ.Reciprocal)
+    (h3b : τ.NonfullCrit) :
+    (∀ u : ℕ × ℕ × ℕ, τ.grade u = forcedTension.grade u)
+      ∨ (∀ u : ℕ × ℕ × ℕ, τ.grade u = -forcedTension.grade u) := by
+  rcases forced_unique τ h5 h7 h4 h3b with h | h
+  · left; intro u; rw [h u]; simp [AddTension.grade, forcedTension, projB, projC]
+  · right; intro u; rw [h u]; simp [AddTension.grade, forcedTension, projB, projC]
+
+end AddTension
+
+/-- **归一化反模型**：`K = 2·|S∖T|`、`L = 2·|T∖S|` —— 张力是 `2·(|S∖T| − |T∖S|)`。
+    它满足 T5 / T6 / T4′ / T3b，**只差没守住计数界**（系数 2 > 1）。
+    ⇒ 形状靠 T4′ + T3b 逼出，**刻度只靠计数界逼出** —— 两件事分得干净。 -/
+def doubleTension : AddTension where
+  K := projB + projB
+  L := projC + projC
+
+theorem scale_free_without_bound :
+    doubleTension.SelfZero ∧ doubleTension.Reciprocal ∧ doubleTension.NonfullCrit
+      ∧ ¬ doubleTension.Unit := by
+  refine ⟨?_, ?_, ?_, ?_⟩
+  · intro t
+    exact ⟨by simp [doubleTension, projB], by simp [doubleTension, projC]⟩
+  · intro u
+    simp [AddTension.grade, doubleTension, projB, projC]
+  · refine ⟨(0, 1, 0), ?_⟩
+    simp [AddTension.grade, doubleTension, projB, projC]
+  · intro h
+    obtain ⟨h1, _⟩ := h
+    have h2 : doubleTension.K (0, 1, 0) = 2 := by
+      simp [doubleTension, projB]
+    omega
+
+/-- 取向交换：把「a 独有」与「b 独有」对调 —— 即把数对**反着读**。 -/
+def swapProfile (u : ℕ × ℕ × ℕ) : ℕ × ℕ × ℕ := (u.1, u.2.2, u.2.1)
+
+theorem swapProfile_involutive (u : ℕ × ℕ × ℕ) : swapProfile (swapProfile u) = u := by
+  simp [swapProfile]
+
+/-- 被逼出来的张力，在取向交换下**取反号** —— 所以 `−τ` 不是另一个解，是同一个解的另一种读法。 -/
+theorem forced_grade_swap (u : ℕ × ℕ × ℕ) :
+    forcedTension.grade (swapProfile u) = -forcedTension.grade u := by
+  simp [AddTension.grade, forcedTension, projB, projC, swapProfile]
+
+/-- 取向交换**非平凡**：它确实把张力改了（`(0,1,0)` 上符号反转）。 -/
+theorem swap_nontrivial :
+    ∃ u : ℕ × ℕ × ℕ, forcedTension.grade (swapProfile u) ≠ forcedTension.grade u :=
+  ⟨(0, 1, 0), by simp [AddTension.grade, forcedTension, projB, projC, swapProfile]⟩
+
+/-- **被否掉的另一条路（乘法性 / Leibniz）**：
+    若要求张力对第二个变元是「赋值型」的（`τ(a, bc) = τ(a,b) + τ(a,c)`），
+    那**得不到**我们这个 τ —— 它不满足这条（取 `a=2, b=3, c=5`：`−1 ≠ 0`）。
+    ⇒「乘法性」不是逼出张力的另一条路，它是**另一个对象**。 -/
+theorem not_leibniz :
+    ∃ a b c : ℕ, dirTension.grade a (b * c) ≠ dirTension.grade a b + dirTension.grade a c :=
+  ⟨2, 3, 5, by native_decide⟩
 
 end NODS

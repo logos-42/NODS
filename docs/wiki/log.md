@@ -1,5 +1,18 @@
 # Wiki 日志
 
+## [2026-10-12] 张力计数法 TCM-2 | 收尾：权威表统一 + 其它逼出路线 + 刚性
+
+- **收尾（leo 定的第 1 步）**：`tension-counting.md` 页首新增「**当前公理表（权威版 · TCM-2）**」，旧的 TCM-0 五条标注为**已被取代**（只作演进记录）—— 文档里不再并存两套说法。
+- **严密性收紧（§9）**：`Nods/Theories/Tension.lean` 仍 0 sorry 0 warning（现 39 条定理）。
+  - `grade_linear_gen`：张力差的线性形式，**不假设 T5**。
+  - `form_up_to_scale'`：形状的逼出**不需要 T5** —— T4′ 已单独杀掉共享坐标，T3b 保证刻度非零。T5 的活只是管 `(K, L)` 这一对。
+  - `kernel_forces`：**「核路」** —— 不靠 T3b，而是**把要发现的临界流形直接写进公理**（`crit u ↔ |S∖T| = |T∖S|`）+ 一个归一值 ⇒ 同一个 τ。
+  - `scale_free_without_bound`：无「计数界」时只剩整数刻度自由（`doubleTension`，`c = 2` 反模型）⇒ 形状与刻度是两件事。
+- **刚性（NODS 意义的最小性）**：`two_solutions` 证满足公理的张力**恰两个**（`τ` 与 `−τ`）；`forced_grade_swap` + `swapProfile_involutive` + `swap_nontrivial` 证二者互为「反着读」且该对合非平凡 ⇒ 解集两点、商掉取向是单点 = `IsMinimal`。
+- **哪条路被否**：`not_leibniz` —— 要求乘法性 `τ(a,bc) = τ(a,b) + τ(a,c)` 得不到我们的 τ（`a=2,b=3,c=5` 时 `−1 ≠ 0`）⇒「乘法性」不是逼出张力的替代路线，是**另一个对象**。
+- **结论**：逼出张力的方式**不唯一**（T3b 路 / 核路都到同一 τ），但都到同一个对象；刚性成立 ⇒ 公理搭建收尾。
+- **审计**：新定理 `#print axioms` 只剩 `[propext, Quot.sound]`（部分含 `Classical.choice` / `Lean.ofReduceBool`），无 `sorryAx`。
+
 ## [2026-10-12] 张力计数法 TCM-1 | 最小化审计：公理表压到六条
 
 - **再压一轮（leo 定的第 1 步）**：`Nods/Theories/Tension.lean` §7–8 新增（仍 0 sorry 0 warning，已接主链）。
