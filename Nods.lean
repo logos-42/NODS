@@ -50,6 +50,7 @@ import Nods.Theories.Tension
 import Nods.Theories.TensionAbstract
 import Nods.Theories.TensionCarriers
 import Nods.Theories.TensionReading
+import Nods.Theories.TensionDuality
 import Nods.Instances.NatToInt
 import Nods.Instances.IntToRat
 import Nods.Instances.RatToReal
