@@ -1,5 +1,31 @@
 # Wiki 日志
 
+## [2026-10-12] 张力计数法 | 扩到实数 / 虚数 / 隐数：载体逐个定案
+
+- **leo 要的**：把张力计数法扩到实数、虚数、隐数。
+- **新文件 `Nods/Theories/TensionCarriers.lean`**（已接主链；`lake build Nods` 0 sorry 0 warning）：
+  - 接口 `AtomicDecomp X A`（= `supp : X → Finset A`）+ `AtomicDecomp.forced`：给了原子分解，逼出定理直接用。
+  - **实例**：`natDecomp`（素数）/ `intDecomp`（`|z|` 的素数）/ `ratDecomp`（`num/den` 的素数，分子分母分开）/ **`gaussDecomp`（ℤ[i] 高斯素数）** / **`hiddenDecomp`（隐数）**。
+  - **障碍定理**：`field_no_atoms`（域里非零元都是单位 ⇒ 没有不可约元）、`real_no_atoms`、`complex_no_atoms`。
+  - 例子 `hidden_tag_balanced`：同值不同标签的两个隐数各独有一条（对方的标签）⇒ 张力为零。
+- **三条结论**：
+  1. **「虚数」的正确落点是 ℤ[i]，不是 ℂ。** ℂ 是域（无原子），ℤ[i] 是唯一分解环 ⇒ 高斯素数就是原子。
+  2. **挡住实数的不是「是不是域」—— ℚ 也是域，但 `num/den` 典范 ⇒ 它有原子。** 真判据是「有没有内蕴有限分解」。
+  3. **ℝ 的缺口是结构性的**：`real_no_atoms` 说域里没有原子 ⇒ 扩到实数不能走 ℝ 自己的乘法；借 ℤ/ℚ 就退化成它们的实例，换连分数又只给**序列**不是有限集（截断即引入选择，破坏 T1）⇒ 要扩到实数，必须把抽象从 `Finset` 升级到「序列 / 自由幺半群」。**这是真缺口。**
+  4. **隐数（HIBS）有天然原子**：`Hidden = ⟨val : ℤ, tag ∈ {S,R,iR}⟩` ⇒ 原子 = `val` 的素数 **+ 标签本身一条**（标签不是坐标，是一条原子）。
+- **审计**：新定理 `#print axioms` → `[propext, Classical.choice, Quot.sound]`（`hidden_tag_balanced` 含 `Lean.ofReduceBool`，走 native 求值），无 `sorryAx`；三个 Tension 文件合 59 定理 0 sorry。
+
+## [2026-10-12] 张力计数法 | 出关：载体抽象 —— 公式与载体无关
+
+- **leo 要的**：把判据从 ℕ 抽象到「任何有原子分解的载体」。
+- **新文件 `Nods/Theories/TensionAbstract.lean`**（已接主链 `Nods.lean`；`lake build Nods` 0 sorry 0 warning）：
+  - `profileOf S T := (|S∩T|, |S∖T|, |T∖S|)` —— 「原子读数」，TCM 唯一需要的东西。
+  - **`forced_carrier_agnostic`（主定理）**：`X` 是**任何**类型、`supp : X → Finset A` 是**任何**原子分解 ⇒ 满足公理的张力只能是 `|supp a ∖ supp b| − |supp b ∖ supp a|`（唯一到取向）。命题里 `X / A / supp` 全是自由变量 —— **没有 ℕ、没有素数、没有乘法、没有序**。
+  - **三个实例**：A = ℕ（素因子集，`dirTension` 直读）；B = **任意有限集本身**（`supp = id`，完全不是数 ⇒ 张力 = 两有限集的独有差）；C = ℤ（`suppZ z = |z|` 的素因子集，**一行套用不用重证** —— 抽象出来的收益）。
+  - **`supp_intrinsic`**：`p ∈ supp n ↔ p 素 ∧ p ∣ n` —— 原子分解由整除关系定死，**没有选择**（唯一分解）。逼出是载体无关的（定理），**直接性（T1）靠分解的内蕴性**。
+- **结论一句话**：**TCM 的载体不是「数」，是「原子集合」；数只是通过唯一分解供应原子集合的一种方式。** 换载体的代价只剩一件 —— 找到该载体自己的内蕴原子分解；找到了，公式不变、定理免费。
+- **审计**：新定理 `#print axioms` → `[propext, Classical.choice, Quot.sound]`，无 `sorryAx`。
+
 ## [2026-10-12] 张力计数法 | 数字层面为什么成立：直读三句话 + `60 与 45` 算例
 
 - **leo 要的解释**：为什么张力计数法在数字层面成立、为什么能算出两个数之间的张力与收敛力。

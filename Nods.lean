@@ -47,6 +47,8 @@ import Nods.Core.Engine
 import Nods.Theories.Algebraic
 import Nods.Theories.Radical
 import Nods.Theories.Tension
+import Nods.Theories.TensionAbstract
+import Nods.Theories.TensionCarriers
 import Nods.Instances.NatToInt
 import Nods.Instances.IntToRat
 import Nods.Instances.RatToReal
