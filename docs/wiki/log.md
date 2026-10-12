@@ -1,5 +1,22 @@
 # Wiki 日志
 
+## [2026-10-12] 张力计数法 TCM-0 | Lean 形式化：T5 反例 + 临界流形不唯一
+
+- **新文件 `Nods/Theories/Tension.lean`**（已接主链 `Nods.lean`；`lake build Nods` 全绿 0 warning 0 sorry；`#print axioms` 无 `sorryAx`）：把 TCM-0 的 ℕ 判定从 prose 落成**机器检查**的定理。
+  - `Tension D` 结构只含 T1（`K`/`L` 仅吃两个数）+ T2（`grade := K − L`）；T3 / T3′（非平凡临界）/ T4 / T5 做成谓词，于是「实例是否满足某条公理」本身可证。
+  - `metric_not_nontrivial`（**Lemma 1 度量障碍**）：单幅度 `τ = f∘d`（`d` 忠实、`f` 只在 0 取零）⇒ 临界流形恒为对角线 ⇒ metric / 序 / 整除三条借来的结构都承载不了 T3′ —— 把「借来的结构失效」从断言升为定理。
+  - `radTension_violates_T5`（**新发现**）：`K = |S∩T|`、`L = |SΔT|` 在 `a = b` 时给 `T_grade = ω(a) ≠ 0` —— 页面 §实例化 1 **违反公理 T5**；因算例全取 `a ≠ b`，此前未暴露。两条出路已写入页面（改 T5 语义，或把 `L` 改为含自项定义如 `|S∪T|`）。
+  - `crit_manifold_not_unique`（**核心负结论**）：`(6,10)` 在 `dirTension` 下临界、在 `symTension` 下不临界 —— 两个**都满足 T5 + T3′** 的 intrinsic 实例给出**不同临界流形** ⇒ ℕ 上 `IsMinimal` 机器证伪；不唯一的是中心对象本身，不只是函数取值。
+  - `nods_verdict_nat` 汇总，结论与上一条一致且更硬：ℕ 需求 = `solved`（非 gap），`novelty = 0`。
+- **审计口径**：`#print axioms NODS.nods_verdict_nat` → `[propext, Classical.choice, Lean.ofReduceBool, Quot.sound]`，无 `sorryAx`。
+
+## [2026-10-12] 张力计数法 TCM-0 | 缺口分析：ℕ 为 solved 非 gap
+
+- **新概念页 `tension-counting.md`（draft）**：发明「数字自身张力」的极简公理系统 `TCM-0`（5 条：直接性 / 二分力 / 临界流形 / 方向性 / 退化），四数域实例化（ℕ 素因子 / ℤ 符号 / ℝ 连分数 / ℂ 临界线）。
+- **诚实缺口论证（关键）**：对 ℕ 实例化跑 NODS `HasSolution` 检查 —— 素数、`rad`、整除、素因子集、K/L/T 全部在 (ℕ,+,·) 内一阶可定义 → T(a,b) 在现有结构**同一载体**上即可承载 → **判定为 `solved`，不是 `gap`**。存在性层面新颖性 = 0；且张力定义不唯一 → `IsMinimal` 失败。结论：TCM-0 在 ℕ 上是**设计选择 / 记号**，非被迫对象，不得宣称发现。
+- **转向 canonicity**：真正可能升级为「发现」的缺口是 **`O-TCM-canon`（ℂ）**——要求张力由 ζ 结构强制、Re=1/2 为唯一最大收敛轨迹；裸 ℂ 域/拓扑不强制此性质，唯 ζ 强制之。已写入页面与 `current-status.md`。
+- **纪律价值**：本步避免了 NODS 黑名单第 1 条（把可解需求当缺口），保护了「发明」不被误认为「发现」。
+
 ## [2026-09-08] 论文顶刊标准扩写 | 双语发布 EN v1.2 / ZH v1.1（aiXiv，无 EAS）
 
 - **顶刊标准扩写（leo 要求）**：内容从 436 行扩到 EN 855 / ZH 714 行。阅读流重排（摘要独立成文、主结果前置、路线图）、详略重分配（该详处：配方法/Cardano 替换推导、每定理 What-it-says+策略段、数字展览表 tab:exhibit、分支隐藏挠的 Remark、图引导段与新 caption；该略处：删模板残留、剪掉与后续工作重复的边界句）。新增：引言重写 + 相关工作子节、两条推论（cor:rootset-coset / cor:p-inj-Rpos）、后续工作节（复根全貌/形式化 Galois 墙/混合塔补齐/区间法数值根式——均声明未完成）。数学简洁性保持：不发明新定理，\Lean 标识符全部真实存在。
