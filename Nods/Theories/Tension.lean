@@ -408,4 +408,161 @@ theorem T5_needed :
   · simp only [forcedTension, projB, projA, AddMonoidHom.add_apply]
     norm_num
 
+/- ------------------------------------------------------------------ -/
+/- 7. 最小化审计：每条公理究竟在干什么                                  -/
+/- ------------------------------------------------------------------ -/
+
+/-- 剖面的总条数（共享 + a 独有 + b 独有）。 -/
+def total (u : ℕ × ℕ × ℕ) : ℤ := (u.1 : ℤ) + (u.2.1 : ℤ) + (u.2.2 : ℤ)
+
+namespace AddTension
+
+variable (τ : AddTension)
+
+/-- **计数界**：力**数不出比东西本身更多的条**（且非负）。
+    这比 T7 的四条点态约束更自然，也是「计数」这个字的正经写法。 -/
+def CountBound : Prop :=
+  (∀ u : ℕ × ℕ × ℕ, 0 ≤ τ.K u ∧ τ.K u ≤ total u) ∧
+  (∀ u : ℕ × ℕ × ℕ, 0 ≤ τ.L u ∧ τ.L u ≤ total u)
+
+/-- **T7 是定理，不是公理**：只加「计数界」，单位性自动成立（0 ≤ 系数 ≤ 1）。 -/
+theorem Unit_of_bound (h : τ.CountBound) : τ.Unit := by
+  obtain ⟨hK, hL⟩ := h
+  obtain ⟨hK0, hK1⟩ := hK (0, 1, 0)
+  obtain ⟨hK2, hK3⟩ := hK (0, 0, 1)
+  obtain ⟨hL0, hL1⟩ := hL (0, 1, 0)
+  obtain ⟨hL2, hL3⟩ := hL (0, 0, 1)
+  simp only [total] at hK1 hK3 hL1 hL3
+  norm_num at hK1 hK3 hL1 hL3
+  refine ⟨?_, ?_, ?_, ?_⟩ <;> omega
+
+/-- 反向（在 T5 下两条**等价**）：单位 + 自零 ⇒ 计数界 —— 界是更自然的那条写法。 -/
+theorem Bound_of_unit (h5 : τ.SelfZero) (h7 : τ.Unit) : τ.CountBound := by
+  obtain ⟨hKB, hKC, hLB, hLC⟩ := h7
+  constructor
+  · intro u
+    have h := K_linear τ u
+    rw [(h5 1).1] at h
+    rcases hKB with hKB | hKB <;> rcases hKC with hKC | hKC <;>
+      · rw [hKB, hKC] at h
+        simp only [total] at *
+        constructor <;> omega
+  · intro u
+    have h := L_linear τ u
+    rw [(h5 1).2] at h
+    rcases hLB with hLB | hLB <;> rcases hLC with hLC | hLC <;>
+      · rw [hLB, hLC] at h
+        simp only [total] at *
+        constructor <;> omega
+
+/-- **分工定理（形式）**：T5 + T4′ + T3b ⇒ 张力被逼成 `c · (|S∖T| − |T∖S|)`
+    （`c ≠ 0`）。**形状被完全逼出，只留一个整数单位。** -/
+theorem form_up_to_scale (h5 : τ.SelfZero) (h4 : τ.Reciprocal) (h3b : τ.NonfullCrit) :
+    ∃ c : ℤ, c ≠ 0 ∧ ∀ u : ℕ × ℕ × ℕ, τ.grade u = c * ((u.2.1 : ℤ) - (u.2.2 : ℤ)) := by
+  have hrec : τ.K (0, 0, 1) - τ.L (0, 0, 1) = -(τ.K (0, 1, 0) - τ.L (0, 1, 0)) := by
+    have h := h4 (0, 1, 0)
+    simpa only [grade] using h
+  have hne : τ.K (0, 1, 0) - τ.L (0, 1, 0) ≠ 0 := by
+    intro h0
+    obtain ⟨u, hu⟩ := h3b
+    exact hu (by rw [grade_linear τ h5 u, hrec, h0]; ring)
+  refine ⟨τ.K (0, 1, 0) - τ.L (0, 1, 0), hne, ?_⟩
+  intro u
+  rw [grade_linear τ h5 u, hrec]
+  ring
+
+/-- **分工定理（单位）**：再加上 T7，那个自由单位就被钉成 `±1` ——
+    **T7 唯一的工作就是定单位**，形状它管不着。 -/
+theorem unit_fixes_scale (h5 : τ.SelfZero) (h7 : τ.Unit) (h4 : τ.Reciprocal)
+    (h3b : τ.NonfullCrit) :
+    τ.K (0, 1, 0) - τ.L (0, 1, 0) = 1 ∨ τ.K (0, 1, 0) - τ.L (0, 1, 0) = -1 := by
+  rcases forced_coeffs τ h5 h7 h4 h3b with ⟨h1, _, h3, _⟩ | ⟨h1, _, h3, _⟩
+  · left; omega
+  · right; omega
+
+/-- T4′ 已蕴含「对角线上张力的**差**为零」—— T5 里的 grade 部分因此冗余。
+    T5 真正不可省的是「两个力**各自**为零」（那才管住 `(K, L)` 这一对，见 `T5_needed`）。 -/
+theorem diagonal_grade_zero (h4 : τ.Reciprocal) (t : ℕ) : τ.grade (t, 0, 0) = 0 := by
+  have h : τ.grade (t, 0, 0) = -τ.grade (t, 0, 0) := h4 (t, 0, 0)
+  omega
+
+end AddTension
+
+/- ------------------------------------------------------------------ -/
+/- 8. 独立性：每条公理都给一个反模型（HIBS 第 8 步）                     -/
+/- ------------------------------------------------------------------ -/
+
+/-- **T4′ 的反模型**：`K = |S∖T| + |T∖S|`、`L = 0`，即 `τ = |S∖T| + |T∖S|`。
+    它满足 T5 / T6 / T7 / T3b —— 却**不是力**：那是个对称的「距离」，不反号。
+    ⇒ T4′ 不能由其余公理推出；**它正是把「距离」变成「力」的那一条**。 -/
+def spreadTension : AddTension where
+  K := projB + projC
+  L := 0
+
+theorem T4'_independent :
+    spreadTension.SelfZero ∧ spreadTension.Unit ∧ spreadTension.NonfullCrit
+      ∧ ¬ spreadTension.Reciprocal := by
+  refine ⟨?_, ?_, ?_, ?_⟩
+  · intro t
+    exact ⟨by simp [spreadTension, projB, projC], by simp [spreadTension]⟩
+  · exact ⟨Or.inr (by simp [spreadTension, projB, projC]),
+           Or.inr (by simp [spreadTension, projB, projC]),
+           Or.inl (by simp [spreadTension]),
+           Or.inl (by simp [spreadTension])⟩
+  · refine ⟨(0, 1, 0), ?_⟩
+    simp [AddTension.grade, spreadTension, projB, projC]
+  · intro h
+    have h1 : spreadTension.grade (0, 0, 1) = -spreadTension.grade (0, 1, 0) := h (0, 1, 0)
+    have e1 : spreadTension.grade (0, 0, 1) = 1 := by
+      simp [AddTension.grade, spreadTension, projB, projC]
+    have e2 : spreadTension.grade (0, 1, 0) = 1 := by
+      simp [AddTension.grade, spreadTension, projB, projC]
+    omega
+
+/-- **T3b 的反模型**：`K = L = 0` —— 张力处处为零。
+    它满足 T5 / T6 / T7 / T4′，却什么都测不出 ⇒ T3b（非全）不可省。 -/
+def zeroTension : AddTension where
+  K := 0
+  L := 0
+
+theorem T3b_needed :
+    zeroTension.SelfZero ∧ zeroTension.Unit ∧ zeroTension.Reciprocal
+      ∧ ¬ zeroTension.NonfullCrit := by
+  refine ⟨?_, ?_, ?_, ?_⟩
+  · intro t
+    exact ⟨by simp [zeroTension], by simp [zeroTension]⟩
+  · exact ⟨Or.inl (by simp [zeroTension]), Or.inl (by simp [zeroTension]),
+           Or.inl (by simp [zeroTension]), Or.inl (by simp [zeroTension])⟩
+  · intro u
+    simp [AddTension.grade, zeroTension]
+  · rintro ⟨u, hu⟩
+    exact hu (by simp [AddTension.grade, zeroTension])
+
+/-- **T6 的反模型（不可加）**：张力 `|S∖T|² − |T∖S|²`。
+    它满足 T5（对角两力皆零）、T7（生成元上系数 ∈ {0,1}）、T4′（反号）、T3b（非全），
+    却**不可加**，且不是任何 `c · (|S∖T| − |T∖S|)`。
+    ⇒ T6（可加 = 逐素数计数）不能省。 -/
+def sqForce (u : ℕ × ℕ × ℕ) : ℤ := (u.2.1 : ℤ) ^ 2 - (u.2.2 : ℤ) ^ 2
+
+theorem additivity_needed :
+    (∀ t : ℕ, sqForce (t, 0, 0) = 0)
+    ∧ (sqForce (0, 1, 0) = 1 ∧ sqForce (0, 0, 1) = -1 ∧ sqForce (1, 0, 0) = 0)
+    ∧ (∀ u : ℕ × ℕ × ℕ, sqForce (u.1, u.2.2, u.2.1) = -sqForce u)
+    ∧ (∃ u : ℕ × ℕ × ℕ, sqForce u ≠ 0)
+    ∧ (∀ c : ℤ, (∀ u : ℕ × ℕ × ℕ, sqForce u = c * ((u.2.1 : ℤ) - (u.2.2 : ℤ))) → False)
+    ∧ (∃ u v : ℕ × ℕ × ℕ, sqForce (u + v) ≠ sqForce u + sqForce v) := by
+  refine ⟨?_, ⟨?_, ?_, ?_⟩, ?_, ?_, ?_, ?_⟩
+  · intro t; simp [sqForce]
+  · simp [sqForce]
+  · simp [sqForce]
+  · simp [sqForce]
+  · intro u; simp [sqForce]
+  · exact ⟨(0, 2, 0), by simp [sqForce]⟩
+  · intro c hc
+    have h1 := hc (0, 1, 0)
+    have h2 := hc (0, 2, 0)
+    simp [sqForce] at h1 h2
+    omega
+  · exact ⟨(0, 1, 0), (0, 1, 0), by simp [sqForce]⟩
+
 end NODS
