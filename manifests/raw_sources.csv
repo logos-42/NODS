@@ -10,4 +10,4 @@ src-paper-rh-zh-pdf,NODS,NODS,pdf,radical_root_zh.pdf,(repo)/paper/radical/radic
 src-paper-fig-root,NODS,NODS,figure,root_vs_power.png,(repo)/paper/radical/figures/root_vs_power.png,new,,幂折叠 vs μ₄ 正方形示意图（论文 Figure 1，自 docs/figures 复制）
 src-fig-root-en,NODS,NODS,figure,root_vs_power_en.png,(repo)/docs/figures/root_vs_power_en.png,new,,幂折叠 vs μ₄ 示意图 英文版（plot_root_vs_power.py 双语输出，源）
 src-paper-fig-root-en,NODS,NODS,figure,root_vs_power_en.png,(repo)/paper/radical/figures/root_vs_power_en.png,new,,论文 EN 版 Figure 1（自 docs/figures 复制）
-src-code-tension-001,NODS,NODS,code,Tension.lean,(repo)/Nods/Theories/Tension.lean,compiled,docs/wiki/tension-counting.md,张力计数法 TCM-0 形式化: Tension 公理层 + ℕ 实例 + 度量障碍(Lemma 1) + T5 反例 + 临界流形不唯一; 7 定理 0 sorry
+src-code-tension-001,NODS,NODS,code,Tension.lean,(repo)/Nods/Theories/Tension.lean,compiled,docs/wiki/tension-counting.md,张力计数法: TCM-0 公理层+ℕ 实例+度量障碍+T5 反例+临界流形不唯一; TCM-1 判别公理+逼出定理(forced_unique: τ 唯一到取向); 0 sorry 0 warning

@@ -1,33 +1,41 @@
 /-
-【理论层】张力计数法 TCM-0：数字自身张力的极简公理 · ℕ 实例 · NODS 判定
-========================================================================
+【理论层】张力计数法：数字自身张力的极简公理 · ℕ 实例 · NODS 判定 · **逼出定理**
+================================================================================
 
-TCM-0 想要的是「数字自身」的收敛力 / 发散力——不经由任何选定公式，只由数对
-自身的算术结构决定，并带一个临界（零张力）流形。本文件把它落成三件事：
+目标：给「数字自身」的收敛 / 发散力一套极简**计数**公理 —— 不经由任何选定公式，
+只由数对自身的算术结构决定，并带一个临界（零张力）流形。本文件落成两代公理：
 
+TCM-0（第 1–4 节）—— 立起来，然后诚实地说明它**不被迫**
   1. 抽象公理层 `Tension D`
        T1 直接性   `K`/`L : D → D → ℤ`，只吃两个数，无外部函数参数（反度量）
-       T2 二分力   张力 = 收敛力 `K` − 发散力 `L`（不是单一幅度）
-       T3 临界流形  `grade = 0`，且真非平凡
+       T2 二分力   张力 = 收敛力 `K` − 发散力 `L`
+       T3 临界流形  `grade = 0`，真非平凡 / 非全
        T4 方向性   允许 `grade a b ≠ grade b a`
        T5 退化     自临界：`grade a a = 0`
-
   2. ℕ 实例：radical 张力（`S = rad(a)` 的素因子集）
-       `radTension`  `K = |S∩T|`，`L = |SΔT|`   —— wiki 现版
-       `dirTension`  `K = |S\T|`，`L = |T\S|`   —— 有向版
-       `symTension`  `K = |S∩T|`，`L = |S∪T|`
+       `radTension`（wiki 现版）/ `dirTension`（有向）/ `symTension`（∪∩）
+  3. NODS 判定（负结论）
+       · `radTension_violates_T5`  自张力 = ω(a) ≠ 0 —— wiki 现版违反 T5
+       · `metric_not_nontrivial`   单幅度 τ = f∘d 的临界流形恒为对角线
+       · `crit_manifold_not_unique` 两个都合规的实例，临界流形却不同
+       · `nods_verdict_nat`        ⇒ ℕ 上 TCM-0 是「记号」而非发现
 
-  3. NODS 判定（诚实的负结论——这才是本文件的价值所在）
-       · `radTension_violates_T5`  自张力 = ω(a) ≠ 0：wiki 现版**内部矛盾**，T5 崩
-       · `metric_not_nontrivial`   度量型「单幅度」张力的临界流形恒为对角线
-                                   ⇒ 借来的结构（metric/order/divisibility）承载不了 T3′
-       · `crit_manifold_not_unique` 两个都满足 T5+T3′ 的 intrinsic 实例，临界流形却不同
-                                   ⇒ 公理不唯一确定 τ，也**不唯一确定临界流形**
-       · `nods_verdict_nat`        汇总：ℕ 上本需求 = `solved`（同一载体可解），**不是 `gap`**
+TCM-1（第 5–6 节）—— 加判别公理，把 τ **逼出来**
+     T6 计数公理   两个力都是剖面的**可加**函数：每多一条素数多固定的一份力（元计数）
+     T7 单位公理   每个素数对每个力**至多贡献一条**（系数 ∈ {0,1}）——「条」不可再分
+     T4′ 反号公理  **把数对反着读，张力严格反号**：把 T4 从「允许」升级为「必须」
+     T5 自零       数和自身两力皆零（对角剖面 `(t, 0, 0)`）
+     T3b 非全      存在张力不为零的数对
+
+  **主定理 `forced_unique`**：满足 T5 + T7 + T4′ + T3b 的几何计数张力，其张力差只能是
+  `|S∖T| − |T∖S|` 或其反号 —— **没有第三种可能**。即张力计数法是被公理逼出来的唯一
+  对象（到取向为止），与 R→C 的 `(C, i)` / `(C, −i)` 同属「最小 + 刚性」模式。
+
+  最小化副产物：`nontrivialCrit_free` 证 T3a 是**定理**而非公理；
+  `T5_needed` 证 T5 不可省（否则同一个张力差可由不同 `(K, L)` 对给出）。
 
 总纲（NODS）：**证明不了「被迫」，就只能说「我选了一个记号」。**
-本文件证出的是后者在 ℕ 上的成立——把一个 candidate gap 诚实地降到 `solved`，
-顺带暴露 wiki 现版的一条自相矛盾。
+本文件先诚实证出前者在 TCM-0 上的失败，再用 TCM-1 把它补成「被迫」。
 -/
 
 import Mathlib
@@ -220,5 +228,184 @@ theorem nods_verdict_nat :
     exact metric_not_nontrivial d hd f hf
   · native_decide
   · native_decide
+
+/- ------------------------------------------------------------------ -/
+/- 5. TCM-1：判别公理 —— 把 τ 逼出来（从「记号」到「被迫对象」）        -/
+/- ------------------------------------------------------------------ -/
+
+/-- 「剖面」：一对数只有三种素数身份 —— 共享 / a 独有 / b 独有。
+    T1 直接性说的就是：张力只吃这个读数。 -/
+def profile (a b : ℕ) : ℕ × ℕ × ℕ :=
+  ((supp a ∩ supp b).card, (supp a \ supp b).card, (supp b \ supp a).card)
+
+/-- **T6 计数公理**：两个力都是剖面的**可加**函数 —— 每多一条素数就多固定的一份力，
+    与其它条无关。这就是「逐素数计数、每素数一条」（元计数）的形式化。
+    用 `AddMonoidHom` 表达，可加性内建，不必手写六条公理。 -/
+structure AddTension where
+  /-- 收敛力 -/
+  K : (ℕ × ℕ × ℕ) →+ ℤ
+  /-- 发散力 -/
+  L : (ℕ × ℕ × ℕ) →+ ℤ
+
+namespace AddTension
+
+variable (τ : AddTension)
+
+/-- T2：张力差 `grade := K − L`。 -/
+@[reducible] def grade (u : ℕ × ℕ × ℕ) : ℤ := τ.K u - τ.L u
+
+/-- **T5 自零**：数和自身既无收敛力也无发散力（对角剖面 `(t, 0, 0)`）。 -/
+def SelfZero : Prop := ∀ t : ℕ, τ.K (t, 0, 0) = 0 ∧ τ.L (t, 0, 0) = 0
+
+/-- **T7 单位性**：每个素数对每个力**至多贡献一条**（系数 ∈ {0,1}）——
+    这就是「数条数」里的那个「条」，也是「不可再分」的形式化。 -/
+def Unit : Prop :=
+  (τ.K (0, 1, 0) = 0 ∨ τ.K (0, 1, 0) = 1) ∧ (τ.K (0, 0, 1) = 0 ∨ τ.K (0, 0, 1) = 1) ∧
+  (τ.L (0, 1, 0) = 0 ∨ τ.L (0, 1, 0) = 1) ∧ (τ.L (0, 0, 1) = 0 ∨ τ.L (0, 0, 1) = 1)
+
+/-- **T4′ 反号**：把数对反着读，张力严格反号。
+    这是把 T4 从「可以有方向」升级为「必须反号」—— 逼出唯一性的关键一条。 -/
+def Reciprocal : Prop := ∀ u : ℕ × ℕ × ℕ, τ.grade (u.1, u.2.2, u.2.1) = -τ.grade u
+
+/-- **T3b 临界非全**：存在张力不为零的数对（否则处处为零，不成其为力）。 -/
+def NonfullCrit : Prop := ∃ u : ℕ × ℕ × ℕ, τ.grade u ≠ 0
+
+/-- T3a 临界非平凡。下面会证它是**定理**而非公理（见 `nontrivialCrit_free`）。 -/
+def NontrivialCrit : Prop := ∃ y z : ℕ, y + z > 0 ∧ τ.grade (0, y, z) = 0
+
+/-- **线性化引理**（T6 的确切内容）：力的可加性 ⟹ 力只由三条计数**线性**决定。
+    「每多一条素数就多固定一份」 = 可加 = 线性。 -/
+theorem K_linear (u : ℕ × ℕ × ℕ) :
+    τ.K u = (u.1 : ℤ) * τ.K (1, 0, 0) + (u.2.1 : ℤ) * τ.K (0, 1, 0)
+            + (u.2.2 : ℤ) * τ.K (0, 0, 1) := by
+  have h : u = u.1 • ((1, 0, 0) : ℕ × ℕ × ℕ) + u.2.1 • (0, 1, 0) + u.2.2 • (0, 0, 1) := by
+    ext <;> simp
+  conv_lhs => rw [h]
+  rw [map_add, map_add, map_nsmul, map_nsmul, map_nsmul,
+      nsmul_eq_mul, nsmul_eq_mul, nsmul_eq_mul]
+
+/-- 发散力的线性化（同 `K_linear`）。 -/
+theorem L_linear (u : ℕ × ℕ × ℕ) :
+    τ.L u = (u.1 : ℤ) * τ.L (1, 0, 0) + (u.2.1 : ℤ) * τ.L (0, 1, 0)
+            + (u.2.2 : ℤ) * τ.L (0, 0, 1) := by
+  have h : u = u.1 • ((1, 0, 0) : ℕ × ℕ × ℕ) + u.2.1 • (0, 1, 0) + u.2.2 • (0, 0, 1) := by
+    ext <;> simp
+  conv_lhs => rw [h]
+  rw [map_add, map_add, map_nsmul, map_nsmul, map_nsmul,
+      nsmul_eq_mul, nsmul_eq_mul, nsmul_eq_mul]
+
+/-- **T5 的推论**：共享条数整个掉出张力差的视野 —— 张力只看见两条「独有」计数。
+    这正是自零公理在做的事，也是它不可省的原因（见 `T5_needed`）。 -/
+theorem grade_linear (h5 : τ.SelfZero) (u : ℕ × ℕ × ℕ) :
+    τ.grade u = (u.2.1 : ℤ) * (τ.K (0, 1, 0) - τ.L (0, 1, 0))
+              + (u.2.2 : ℤ) * (τ.K (0, 0, 1) - τ.L (0, 0, 1)) := by
+  simp only [grade, K_linear τ u, L_linear τ u]
+  rw [(h5 1).1, (h5 1).2]
+  ring
+
+/-- **逼出定理（系数版）**：T5 + T7 + T4′ + T3b ⇒ 系数只能取两组值 ——
+    `(K_B, K_C; L_B, L_C) = (1, 0; 0, 1)` 或其镜像 `(0, 1; 1, 0)`。**没有第三种**。 -/
+theorem forced_coeffs (h5 : τ.SelfZero) (h7 : τ.Unit) (h4 : τ.Reciprocal)
+    (h3b : τ.NonfullCrit) :
+    (τ.K (0, 1, 0) = 1 ∧ τ.K (0, 0, 1) = 0 ∧ τ.L (0, 1, 0) = 0 ∧ τ.L (0, 0, 1) = 1) ∨
+    (τ.K (0, 1, 0) = 0 ∧ τ.K (0, 0, 1) = 1 ∧ τ.L (0, 1, 0) = 1 ∧ τ.L (0, 0, 1) = 0) := by
+  obtain ⟨hKB, hKC, hLB, hLC⟩ := h7
+  have hrec : τ.K (0, 0, 1) - τ.L (0, 0, 1) = -(τ.K (0, 1, 0) - τ.L (0, 1, 0)) := by
+    have h := h4 (0, 1, 0)
+    simpa only [grade] using h
+  have hne : ¬ (τ.K (0, 1, 0) = τ.L (0, 1, 0) ∧ τ.K (0, 0, 1) = τ.L (0, 0, 1)) := by
+    rintro ⟨hb, hc⟩
+    obtain ⟨u, hu⟩ := h3b
+    exact hu (by rw [grade_linear τ h5 u, hb, hc]; ring)
+  by_cases hcase : τ.K (0, 1, 0) = 1
+  · left
+    refine ⟨hcase, ?_, ?_, ?_⟩ <;> omega
+  · right
+    refine ⟨by omega, ?_, ?_, ?_⟩ <;> omega
+
+/-- **T3a 是冗余的**：在 T5 + T7 + T4′ + T3b 之下，「临界非平凡」自动成立。
+    所以它不必写进公理（HIBS 第 7/8 步：能推的别列，不能推的才是公理）。 -/
+theorem nontrivialCrit_free (h5 : τ.SelfZero) (h7 : τ.Unit) (h4 : τ.Reciprocal)
+    (h3b : τ.NonfullCrit) : τ.NontrivialCrit := by
+  have key : τ.grade (0, 1, 1) = 0 := by
+    rw [grade_linear τ h5 (0, 1, 1)]
+    rcases forced_coeffs τ h5 h7 h4 h3b with ⟨h1, h2, h3, h4'⟩ | ⟨h1, h2, h3, h4'⟩ <;>
+      · rw [h1, h2, h3, h4']; norm_num
+  exact ⟨1, 1, by norm_num, key⟩
+
+/-- **逼出定理（张力版，主定理）**：满足 T5 + T7 + T4′ + T3b 的几何计数张力，
+    其张力差只能是 `|S∖T| − |T∖S|` 或其反号 —— **没有第三种可能**。
+
+    即：张力计数法不是「选」出来的记号，是被公理逼出来的唯一对象（到取向为止）。 -/
+theorem forced_unique (h5 : τ.SelfZero) (h7 : τ.Unit) (h4 : τ.Reciprocal)
+    (h3b : τ.NonfullCrit) :
+    (∀ u : ℕ × ℕ × ℕ, τ.grade u = (u.2.1 : ℤ) - (u.2.2 : ℤ)) ∨
+    (∀ u : ℕ × ℕ × ℕ, τ.grade u = (u.2.2 : ℤ) - (u.2.1 : ℤ)) := by
+  rcases forced_coeffs τ h5 h7 h4 h3b with ⟨h1, h2, h3, h4'⟩ | ⟨h1, h2, h3, h4'⟩
+  · left; intro u; rw [grade_linear τ h5 u, h1, h2, h3, h4']; ring
+  · right; intro u; rw [grade_linear τ h5 u, h1, h2, h3, h4']; ring
+
+end AddTension
+
+/- ------------------------------------------------------------------ -/
+/- 6. 落实：被逼出来的那个张力，正是有向支撑差 `|S∖T| − |T∖S|`            -/
+/- ------------------------------------------------------------------ -/
+
+/-- 取剖面的第一坐标（共享条数）。 -/
+def projA : (ℕ × ℕ × ℕ) →+ ℤ where
+  toFun u := (u.1 : ℤ)
+  map_zero' := by simp
+  map_add' := by intro u v; simp [Nat.cast_add]
+
+/-- 取剖面的第二坐标（a 独有）。 -/
+def projB : (ℕ × ℕ × ℕ) →+ ℤ where
+  toFun u := (u.2.1 : ℤ)
+  map_zero' := by simp
+  map_add' := by intro u v; simp [Nat.cast_add]
+
+/-- 取剖面的第三坐标（b 独有）。 -/
+def projC : (ℕ × ℕ × ℕ) →+ ℤ where
+  toFun u := (u.2.2 : ℤ)
+  map_zero' := by simp
+  map_add' := by intro u v; simp [Nat.cast_add]
+
+/-- **被逼出来的张力**：`K = |S∖T|`（a 独有 → 收敛），`L = |T∖S|`。 -/
+def forcedTension : AddTension where
+  K := projB
+  L := projC
+
+/-- 逼出来的张力确实满足全部判别公理（⇒ 公理组不空，逼出不是空谈）。 -/
+theorem forcedTension_axioms :
+    forcedTension.SelfZero ∧ forcedTension.Unit ∧ forcedTension.Reciprocal
+      ∧ forcedTension.NonfullCrit := by
+  refine ⟨?_, ?_, ?_, ?_⟩
+  · intro t
+    exact ⟨by simp [AddTension.SelfZero, forcedTension, projB],
+           by simp [forcedTension, projC]⟩
+  · exact ⟨Or.inr (by simp [forcedTension, projB]),
+           Or.inl (by simp [forcedTension, projB]),
+           Or.inl (by simp [forcedTension, projC]),
+           Or.inr (by simp [forcedTension, projC])⟩
+  · intro u
+    simp [AddTension.grade, forcedTension, projB, projC]
+  · refine ⟨(0, 1, 0), ?_⟩
+    simp [AddTension.grade, forcedTension, projB, projC]
+
+/-- 落实：把 `forcedTension` 读回数对上，正是前面那个有向张力 `dirTension`。 -/
+theorem forcedTension_to_dirTension (a b : ℕ) :
+    forcedTension.grade (profile a b) = dirTension.grade a b := by
+  simp [AddTension.grade, Tension.grade, forcedTension, projB, projC, dirTension, profile]
+
+/-- **T5 不可省**：扔掉自零公理，「同一个张力差」能由不同的 `(K, L)` 对给出
+    （把共享条数同时加进两个力即可）。所以要逼出 **一对力**，T5 是必需的一条。 -/
+theorem T5_needed :
+    ∃ τ' : AddTension, (∀ u : ℕ × ℕ × ℕ, τ'.grade u = forcedTension.grade u)
+      ∧ τ'.K (1, 0, 0) ≠ forcedTension.K (1, 0, 0) := by
+  refine ⟨⟨projB + projA, projC + projA⟩, ?_, ?_⟩
+  · intro u
+    simp only [AddTension.grade, forcedTension, projB, projC, projA, AddMonoidHom.add_apply]
+    ring
+  · simp only [forcedTension, projB, projA, AddMonoidHom.add_apply]
+    norm_num
 
 end NODS

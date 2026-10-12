@@ -1,5 +1,20 @@
 # Wiki 日志
 
+## [2026-10-12] 张力计数法 TCM-1 | 判别公理 + 逼出定理：τ 不再是记号
+
+- **目标纠偏（leo）**：先完成公理搭建，不直接走黎曼函数 —— 本阶段只做「让张力被逼出来」。
+- **`Nods/Theories/Tension.lean` §5–6 新增**（仍 `lake build Nods` 0 sorry 0 warning，已接主链）：加判别公理，把 τ 逼成唯一对象。
+  - `profile`：数对的三条计数 `(共享, a独有, b独有)`；`AddTension`：两个力 = 剖面的**可加**映射（`→+ ℤ`）—— T6 计数公理的形式化（逐素数计数、不加权）。
+  - `K_linear` / `L_linear`：把「可加」落成「线性」—— 每多一条素数多固定一份力，T6 的确切内容。
+  - `grade_linear`：T5 自零的推论 —— **共享条数整个掉出张力差的视野**，张力只看见两条「独有」计数。
+  - **`forced_unique`（主定理）**：T5 + T7（单位：系数 ∈ {0,1}）+ T4′（必须反号）+ T3b（非全）⇒ τ 只能是 `|S∖T| − |T∖S|` 或其反号，**没有第三种**。
+  - `forcedTension_axioms` + `forcedTension_to_dirTension`：该对象存在，且读回数对**正是 `dirTension`**。
+  - 最小化：`nontrivialCrit_free` 证 T3a 是**定理**而非公理；`T5_needed` 证 T5 不可省（同一个 τ 可由不同 `(K,L)` 对给出）。
+- **关键改动**：`T4 允许有向` → **`T4′ 必须反号`** —— 这一条是逼出唯一性的开关。
+- **与 R→C 同型**：`(ℕ, K=|S∖T|)` 与 `(ℕ, K=|T∖S|)` 是同一载体的两个极小扩张，唯一同构（就是「反着读」）。TCM 由此从「我选了一个记号」升为「被迫 + 刚性」。
+- **审计**：`#print axioms NODS.AddTension.forced_unique` → `[propext, Classical.choice, Quot.sound]`，无 `sorryAx`。
+- **暂缓**：`O-TCM-canon`（ℂ / ζ）—— 按 leo 指示，先完成公理搭建。
+
 ## [2026-10-12] 张力计数法 TCM-0 | Lean 形式化：T5 反例 + 临界流形不唯一
 
 - **新文件 `Nods/Theories/Tension.lean`**（已接主链 `Nods.lean`；`lake build Nods` 全绿 0 warning 0 sorry；`#print axioms` 无 `sorryAx`）：把 TCM-0 的 ℕ 判定从 prose 落成**机器检查**的定理。
