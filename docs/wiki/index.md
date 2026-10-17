@@ -20,3 +20,4 @@
 ## 新对象候选页
 
 - [tension-counting.md](./tension-counting.md) — **张力计数法 TCM-0**：数字自身张力的极简公理（candidate gap，未证发现）
+- [vibration-coords.md](./vibration-coords.md) — **振数坐标系**：振动作为第一性本体（振动 → 读数 → 塌缩）
