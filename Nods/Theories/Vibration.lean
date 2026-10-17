@@ -27,15 +27,18 @@
      原点（不动点振数 1 = 不振）/ 坐标（`vibCoord`）/ 张力 = 坐标差 /
      可加性（T6 内建）/ 维度（独立振子相乘）。
 
-  5. **实例**：点（Fin 2 交换）/ 线（Fin 3 循环移位）/ 面（Fin 2 × Fin 3 双振子）。
+  5. **实例**：点（Fin 2 交换）/ 线（Fin 3 循环移位）/ 面（Fin 2 × Fin 3 双振子）
+     —— 有限载体，周期由鸽笼逼出；**数（ℚ 反转 `x ↦ 1 − x`）—— 无限载体，
+     周期是显式的（中心 `1/2` 振数 1，其余 2），轨道有限假设**。
      对合只是「周期 2 的振动」这一个实例，**不是推导的起点**。
 
 ## 诚实边界
 
 给：振动本体从静态世界被逼出的完整链条（动力学公理 → 零张力 → 周期 → 坐标）。
-不给：具体物理断言（不声称「弦不存在」）；`Dynamics` 需要载体有限才有周期
-（无限载体需额外周期假设，见 `PeriodicDynamics`）；周期存在用经典鸽笼，
-`period` 函数的选择是 noncomputable。
+不给：具体物理断言（不声称「弦不存在」）。周期来源分两路：
+有限载体由鸽笼逼出（`period_exists`，经典选择 noncomputable）；
+无限载体需显式周期或轨道有限假设（`PeriodicDynamics.period` 是结构字段，
+`same_orbit_comm` 只需 `step_period`，不依赖 `Fintype`）。
 -/
 
 import Nods.Theories.TensionReading
@@ -162,9 +165,12 @@ theorem dynamics_tension_free {X : Type*} (R : AtomicReading X) (τ : AddTension
 /- 4. 振数坐标：从动力学到读数（组装 2 + 3）                           -/
 /- ------------------------------------------------------------------ -/
 
-/-- **周期动力学**：有限载体上的动力学 + 每个点的振数（周期）。
-    振数 `period x` 满足周期律（`step^[period x] x = x`）—— 由 `period_exists` 保证存在。 -/
-structure PeriodicDynamics (X : Type*) [Fintype X] extends Dynamics X where
+/-- **周期动力学**：载体 `X` 上的动力学 + 每个点的振数（周期）。
+    振数 `period x` 满足周期律（`step^[period x] x = x`）。
+    **载体不限有限**：有限载体上周期由 `period_exists`（鸽笼）逼出，
+    无限载体上周期是显式结构字段（轨道有限假设）—— 两条路都通，`same_orbit_comm`
+    只需 `step_period` 就能补足轨道对称性，不依赖 `Fintype`。 -/
+structure PeriodicDynamics (X : Type*) extends Dynamics X where
   /-- 振数：每个点的周期（轨道长度 = 振动条数） -/
   period : X → ℕ
   /-- 周期为正 -/
@@ -174,7 +180,7 @@ structure PeriodicDynamics (X : Type*) [Fintype X] extends Dynamics X where
 
 namespace PeriodicDynamics
 
-variable {X : Type*} [Fintype X]
+variable {X : Type*}
 
 /-- **同轨道**：`y` 可从 `x` 经有限步演化到达（无界定义）。
     在有限载体上这自动等价于「落在同一条轨道上」—— 周期由 `period_exists` 逼出。 -/
@@ -194,12 +200,15 @@ theorem iterate_mul_fixed {X : Type*} (f : X → X) {a : X} (p k : ℕ)
       _ = a := ih
 
 /-- **同轨道是对称的**：若 `y = step^k x`，则 `x = step^(q·p − k) y`，其中
-    `p` 是 `x` 的周期（由 `period_exists` 逼出）、`q` 足够大。 —— 不需要最小周期。 -/
+    `p = period x`、`q` 足够大使 `p·q ≥ k`。 —— 只需 `step_period`，不需要 `Fintype`，
+    **无限载体同样成立**。 -/
 theorem same_orbit_comm (V : PeriodicDynamics X) {x y : X}
     (h : SameOrbit V x y) : SameOrbit V y x := by
   rcases h with ⟨k, hxy⟩
-  -- p 是 x 的周期（被有限性逼出）
-  obtain ⟨p, hp0, hper⟩ := period_exists V.toDynamics x
+  -- p = period x（结构字段，有限/无限载体都可用）
+  let p := V.period x
+  have hp0 : 0 < p := by dsimp [p]; exact V.period_pos x
+  have hper : (V.step : X → X)^[p] x = x := by dsimp [p]; exact V.step_period x
   -- 取 q = k/p + 1,使 p·q ≥ k
   let q := k / p + 1
   have hpm : k ≤ p * q := by
@@ -356,5 +365,61 @@ theorem line_period_exists : ∃ p : ℕ, 0 < p ∧ (lineDynamics.step : Fin 3 �
 /-- **实例：面振动的周期被逼出**（`Fin 2 × Fin 3`，周期 ≤ 6）。 -/
 theorem plane_period_exists : ∃ p : ℕ, 0 < p ∧ (planeDynamics.step : Fin 2 × Fin 3 → Fin 2 × Fin 3)^[p] (0, 0) = (0, 0) :=
   period_exists planeDynamics (0, 0)
+
+/- ------------------------------------------------------------------ -/
+/- 6. 无限载体实例：ℚ 反转（显式周期，轨道有限假设）                    -/
+/- ------------------------------------------------------------------ -/
+
+/-- **ℚ 上的反转**：`x ↦ 1 − x` —— 数自身在反转下来回振。
+    这是**对合**（自己作为自己的逆），故是合法动力学。 -/
+def revQ1 : ℚ ≃ ℚ where
+  toFun := fun x => 1 - x
+  invFun := fun x => 1 - x
+  left_inv := by intro x; ring
+  right_inv := by intro x; ring
+
+/-- **数振动（无限载体）**：ℚ 无限，周期不能靠鸽笼逼出 —— 这里是**显式周期**：
+    中心 `1/2` 振数 1（不振），其余数振数 2（一个来回）。
+    —— 这是「无限载体需轨道有限假设」的实例：每条轨道恰好 1 或 2 个点。 -/
+def numPeriodicDynamics : PeriodicDynamics ℚ where
+  toDynamics := ⟨revQ1⟩
+  period := fun x => if 1 - x = x then 1 else 2
+  period_pos := by
+    intro x
+    by_cases h : 1 - x = x <;> simp [h]
+  step_period := by
+    intro x
+    by_cases h : 1 - x = x
+    · -- period = 1：一次迭代 1 − x = x
+      simp [h, revQ1]
+    · -- period = 2：两次迭代 1 − (1 − x) = x（对合）
+      have h2 : (revQ1 : ℚ → ℚ)^[2] x = x := by
+        change 1 - (1 - x) = x
+        ring
+      simp [h, h2, revQ1]
+
+/-- **中心 `1/2` 振数 = 1（不振）**：`1 − 1/2 = 1/2`。 -/
+theorem num_period_center : numPeriodicDynamics.period (1 / 2 : ℚ) = 1 := by
+  simp [numPeriodicDynamics]
+  norm_num
+
+/-- **非中心点振数 = 2**：`x ≠ 1/2` ⟹ `1 − x ≠ x`。 -/
+theorem num_period_off_center {x : ℚ} (h : x ≠ 1 / 2) : numPeriodicDynamics.period x = 2 := by
+  have hne : 1 - x ≠ x := by
+    intro hh
+    apply h
+    linarith
+  simp [numPeriodicDynamics, hne]
+
+/-- **中心处张力为零**（不振 = 临界）：`τ(1/2, 1 − 1/2) = 0`。
+    —— 数振动的中心 `1/2` 是临界点：`Re = 1/2` 的形状在振数坐标里是「不振」。 -/
+theorem num_center_balanced (τ : AddTension) (h7 : τ.Unit) (h4 : τ.Reciprocal)
+    (h3b : τ.NonfullCrit) :
+    τ.grade ((PeriodicDynamics.vibrationReading numPeriodicDynamics).toProfile (1 / 2 : ℚ)
+      (revQ1 (1 / 2 : ℚ))) = 0 := by
+  have hfix : revQ1 (1 / 2 : ℚ) = (1 / 2 : ℚ) := by
+    simp [revQ1]
+    norm_num
+  exact PeriodicDynamics.fixed_point_balanced numPeriodicDynamics τ h7 h4 h3b (1 / 2 : ℚ) hfix
 
 end NODS

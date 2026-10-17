@@ -99,8 +99,17 @@ vibration_collapse : τ = period a − period b   -- 塌缩定理：张力 = 振
 | 点 `Fin 2` | `0 ↔ 1` 交换 | 2（`point_period_exists`） |
 | 线 `Fin 3` | `0 → 1 → 2 → 0` 循环 | 3（`line_period_exists`） |
 | 面 `Fin 2 × Fin 3` | 两个方向各自振（`productDynamics`） | ≤ 6（`plane_period_exists`） |
+| **数 `ℚ`（无限载体）** | `x ↦ 1 − x` 反转（`numPeriodicDynamics`） | 中心 `1/2` 振数 1，其余 2 |
 
-对合只是「周期 2 的振动」这一个实例，**不是推导的起点**。
+前三个是有限载体 —— 周期由鸽笼（`period_exists`）**逼出**。**ℚ 是无限载体**：
+周期不能靠鸽笼，改为**显式周期**（`period := if 1 − x = x then 1 else 2`）——
+这就是「轨道有限假设」：每条轨道恰好 1 或 2 个点。对合只是「周期 2 的振动」
+这一个实例，**不是推导的起点**。
+
+**泛化**：`PeriodicDynamics` 不要求 `Fintype` —— `same_orbit_comm` 只需
+`step_period` 就能补足轨道对称性（`p = period x`、`q·p ≥ k`），有限/无限载体共用
+同一套读数与塌缩。中心 `1/2` 处张力为零（`num_center_balanced`）：不振 = 临界 =
+`Re = 1/2` 的形状在振数坐标里的样子。
 
 ## 与弦理论的关系（诚实边界）
 
@@ -117,15 +126,19 @@ vibration_collapse : τ = period a − period b   -- 塌缩定理：张力 = 振
 | 动力学公理 | `Dynamics`（可逆自演化）—— 唯一新公理 | 1 条 |
 | 零张力 | `dynamics_tension_free`：`τ(x, step x) = 0`（定理） | 🟢 |
 | 周期被逼出 | `period_exists`：有限 + 可逆 ⟹ 周期（鸽笼，定理） | 🟢 |
+| 无限载体 | `numPeriodicDynamics`（ℚ 反转）：显式周期，轨道有限假设 | 🟢 实例 |
 | 塌缩 | `vibration_collapse`：满足公理 ⇒ 振数差 | 🟢 0 sorry |
-| 载体无关 | `Dynamics` 的 X 任意 | 🟢 结构签名 + 三实例 |
+| 载体无关 | `Dynamics` 的 X 任意；`PeriodicDynamics` 不要求 `Fintype` | 🟢 结构签名 + 四实例 |
 | 与已有体系 | 复用 `AtomicReading` + `collapse_four`，只加 1 条新公理 | 🟢 |
-| 诚实边界 | 周期需要载体有限（无限载体需显式周期假设） | ⚠️ 标注 |
+| 诚实边界 | 有限载体周期靠鸽笼逼出；无限载体需显式周期（轨道有限假设） | ⚠️ 标注 |
 
 ## 下一步
 
 1. **振数 + 相位 = 完整坐标**：现在是「按周期分桶」，相位（轨道内位置）需要
    同轨道内的序 —— 但那是周期之上的额外结构，不应成为本次「从 0 推导」的前提。
-2. **无限载体**：无限载体可能存在双向无限轨道；需要额外的「轨道有限」假设才能定义振数。
+2. **无限载体已完成**：`ℚ` 反转（`numPeriodicDynamics`）直接用显式周期
+   （轨道有限假设），与有限载体的鸽笼路径共用同一套读数/塌缩 ——
+   `Re = 1/2` 作为数振动的不动点已回到视野（`num_center_balanced`），
+   但那是实例性质，不是推导起点。
 3. **多振子组合律**：两张面叠起来振数怎么算？`productDynamics` 给的是并；
    「独立振动叠加 = 振数相加还是相乘」取决于并还是积 —— 留给读数层决策。

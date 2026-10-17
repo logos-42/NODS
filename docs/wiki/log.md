@@ -1,5 +1,24 @@
 # Wiki 日志
 
+## [2026-10-17] 振数坐标系 | 无限载体：ℚ 反转（显式周期）+ PeriodicDynamics 泛化
+
+- **leo 选的下一步：无限载体（轨道有限假设下的显式周期）。**
+- **`PeriodicDynamics` 泛化**（`Nods/Theories/Vibration.lean`，仍 0 sorry 0 warning）：
+  - 去掉 `[Fintype X]` 约束 —— **载体不限有限**。`same_orbit_comm` 不再依赖
+    `period_exists`（鸽笼），改用结构字段 `period x` + `step_period` 补足轨道对称性
+    （`p = period x`、`q·p ≥ k`）⟹ **有限与无限载体共用同一套读数与塌缩**。
+  - 有限载体周期仍由 `period_exists`（鸽笼）**逼出**；无限载体周期是**显式结构字段**
+    （轨道有限假设）—— 两条路都通。
+- **新实例：`ℚ` 反转（无限载体）**：`numPeriodicDynamics`（`revQ1 : x ↦ 1 − x`）。
+  `period := if 1 − x = x then 1 else 2` —— 中心 `1/2` 振数 1（不振），其余 2。
+  - `num_period_center` / `num_period_off_center`：中心 1、非中心 2（机器核对）。
+  - **`num_center_balanced`：中心 `1/2` 处张力为零** —— 不振 = 临界，
+    `Re = 1/2` 的形状回到视野（作为数振动的**不动点实例**，不是推导起点）。
+- **wiki `vibration-coords.md`**：实例表加入 ℚ 行 + 泛化说明（`PeriodicDynamics`
+  不要求 `Fintype`）+ 台账更新（无限载体 🟢）+ 「下一步」标记无限载体已完成。
+- **回写**：`current-status.md` 追加；`manifests/raw_sources.csv` 更新
+  `src-code-vibration-001`。
+
 ## [2026-10-17] 振数坐标系 | 修正：从静态世界从 0 推导振动本体（不再借对合/临界线）
 
 - **leo 方向修正**：不要从对合、临界线、`Re = 1/2` 这些**中间结构**出发推导，
