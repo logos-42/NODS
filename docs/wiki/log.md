@@ -1,34 +1,31 @@
 # Wiki 日志
 
-## [2026-10-17] 振数坐标系 | 振动作为第一性本体（弦理论的不对称）
+## [2026-10-17] 振数坐标系 | 修正：从静态世界从 0 推导振动本体（不再借对合/临界线）
 
-- **leo 的想法**：弦理论把「弦」当载体、「振动」当属性；leo 反转——真正重要的是**振动**，
-  「弦」只是众多可振动载体之一。要求用已有公理体系构建一个**以振动为模式的坐标系**
-  （不是笛卡尔、不是虚数）。
-- **新文件 `Nods/Theories/Vibration.lean`**（已接主链 `Nods.lean`；`lake build Nods` 0 sorry 0 warning）：
-  - `Vibration`（振动结构）：载体 `X` 任意 + 周期自映射 `step` + 振数 `period`（周期律 + 轨道不变量）
-    ⇒ **点 / 线 / 面 / 数一切皆可振**（承接载体抽象）。
-  - `SameOrbit` / `same_orbit_comm` / `same_orbit_period`：同轨道对称、共享振数。
-  - **`vibrationReading`**：振动结构喂给 `AtomicReading`（`size = period`，`share =` 同轨道共享）
-    ⇒ 振数进入已有公理体系，**零新公理**。
-  - **`vibration_collapse`（主定理）**：满足 TCM 公理（T6+T7+T4′+T3b，无需 T5）的振动张力
-    **只能是振数差** `period a − period b`（唯一到取向）⇒ 振数是被迫对象，不是选出来的记号。
-  - 动力学：`phase`（时间 = 轨道脚步数）/ `phase_succ` / `period_one_fixed`（振数 1 ⟹ 不振）/
-    **`fixed_point_balanced`（不动点处张力为零 = 临界 = 不振）**。
-  - **`involutionVibration`**：**最小振动 = 对合**（周期 2 的往返；不动点振数 1）⇒ 承接对合层
-    （临界线 = 对合不动点）。
-  - 实例：**点**（`Fin 2` 交换，周期 2）/ **线**（`Fin 3` 循环移位，周期 3）/ **数**（`ℚ` 反转
-    `x ↦ 1 − x`，中心 `1/2` = 不振 = `Re = 1/2` 的形状，`numVibration_center_balanced` 证中心张力为零）/
-    **面**（`Fin 2 × Fin 3` 双振子，`productVibration`，振数相乘 = 6）。
-  - **`vibCoord` / `vib_tension_is_coord_diff`**：坐标系语言 —— 坐标 = 振数，张力 = 坐标差。
-- **新概念页 `docs/wiki/vibration-coords.md`**（schema v2，current）：一句话定义 / 弦理论不对称
-  （HBS 1–2 步）/ 真空诊断 / 构造（振动 → 读数 → 塌缩）/ 坐标系规范逐条验证 /
-  动力学（时间 = 轨道步数，临界 = 不振，最小振动 = 对合）/ 四实例表 / 与弦论关系 /
-  NODS 诚实判定 / 下一步（相位第二坐标、连续振动、多振子组合律）。
-- **回写**：`index.md` 加链接；`current-status.md` 追加；`manifests/raw_sources.csv`
-  登记 `src-code-vibration-001`。
-- **诚实边界**：数学层给的是「振动张力 ⟹ 振数差」的公理化 + 载体无关；不给物理断言
-  （不声称「弦不存在」）；`SameOrbit` 判定需载体 `DecidableEq`（实例载体都带）。
+- **leo 方向修正**：不要从对合、临界线、`Re = 1/2` 这些**中间结构**出发推导，
+  要从系统架构（静态世界）从 0 推导振动本体。
+- **重写 `Nods/Theories/Vibration.lean`**（仍接主链；`lake build Nods` 0 sorry 0 warning）：
+  - **第 0 步**：静态世界（已有）—— `AtomicReading` + 张力公理 + 塌缩。不是振动。
+  - **第 1 步：动力学公理（唯一新公理）** `Dynamics`：`step : X ≃ X`（**可逆**自演化
+    = 时间反演对称）。载体 X 任意——点/线/面/数一切皆可振。
+  - **第 2 步：零张力动力学（定理）** `dynamics_tension_free`：保 size 演化 ⟹
+    `τ(x, step x) = 0` —— TCM「内容不可见」的动力学版：**内容在变、张力为零**。
+  - **第 3 步：周期被逼出（定理）** `period_exists`：有限载体 + 鸽笼 ⟹
+    `∃ p > 0, step^[p] x = x`。辅助：`cancel_iter`（可逆迭代抵消）、`iterate_split`、
+    `period_of_repeat`（轨迹重复 ⟹ 周期）、`iterate_mul_fixed`（周期倍数闭包）、
+    `same_orbit_comm`（同轨道对称，用周期 + q·p ≥ k，不需要最小周期）。
+  - **第 4 步：振数坐标** `vibrationReading`（size = period，share = min 共同周期）+
+    **`vibration_collapse`（张力 = 振数差）**；`vibCoord` / `vib_tension_is_coord_diff`。
+  - 实例：点（`Fin 2` 交换）/ 线（`Fin 3` 循环）/ 面（`Fin 2 × Fin 3` 双振子），
+    周期存在各被 `period_exists` 证出（`point_period_exists` 等）。
+  - **对合降级为实例**（`swapFin2` 只是周期 2 的振动），不再是推导起点；
+    `ℚ` 反转、`Re=1/2` 连接移出（无限载体需显式周期假设，见「下一步」）。
+- **wiki `vibration-coords.md` 重写**：推导链四步（静态世界 → 动力学公理 → 零张力 →
+  周期逼出 → 坐标）+ 坐标系规范表 + 诚实台账（唯一新公理 1 条，其余全定理）。
+- **诚实边界**：周期需要载体有限（鸽笼依附 `Fintype`）；无限载体要 `PeriodicDynamics`
+  式显式周期或轨道有限假设。
+- **回写**：`current-status.md` 追加；`manifests/raw_sources.csv` 更新
+  `src-code-vibration-001` 注释。
 
 ## [2026-10-12] 张力计数法 | 公理优化（T5 出列）+ 扩到 ℝ/ℂ（代数数的次数读数）
 
