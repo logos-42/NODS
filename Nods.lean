@@ -54,6 +54,7 @@ import Nods.Theories.TensionDuality
 import Nods.Theories.TensionOptimal
 import Nods.Theories.TensionAlgebraic
 import Nods.Theories.Vibration
+import Nods.Theories.VibrationGeometry
 import Nods.Instances.NatToInt
 import Nods.Instances.IntToRat
 import Nods.Instances.RatToReal
