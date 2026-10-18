@@ -2,7 +2,7 @@
 title: NODS — New Object Discovery System 当前状态
 source: session
 created: 2026-09-04
-last_confirmed: 2026-10-17
+last_confirmed: 2026-10-18
 schema_version: 2
 audience: internal
 stage: current
@@ -87,6 +87,7 @@ compiled_from: [src-code-core-001, src-code-instances-001, src-code-theories-001
 - **义务 O1**：`real_initiality_obligation`（R 在"完备 Archimedean 有序域 + 嵌入 Q"中的初始性）仍是 `axiom`——需要"唯一有序域同态 R → K"的构造（Dedekind 切割显式搬运，约 80 行分析），v0.2 应替换为 `IsMinimal` 证明。原义务 O2（ℚ 有序域结构唯一）已在本 session 证成定理 `lofLinearOrder_eq_rat`。
 - **振数坐标系 — 无限载体（2026-10-17 追加）**：`PeriodicDynamics` 去掉 `[Fintype X]` 约束（`same_orbit_comm` 改用结构字段 `period x` + `step_period` 补足对称性，不依赖鸽笼）⟹ **有限与无限载体共用同一套读数与塌缩**；新实例 `numPeriodicDynamics`（ℚ 反转 `x ↦ 1 − x`，显式周期：中心 `1/2` 振数 1 其余 2），`num_center_balanced` 证中心 `1/2` 张力为零（不振 = 临界 = `Re=1/2` 形状以实例性质回到视野）。见上一条完整推导链条目。
 - **振数坐标系（2026-10-17，修正版：从 0 推导）**：`Nods/Theories/Vibration.lean`（已接主链，`lake build Nods` 0 sorry 0 warning）。**leo 方向修正**：不从对合/临界线/`Re=1/2` 等中间结构出发，而从系统静态世界从 0 推导振动本体。推导链：**静态世界**（`AtomicReading` + 张力 + 塌缩，已有）→ **动力学公理（唯一新公理）** `Dynamics`（`step : X ≃ X` 可逆自演化 = 时间反演对称）→ **零张力动力学（定理）** `dynamics_tension_free`（保 size ⟹ `τ(x, step x) = 0`，TCM「内容不可见」的动力学版：内容在变、张力为零）→ **周期被逼出（定理）** `period_exists`（有限载体 + 鸽笼 ⟹ `∃ p > 0, step^[p] x = x`；振数不是输入，是被有限性逼出）→ **振数坐标** `vibrationReading`（size = period）+ **`vibration_collapse`（张力 = 振数差）** + `vibCoord`。实例：点（Fin 2）/ 线（Fin 3）/ 面（Fin 2×Fin 3），周期存在各被证出。对合降级为「周期 2 实例」，非推导起点。诚实边界：周期需要载体有限（鸽笼依附 `Fintype`）；无限载体需显式周期或轨道有限假设。详见 `docs/wiki/vibration-coords.md`。
+- **振数坐标系 — 相位层（2026-10-18 追加）**：`Vibration.lean` 新增 §4.5 相位层（0 sorry 0 warning，已接主链）—— 振数坐标从一维升二维：`MinimalPeriod`（最小正周期公理）+ `period_invariant_minimal`（最小周期沿轨道不变）+ `PhaseLink`（周期窗口内可达）+ **`phase_position_unique`（主定理：最小周期 ⟹ 相位步数唯一）** + `phaseIdx`/`phaseCoord`（第二坐标 = 轨道内序，坐标对 `(period, phaseIdx)`）。§7 补齐载体：`pointPeriodicDynamics`（Fin 2，显式周期 2）/ `linePeriodicDynamics`（Fin 3，显式周期 3），三例最小周期证（`num_minimal`/`point_minimal`/`line_minimal`）+ 数值 `phaseIdx 0 1 = 1`、`phaseCoord 0 1 = (2,1)`。含义：**相位唯一性 = 最小周期**（否则窗口内多步可达同一 `y`）；对合仍只是周期 2 的实例。
 - **Radical 计算层 v3 已完成**：任意次开方（∀n，ℝ₊ 单值）已落码（`nthrootR` + 三条 ∀n 定理，见上）。未落码候选：带 x² 项的一般三次（平移化为缺项型）、四次 Ferrari、五次 Abel–Ruffini 断崖的精确形式化（Galois 群可解性）、复根分支（μₙ 全貌，Nat.card μₙ = n）。已接主链（`Nods.lean` import）。
 - 自动化约束生成（Automated Constraint Generator）：v0.1 之后阶段，尚无代码。
 

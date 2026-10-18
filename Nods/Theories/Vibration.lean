@@ -296,6 +296,151 @@ theorem fixed_point_balanced (V : PeriodicDynamics X) (τ : AddTension)
   rw [hfix]
   exact vibration_same_period_balanced V τ h7 h4 h3b x x rfl
 
+/- ------------------------------------------------------------------ -/
+/- 4.5 相位层：轨道内序（第二坐标，在振数周期之上）                  -/
+/- ------------------------------------------------------------------ -/
+
+/-- **最小周期**：在周期之上增加的相位层公理 —— `period x` 是真正的最小正周期。
+    这不是振动本体的起点；振动本体已由 `Dynamics` + `period_exists` 建立。
+    它只负责让「轨道内第几步」成为唯一的第二坐标。 -/
+def MinimalPeriod (V : PeriodicDynamics X) : Prop :=
+  ∀ x k, 0 < k → k < V.period x →
+    (V.step : X → X)^[k] x ≠ x
+
+/-- **周期沿轨道不变**：可逆性 + 最小周期 ⟹ `period (step^k x) = period x`。 -/
+theorem period_invariant_minimal (V : PeriodicDynamics X)
+    (hmin : MinimalPeriod V) (x : X) (k : ℕ) :
+    V.period ((V.step : X → X)^[k] x) = V.period x := by
+  apply le_antisymm
+  · by_contra hgt
+    have hlt : V.period x < V.period ((V.step : X → X)^[k] x) := Nat.lt_of_not_ge hgt
+    exact (hmin ((V.step : X → X)^[k] x) (V.period x) (V.period_pos x) hlt)
+      (by
+        rw [← iterate_add_len (V.step : X → X) (V.period x) k]
+        rw [Nat.add_comm, iterate_add_len (V.step : X → X) k (V.period x)]
+        rw [V.step_period x])
+  · by_contra hgt
+    have hlt : V.period ((V.step : X → X)^[k] x) < V.period x := Nat.lt_of_not_ge hgt
+    have hy := V.step_period ((V.step : X → X)^[k] x)
+    have hshift : (V.step : X → X)^[k]
+        ((V.step : X → X)^[V.period ((V.step : X → X)^[k] x)] x)
+        = (V.step : X → X)^[k] x := by
+      rw [← iterate_add_len (V.step : X → X) k
+        (V.period ((V.step : X → X)^[k] x))]
+      rw [Nat.add_comm, iterate_add_len (V.step : X → X)
+        (V.period ((V.step : X → X)^[k] x)) k]
+      exact hy
+    have hcancel : (V.step.symm : X → X)^[k]
+        ((V.step : X → X)^[k] x) = x :=
+      cancel_iter V.step k x
+    have hx : (V.step : X → X)^[V.period ((V.step : X → X)^[k] x)] x = x := by
+      -- 从 hshift: σ^k (σ^q x) = σ^k x,两侧作用 σ.symm^k,用 cancel_iter 抵消
+      -- 先写具体计算再 rw
+      have hstep : (V.step : X → X)^[V.period ((V.step : X → X)^[k] x)] x =
+          (V.step.symm : X → X)^[k]
+            ((V.step : X → X)^[k]
+              ((V.step : X → X)^[V.period ((V.step : X → X)^[k] x)] x)) := by
+        exact (cancel_iter V.step k
+          ((V.step : X → X)^[V.period ((V.step : X → X)^[k] x)] x)).symm
+      rw [hstep]
+      rw [hshift]
+      exact cancel_iter V.step k x
+    exact (hmin x (V.period ((V.step : X → X)^[k] x))
+      (V.period_pos ((V.step : X → X)^[k] x)) hlt) hx
+
+/-- **相位链**：`y` 在 `x` 的一个周期窗口内，`k < period x` 步可达。
+    这是相位第二坐标的局部、规范版本；不需要重新选择轨道代表元。 -/
+def PhaseLink (V : PeriodicDynamics X) (x y : X) : Prop :=
+  ∃ k : ℕ, k < V.period x ∧ (V.step : X → X)^[k] x = y
+
+/-- **轨道内序唯一**：最小周期 ⟹ 相位链中的步数唯一。 -/
+theorem phase_position_unique (V : PeriodicDynamics X)
+    (hmin : MinimalPeriod V) {x : X} {k k' : ℕ}
+    (hk : k < V.period x) (hk' : k' < V.period x)
+    (h : (V.step : X → X)^[k] x = (V.step : X → X)^[k'] x) : k = k' := by
+  by_cases hkk : k ≤ k'
+  · by_cases hd : k' - k = 0
+    · omega
+    · have hdpos : 0 < k' - k := Nat.pos_of_ne_zero hd
+      have hdlt : k' - k < V.period x := by omega
+      have hpz : V.period ((V.step : X → X)^[k] x) = V.period x :=
+        period_invariant_minimal V hmin x k
+      have hz : (V.step : X → X)^[k' - k]
+          ((V.step : X → X)^[k] x) = (V.step : X → X)^[k] x := by
+        rw [← iterate_add_len (V.step : X → X) (k' - k) k]
+        rw [Nat.sub_add_cancel hkk]
+        exact h.symm
+      have hbad : (V.step : X → X)^[k' - k] ((V.step : X → X)^[k] x) ≠
+          (V.step : X → X)^[k] x := by
+        simpa [hpz] using hmin ((V.step : X → X)^[k] x) (k' - k) hdpos (by rwa [hpz])
+      exact absurd hz hbad
+  · have hkk' : k' ≤ k := Nat.le_of_not_ge hkk
+    by_cases hd : k - k' = 0
+    · omega
+    · have hdpos : 0 < k - k' := Nat.pos_of_ne_zero hd
+      have hdlt : k - k' < V.period x := by omega
+      have hpz : V.period ((V.step : X → X)^[k'] x) = V.period x :=
+        period_invariant_minimal V hmin x k'
+      have hz : (V.step : X → X)^[k - k']
+          ((V.step : X → X)^[k'] x) = (V.step : X → X)^[k'] x := by
+        rw [← iterate_add_len (V.step : X → X) (k - k') k']
+        rw [Nat.sub_add_cancel hkk']
+        exact h
+      have hbad : (V.step : X → X)^[k - k'] ((V.step : X → X)^[k'] x) ≠
+          (V.step : X → X)^[k'] x := by
+        simpa [hpz] using hmin ((V.step : X → X)^[k'] x) (k - k') hdpos (by rwa [hpz])
+      exact absurd hz hbad
+
+/-- **相位存在且唯一**：相位链中的 `k` 是唯一的。 -/
+theorem phase_link_unique (V : PeriodicDynamics X)
+    (hmin : MinimalPeriod V) {x y : X} (h : PhaseLink V x y) :
+    ∃! k : ℕ, k < V.period x ∧ (V.step : X → X)^[k] x = y := by
+  rcases h with ⟨k, hk, hxy⟩
+  refine ⟨k, ⟨hk, hxy⟩, ?_⟩
+  intro k' hk'
+  rcases hk' with ⟨hk'a, hk'b⟩
+  have heq : (V.step : X → X)^[k] x = (V.step : X → X)^[k'] x := by
+    rw [hxy, hk'b]
+  exact (phase_position_unique V hmin (k := k) (k' := k') hk hk'a heq).symm
+
+/-- **相位第二坐标**：同一轨道内从 `x` 到 `y` 的唯一步数。
+    第一坐标是振数 `period x`，第二坐标是 `phaseIdx`。 -/
+noncomputable def phaseIdx (V : PeriodicDynamics X)
+    (hmin : MinimalPeriod V) {x y : X} (h : PhaseLink V x y) : ℕ :=
+  Classical.choose (phase_link_unique V hmin h)
+
+/-- 相位在周期窗口内。 -/
+theorem phaseIdx_lt (V : PeriodicDynamics X)
+    (hmin : MinimalPeriod V) {x y : X} (h : PhaseLink V x y) :
+    phaseIdx V hmin h < V.period x := by
+  have hspec := Classical.choose_spec (phase_link_unique V hmin h)
+  simpa [phaseIdx] using hspec.1.1
+
+/-- 相位满足到达条件。 -/
+theorem phaseIdx_spec (V : PeriodicDynamics X)
+    (hmin : MinimalPeriod V) {x y : X} (h : PhaseLink V x y) :
+    (V.step : X → X)^[phaseIdx V hmin h] x = y := by
+  have hspec := Classical.choose_spec (phase_link_unique V hmin h)
+  simpa [phaseIdx] using hspec.1.2
+
+/-- **相位动力学**：走一步后，原始步数推进一格。 -/
+theorem phaseIdx_step (V : PeriodicDynamics X)
+    (hmin : MinimalPeriod V) {x y : X} (h : PhaseLink V x y) :
+    (V.step : X → X)^[phaseIdx V hmin h + 1] x = (V.step : X → X) y := by
+  rw [Nat.add_comm]
+  rw [iterate_add_len (V.step : X → X) 1 (phaseIdx V hmin h)]
+  simp only [Function.iterate_one]
+  rw [phaseIdx_spec V hmin h]
+
+/-- **相位坐标对**：第一坐标 = 振数（周期），第二坐标 = 轨道内序。 -/
+noncomputable def phaseCoord (V : PeriodicDynamics X)
+    (hmin : MinimalPeriod V) {x y : X} (h : PhaseLink V x y) : ℕ × ℕ :=
+  (V.period x, phaseIdx V hmin h)
+
+/- ------------------------------------------------------------------ -/
+/- 4.6 振数坐标（第一坐标）                                          -/
+/- ------------------------------------------------------------------ -/
+
 /-- **振数坐标**：对象 `x` 的坐标 = 它的振数 `period x`。
     不动点（不振）是原点，振数 = 1。 -/
 def vibCoord (V : PeriodicDynamics X) (x : X) : ℕ := V.period x
@@ -421,5 +566,91 @@ theorem num_center_balanced (τ : AddTension) (h7 : τ.Unit) (h4 : τ.Reciprocal
     simp [revQ1]
     norm_num
   exact PeriodicDynamics.fixed_point_balanced numPeriodicDynamics τ h7 h4 h3b (1 / 2 : ℚ) hfix
+
+/- ------------------------------------------------------------------ -/
+/- 7. 相位层实例：最小周期 + 相位数值（第二坐标）                     -/
+/- ------------------------------------------------------------------ -/
+
+/-- **点振动（周期 2）**：把 §5 的裸动力学 `pointDynamics`（`Fin 2` 的 `0 ↔ 1`）
+    升级为完整周期动力学：显式周期 `period = 2`，`step² = id`（交换是对合）。 -/
+def pointPeriodicDynamics : PeriodicDynamics (Fin 2) where
+  toDynamics := pointDynamics
+  period := fun _ => 2
+  period_pos := by
+    intro x
+    norm_num
+  step_period := by
+    intro x
+    fin_cases x <;> decide
+
+/-- **线振动（周期 3）**：`lineDynamics`（`Fin 3` 的 `0 → 1 → 2 → 0`，`+1` 移位）
+    的完整周期动力学：显式周期 `period = 3`，`step³ = id`（三次 `+1` 回到原位）。 -/
+def linePeriodicDynamics : PeriodicDynamics (Fin 3) where
+  toDynamics := lineDynamics
+  period := fun _ => 3
+  period_pos := by
+    intro x
+    norm_num
+  step_period := by
+    intro x
+    fin_cases x <;> decide
+
+/-- **数振动满足最小周期**：中心 `1/2` 振数 1（无更小正周期），
+    非中心点振数 2（`k = 1` 时 `1 − x ≠ x`）。 -/
+theorem num_minimal : PeriodicDynamics.MinimalPeriod numPeriodicDynamics := by
+  intro x k hk0 hklt
+  by_cases h : 1 - x = x
+  · -- period = 1：0 < k < 1 矛盾
+    have hp1 : numPeriodicDynamics.period x = 1 := by simp [numPeriodicDynamics, h]
+    omega
+  · -- period = 2：k = 1 ⟹ step x = 1 − x ≠ x（正是 h）
+    have hp2 : numPeriodicDynamics.period x = 2 := by simp [numPeriodicDynamics, h]
+    have hk1 : k = 1 := by omega
+    subst k
+    simpa [numPeriodicDynamics, revQ1] using h
+
+/-- **点振动（周期 2）满足最小周期**：`0 ↔ 1`，没有 `k = 1` 使 `step x = x`。 -/
+theorem point_minimal : PeriodicDynamics.MinimalPeriod pointPeriodicDynamics := by
+  intro x k hk0 hklt
+  have hp : pointPeriodicDynamics.period x = 2 := rfl
+  have hk1 : k = 1 := by omega
+  subst k
+  fin_cases x <;> decide
+
+/-- **线振动（周期 3）满足最小周期**：`0 → 1 → 2 → 0`，`k = 1, 2` 都不回到原位。 -/
+theorem line_minimal : PeriodicDynamics.MinimalPeriod linePeriodicDynamics := by
+  intro x k hk0 hklt
+  have hp : linePeriodicDynamics.period x = 3 := rfl
+  have hk12 : k = 1 ∨ k = 2 := by omega
+  rcases hk12 with hk1 | hk2
+  · subst k
+    fin_cases x <;> decide
+  · subst k
+    fin_cases x <;> decide
+
+/-- **相位链实例（点振动）**：`0 → 1` 在一周期窗口内一步可达。 -/
+theorem point_phase_link : PeriodicDynamics.PhaseLink pointPeriodicDynamics 0 1 := by
+  refine ⟨1, ?_, ?_⟩
+  · decide
+  · decide
+
+/-- **相位值（点振动）**：`phaseIdx 0 1 = 1` —— 第二坐标 = 1。 -/
+theorem point_phase_idx : PeriodicDynamics.phaseIdx pointPeriodicDynamics point_minimal
+    point_phase_link = 1 := by
+  have hspec := Classical.choose_spec
+    (PeriodicDynamics.phase_link_unique pointPeriodicDynamics point_minimal point_phase_link)
+  -- hspec.2 : ∀ k, k < period 0 ∧ step^k 0 = 1 → k = phaseIdx
+  have hk : 1 < pointPeriodicDynamics.period 0 ∧
+      (pointPeriodicDynamics.step : Fin 2 → Fin 2)^[1] 0 = 1 := by
+    decide
+  have h1 : (1 : ℕ) = PeriodicDynamics.phaseIdx pointPeriodicDynamics point_minimal
+      point_phase_link := hspec.2 1 hk
+  exact h1.symm
+
+/-- **相位坐标对（点振动）**：`(period 0, phaseIdx 0 1) = (2, 1)`。 -/
+theorem point_phase_coord : PeriodicDynamics.phaseCoord pointPeriodicDynamics point_minimal
+    point_phase_link = (2, 1) := by
+  rw [PeriodicDynamics.phaseCoord, point_phase_idx]
+  rfl
 
 end NODS

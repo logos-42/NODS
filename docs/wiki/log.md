@@ -1,5 +1,17 @@
 # Wiki 日志
 
+## [2026-10-18] 振数坐标系 | 相位层（第二坐标）：最小周期 + 轨道内序
+
+- **`Nods/Theories/Vibration.lean` 新增 §4.5 相位层**（0 sorry 0 warning，已接主链）—— 振数坐标从一维升级为二维：第一坐标 = 振数 `period x`，第二坐标 = 轨道内序。
+  - `MinimalPeriod`：`period x` 是最小正周期（`∀ x k, 0 < k → k < period x → step^k x ≠ x`）—— 不是振动本体的起点（本体已由 `Dynamics` + `period_exists` 建立），只负责让「轨道内第几步」成为唯一的第二坐标。
+  - `period_invariant_minimal`：最小周期沿轨道不变（可逆性 + 最小性 ⟹ `period (step^k x) = period x`）。
+  - `PhaseLink`：`y` 在 `x` 的一个周期窗口内可达（`∃ k < period x, step^k x = y`）—— 局部规范版本，不需要重新选轨道代表元。
+  - `phase_position_unique`（主定理）：最小周期 ⟹ 相位链步数唯一（`step^k x = step^k' x` 且都在窗口内 ⟹ `k = k'`）。
+  - `phase_link_unique`：`∃! k`；`phaseIdx`（`Classical.choose`）+ `phaseIdx_lt` / `phaseIdx_spec` / `phaseIdx_step`（走一步，原始步数推进一格）。
+  - `phaseCoord`：坐标对 `(period x, phaseIdx)`。
+- **§7 实例补齐**：新增 `pointPeriodicDynamics : PeriodicDynamics (Fin 2)`（显式周期 2，`swapFin2` 对合）与 `linePeriodicDynamics : PeriodicDynamics (Fin 3)`（显式周期 3，`shiftFin3` 移位）—— 此前 §5 只有裸 `Dynamics`，`MinimalPeriod`/`PhaseLink` 无载体可挂。三个最小周期证：`num_minimal`（ℚ 反转：中心 1/2 振数 1、其余 2）/ `point_minimal` / `line_minimal`；相位数值：`point_phase_link`（`0 → 1` 一步可达）、`point_phase_idx`（`phaseIdx 0 1 = 1`）、`point_phase_coord`（`(period 0, phaseIdx 0 1) = (2, 1)`）。
+- **含义**：相位是周期之上的第二坐标，唯一性来自最小周期——没有 `MinimalPeriod`，同一个 `y` 可在窗口内多步到达（周期倍数），第二坐标无从定义。对合（周期 2）仍是相位层的实例而非起点。
+
 ## [2026-10-17] 振数坐标系 | 无限载体：ℚ 反转（显式周期）+ PeriodicDynamics 泛化
 
 - **leo 选的下一步：无限载体（轨道有限假设下的显式周期）。**
