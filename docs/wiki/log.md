@@ -1,5 +1,19 @@
 # Wiki 日志
 
+## [2026-10-18] 工具链 | 迁移 v4.35.0（进行中）：废弃 v4.21.0
+
+- **leo 指令**：NODS 改为最新版（v4.35.0，stable）运行编译，废弃旧版。
+- **已完成**：`lean-toolchain` → `leanprover/lean4:v4.35.0`（本批 commit）。
+- **进行中（待 N-S build 完成通知）**：本地物化依赖（`.lake/packages/` 下 9 包：
+  mathlib/batteries/Qq/aesop/proofwidgets/importGraph/LeanSearchClient/plausible/Cli）
+  由 NavierStokesAndEuler 项目（`~/Downloads/NavierStokesAndEuler`，Lakefile
+  `require mathlib git rev v4.35.0`，mathlib rev `56a00585` = "chore: bump toolchain
+  to v4.35.0"，已编译 8643 olean 进行中）的**已编译物化**替换（NODS 9 包 ⊆ N-S 11 包，
+  Lakefile 的 path 依赖结构零改动）→ 重新 `lake build` → 修 v4.35.0 下 API 差异
+  （若有）→ 三门禁 → 迁移完成批 commit。
+- **诚实边界**：本批构建状态 = 待验证；push 后远端 toolchain 为 v4.35.0，
+  本地物化替换完成前不可在 NODS 跑 `lake build`（旧 olean 与新 lean 不兼容）。
+
 ## [2026-10-18] 振数坐标系 | 几何坐标化：离散极坐标层（leo 修正后实现）
 
 - **leo 修正**：上一条可行性分析（本日）的结论是「几何坐标在 TCM 公理内不可能」——

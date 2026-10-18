@@ -71,6 +71,12 @@ compiled_from: [src-code-core-001, src-code-instances-001, src-code-theories-001
 
 ## 构建状态（2026-09-07 · lake build v4.21.0）
 
+> ⚠️ **2026-10-18：工具链迁移中 → v4.35.0（最新稳定版），废弃 v4.21.0。**
+> `lean-toolchain` 已切 `leanprover/lean4:v4.35.0`；本地物化依赖（mathlib 等 9 包）
+> 将由 NavierStokesAndEuler 项目（同 rev `56a00585` = "bump to v4.35.0"）的
+> 已编译物化替换后重新 `lake build` 验证。**本批构建状态 = 待验证**（迁移完成前
+> 以下 v4.21.0 的"全绿"记录不代表 v4.35.0 状态）。
+
 > ✅ **`lake build` 全绿（0 警告 0 sorry）。** 6 个核心层 + 4 个实例（N→Z、Z→Q、Q→R、R→C）全部编译通过。
 > 修复路线：(1) `LOF` 从弃用的 `LinearOrderedField` 重建成自定义结构
 > （`Field` + `LinearOrder` + `IsStrictOrderedRing`）；(2) 三个 `*_gap` 定理统一改为用
