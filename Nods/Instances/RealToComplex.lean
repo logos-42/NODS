@@ -153,7 +153,7 @@ noncomputable def realToComplex_minimal :
     SemiringLike.toNonAssocSemiring (T := CR) (Model.forget CR CR F.target).str
   constructor
   · refine ⟨{ hom := complexLift F.emb F.extra F.ax,
-               over := ?_,
+               over_prop := ?_,
                pres := ?_ }⟩
     · intro r
       simp only [Biframed.forget_toFun]

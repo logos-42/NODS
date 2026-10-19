@@ -66,12 +66,18 @@ structure LOF (α : Type) where
 -- `SemiringLike` 与 `Refinement` 都必须走这几个函数，
 -- 否则忘却后的 `→+*` 类型会与原类型只是同构而不是同一个，
 -- `Biframed.forgetHom` 就连恒等函数都写不出来。
+-- v4.35：algebra 类扁平化（CommRing 只有 toRing+mul_comm，父类全是派生），
+-- 须 `@[reducible]` 让忘却路径在 defEq/隐式透明度下直接展开，
+-- 否则 `→+*` 的 NonAssocSemiring 实例参数（环原生 vs 忘却派生）不定义相等。
+@[reducible]
 def commRingToCommSemiring {α : Type} (s : CommRing α) : CommSemiring α := by
   letI : CommRing α := s
   exact inferInstance
 
+@[reducible]
 def fieldToCommRing {α : Type} (s : Field α) : CommRing α := s.toCommRing
 
+@[reducible]
 def lofToField {α : Type} (s : LOF α) : Field α := s.toField
 
 -- 忘到半环的路径：每一级都**委托**给下一级

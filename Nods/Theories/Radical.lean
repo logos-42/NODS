@@ -306,7 +306,7 @@ lemma vcube (p q s u : ℝ) (hu : u ^ 3 = -q / 2 + s) (hu0 : u ≠ 0)
       have hA : -q / 2 + s ≠ 0 := by
         intro hz
         apply hu0
-        exact pow_eq_zero (by rw [hu, hz])
+        exact eq_zero_of_pow_eq_zero (by rw [hu, hz])
       rw [div_eq_iff hA]
       ring
 
@@ -333,7 +333,7 @@ theorem cubic_solvable (p q : ℝ) (hD : 0 ≤ (q / 2) ^ 2 + (p / 3) ^ 3) :
       have h2 : s ^ 2 = (q / 2) ^ 2 := by rw [hs_q2]
       have hc : (p / 3) ^ 3 = 0 := by
         linarith [hs, h2]
-      have hp3 : p / 3 = 0 := pow_eq_zero hc
+      have hp3 : p / 3 = 0 := eq_zero_of_pow_eq_zero hc
       nlinarith
     let v : ℝ := -(p / 3) / u
     have hv : v ^ 3 = -q / 2 - s := by
@@ -341,14 +341,17 @@ theorem cubic_solvable (p q : ℝ) (hD : 0 ≤ (q / 2) ^ 2 + (p / 3) ^ 3) :
       exact vcube p q s u hu hu0 hs
     have huv : u * v = -p / 3 := by
       dsimp [v]
-      field_simp [hu0]
-      ring
+      field_simp [hu0] <;> ring
     refine ⟨u + v, ?_⟩
     exact cardano_certificate p q s u v hu hv huv
 
 /-- 示例：x³ − 3x + 2 = 0 有实根（判别式 1 + (−1)³ = 0）。 -/
 example : ∃ x : ℝ, x ^ 3 - 3 * x + 2 = 0 := by
-  simpa using (cubic_solvable (-3) 2 (by norm_num))
+  have hD : 0 ≤ (2 / 2 : ℝ) ^ 2 + (-3 / 3 : ℝ) ^ 3 := by norm_num
+  rcases cubic_solvable (-3) 2 hD with ⟨x, hx⟩
+  refine ⟨x, ?_⟩
+  -- v4.35：`- 3 * x` 与 `+ -(3 * x)` 不再被 simp 归约，用 ring 统一
+  nlinarith [hx]
 
 /- ------------------------------------------------------------------ -/
 /- 计算层 v3：任意次开方（三次 → 五次 → … → n 次，一次形式化覆盖全部次数） -/

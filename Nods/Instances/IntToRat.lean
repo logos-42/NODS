@@ -50,35 +50,45 @@ theorem int_no_half : ¬ ∃ x : ℤ, 2 * x = 1 := by
     里的域 `*` / `1` 改写成原生 `*` / `1`，再交给 `int_no_half`。 -/
 theorem int_gap : ¬ HasSolution intModel demandField := by
   rintro ⟨s', hstr, _e, _hax⟩
-  letI : Field ℤ := s'
-  have hring : s'.toCommRing = Int.instCommRing := hstr
+  letI inst : Field ℤ := s'
+  have hring : inst.toCommRing = Int.instCommRing := hstr
+  -- v4.35：Field/Semifield 扁平化，全部投影链经 Field.toSemifield 展开 + hring 对齐
   have hzero :
-      ((@Field.toSemifield ℤ s').toDivisionSemiring.toGroupWithZero.toMonoidWithZero.toMulZeroOneClass.toMulZeroClass.toZero : Zero ℤ).zero = (0 : ℤ) := by
+      ((@Field.toSemifield ℤ inst).toDivisionSemiring.toSemiring.toNonUnitalSemiring.toNonUnitalNonAssocSemiring.toMulZeroClass.toZero : Zero ℤ).zero = (0 : ℤ) := by
     calc
-      _ = (s'.toCommRing.toSemiring.toNonUnitalSemiring.toNonUnitalNonAssocSemiring.toMulZeroClass.toZero : Zero ℤ).zero := by rfl
-      _ = (Int.instCommRing.toSemiring.toNonUnitalSemiring.toNonUnitalNonAssocSemiring.toMulZeroClass.toZero : Zero ℤ).zero := by rw [hring]
+      ((@Field.toSemifield ℤ inst).toDivisionSemiring.toSemiring.toNonUnitalSemiring.toNonUnitalNonAssocSemiring.toMulZeroClass.toZero : Zero ℤ).zero
+          = (inst.toCommRing.toSemiring.toNonUnitalSemiring.toNonUnitalNonAssocSemiring.toMulZeroClass.toZero : Zero ℤ).zero := by
+            simp only [Field.toSemifield]
+      _ = (Int.instCommRing.toSemiring.toNonUnitalSemiring.toNonUnitalNonAssocSemiring.toMulZeroClass.toZero : Zero ℤ).zero := by
+            rw [hring]
       _ = (0 : ℤ) := by rfl
   have h2ne0 : (2 : ℤ) ≠
-      ((@Field.toSemifield ℤ s').toDivisionSemiring.toGroupWithZero.toMonoidWithZero.toMulZeroOneClass.toMulZeroClass.toZero : Zero ℤ).zero := by
+      ((@Field.toSemifield ℤ inst).toDivisionSemiring.toSemiring.toNonUnitalSemiring.toNonUnitalNonAssocSemiring.toMulZeroClass.toZero : Zero ℤ).zero := by
     intro h
     have : (2 : ℤ) = (0 : ℤ) := by rw [hzero] at h; exact h
     norm_num at this
   have hinv := mul_inv_cancel₀ (a := (2 : ℤ)) h2ne0
   have hmul :
-      ((@Field.toSemifield ℤ s').toDivisionSemiring.toGroupWithZero.toMonoidWithZero.toMulZeroOneClass.toMulZeroClass.toMul : Mul ℤ) = @Int.instMul := by
+      ((@Field.toSemifield ℤ inst).toDivisionSemiring.toSemiring.toNonUnitalSemiring.toNonUnitalNonAssocSemiring.toMul : Mul ℤ) = @Int.instMul := by
     calc
-      _ = (s'.toCommRing.toSemiring.toNonUnitalSemiring.toNonUnitalNonAssocSemiring.toMul : Mul ℤ) := by rfl
-      _ = (Int.instCommRing.toSemiring.toNonUnitalSemiring.toNonUnitalNonAssocSemiring.toMul : Mul ℤ) := by rw [hring]
+      ((@Field.toSemifield ℤ inst).toDivisionSemiring.toSemiring.toNonUnitalSemiring.toNonUnitalNonAssocSemiring.toMul : Mul ℤ)
+          = (inst.toCommRing.toSemiring.toNonUnitalSemiring.toNonUnitalNonAssocSemiring.toMul : Mul ℤ) := by
+            simp only [Field.toSemifield]
+      _ = (Int.instCommRing.toSemiring.toNonUnitalSemiring.toNonUnitalNonAssocSemiring.toMul : Mul ℤ) := by
+            rw [hring]
       _ = @Int.instMul := by rfl
   rw [hmul] at hinv
   have hone :
-      ((@Field.toSemifield ℤ s').toDivisionSemiring.toGroupWithZero.toMonoidWithZero.toMulZeroOneClass.toMulOneClass.toOne : One ℤ).one = (1 : ℤ) := by
+      ((@Field.toSemifield ℤ inst).toDivisionSemiring.toSemiring.toMonoidWithZero.toMulZeroOneClass.toMulOneClass.toOne : One ℤ).one = (1 : ℤ) := by
     calc
-      _ = (s'.toCommRing.toMonoid.toMulOneClass.toOne : One ℤ).one := by rfl
-      _ = (Int.instCommRing.toMonoid.toMulOneClass.toOne : One ℤ).one := by rw [hring]
+      ((@Field.toSemifield ℤ inst).toDivisionSemiring.toSemiring.toMonoidWithZero.toMulZeroOneClass.toMulOneClass.toOne : One ℤ).one
+          = (inst.toCommRing.toSemiring.toMonoidWithZero.toMulZeroOneClass.toMulOneClass.toOne : One ℤ).one := by
+            simp only [Field.toSemifield]
+      _ = (Int.instCommRing.toSemiring.toMonoidWithZero.toMulZeroOneClass.toMulOneClass.toOne : One ℤ).one := by
+            rw [hring]
       _ = (1 : ℤ) := by rfl
   change 2 * (2 : ℤ)⁻¹ =
-      ((@Field.toSemifield ℤ s').toDivisionSemiring.toGroupWithZero.toMonoidWithZero.toMulZeroOneClass.toMulOneClass.toOne : One ℤ).one at hinv
+      ((@Field.toSemifield ℤ inst).toDivisionSemiring.toSemiring.toMonoidWithZero.toMulZeroOneClass.toMulOneClass.toOne : One ℤ).one at hinv
   rw [hone] at hinv
   exact int_no_half ⟨(2 : ℤ)⁻¹, hinv⟩
 
@@ -115,7 +125,9 @@ theorem charZero_of_emb_inj (F : Extension intModel demandField) :
   have hFemb : F.emb = Int.castRingHom F.target.carrier := by
     apply RingHom.ext_int
   have hinj : Function.Injective (Int.castRingHom F.target.carrier) := by
-    simpa [hFemb] using F.emb_inj
+    -- v4.35：Framework.toFun 与 RingHom 底层函数不再自动折叠，改用 change
+    change Function.Injective (fun x : ℤ => (x : F.target.carrier))
+    exact_mod_cast F.emb_inj
   refine ⟨fun a b h => ?_⟩
   have hz : (a : ℤ) = (b : ℤ) := hinj (by
     simpa [Int.cast_natCast] using h
@@ -141,13 +153,14 @@ noncomputable def intToRat_minimal : IsMinimal intModel demandField intToRat := 
   have hFemb : F.emb = Int.castRingHom F.target.carrier := by
     apply RingHom.ext_int
   constructor
-  · refine ⟨{ hom := Rat.castHom F.target.carrier,
-               over := ?_,
+  · refine ⟨{ hom := (Rat.castHom F.target.carrier :
+              Framework.Hom (T := FL) intToRat.target F.target),
+               over_prop := ?_,
                pres := by rfl }⟩
     intro z
-    simp only [Biframed.forget_toFun]
-    rw [hFemb]
-    show (Rat.castHom F.target.carrier) ((Int.castRingHom ℚ) z) =
+    -- v4.35：forgetHom 恒等 + toFun 即函数本体,逐层 rw 到底层函数等式
+    rw [Biframed.forget_toFun]
+    change Rat.castHom F.target.carrier ((Int.castRingHom ℚ) z) =
       (Int.castRingHom F.target.carrier) z
     exact map_intCast (Rat.castHom F.target.carrier) z
   · intro f g

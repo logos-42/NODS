@@ -56,30 +56,58 @@ theorem nat_no_neg_one : ¬ ∃ x : ℕ, x + 1 = 0 := by
     里的环 `+` / `0` 改写成原生 `+` / `0`，再交给 `nat_no_neg_one`。 -/
 theorem nat_gap : ¬ HasSolution natModel demandRing := by
   rintro ⟨s', hstr, _e, _hax⟩
-  letI : CommRing ℕ := s'
+  letI inst : CommRing ℕ := s'
   have hneg := neg_add_cancel (1 : ℕ)
-  have hbase : commRingToCommSemiring s' = (inferInstance : CommSemiring ℕ) := hstr
-  have hcdef : s'.toCommSemiring = commRingToCommSemiring s' := by rfl
-  have hadd : s'.toAddGroupWithOne.toAddGroup.toAddZeroClass.toAdd = @instAddNat := by
-    calc
-      s'.toAddGroupWithOne.toAddGroup.toAddZeroClass.toAdd = s'.toCommSemiring.toAdd := by rfl
-      _ = (commRingToCommSemiring s').toAdd := by rw [← hcdef]
-      _ = (inferInstance : CommSemiring ℕ).toAdd := by rw [hbase]
-      _ = @instAddNat := by rfl
-  rw [hadd] at hneg
-  have hzeroVal :
-      (s'.toAddGroupWithOne.toAddGroup.toSubNegMonoid.toAddMonoid.toAddZeroClass.toZero : Zero ℕ).zero
-        = (0 : ℕ) := by
-    calc
-      (s'.toAddGroupWithOne.toAddGroup.toSubNegMonoid.toAddMonoid.toAddZeroClass.toZero : Zero ℕ).zero
-        = (s'.toCommSemiring.toAddZeroClass.toZero : Zero ℕ).zero := by rfl
-      _ = ((commRingToCommSemiring s').toAddZeroClass.toZero : Zero ℕ).zero := by rw [← hcdef]
-      _ = ((inferInstance : CommSemiring ℕ).toAddZeroClass.toZero : Zero ℕ).zero := by rw [hbase]
-      _ = (0 : ℕ) := by rfl
-  change (-1 : ℕ) + 1 =
-      (s'.toAddGroupWithOne.toAddGroup.toSubNegMonoid.toAddMonoid.toAddZeroClass.toZero : Zero ℕ).zero at hneg
-  rw [hzeroVal] at hneg
-  exact nat_no_neg_one ⟨(-1 : ℕ), hneg⟩
+  -- 从「半环部分相等」提取「加法一致」：hstr 说 forgetStr s' = natModel.str
+  have hsem' : commRingToCommSemiring s' = natModel.str := by
+    change Refinement.forgetStr (T := CS) (T' := CR) s' = natModel.str
+    exact hstr
+  have hsem : inst.toCommSemiring = natModel.str := by
+    change commRingToCommSemiring s' = natModel.str
+    exact hsem'
+  -- 环加法 = 半环加法（v4.35：CommRing.toCommSemiring 展开后定义相等）
+  have h1 : inst.toAddGroupWithOne.toAddGroup.toAddZeroClass.toAddZero.toAdd
+      = inst.toCommSemiring.toAddZeroClass.toAddZero.toAdd := by
+    rfl
+  -- 半环加法 = 原生加法（hsem）
+  have h2 : inst.toCommSemiring.toAddZeroClass.toAddZero.toAdd
+      = natModel.str.toAddZeroClass.toAddZero.toAdd := by
+    exact congrArg (fun cs : CommSemiring ℕ => cs.toAddZeroClass.toAddZero.toAdd) hsem
+  -- 原生半环 ℕ 的加法 = instAddNat
+  have h3 : natModel.str.toAddZeroClass.toAddZero.toAdd = @instAddNat := by
+    rfl
+  have haddK : inst.toAddGroupWithOne.toAddGroup.toAddZeroClass.toAddZero.toAdd
+      = @instAddNat := h1.trans (h2.trans h3)
+  -- 环零 = 半环零（v4.35：CommRing.toCommSemiring 展开后定义相等）
+  have h4 : inst.toAddGroupWithOne.toAddGroup.toSubNegMonoid.toAddMonoid.toAddZeroClass.toZero
+      = inst.toCommSemiring.toAddZeroClass.toZero := by
+    rfl
+  -- 半环零 = 原生零
+  have h5 : inst.toCommSemiring.toAddZeroClass.toZero
+      = natModel.str.toAddZeroClass.toZero := by
+    exact congrArg (fun cs : CommSemiring ℕ => cs.toAddZeroClass.toZero) hsem
+  have h6 : natModel.str.toAddZeroClass.toZero = (inferInstance : Zero ℕ) := by
+    rfl
+  have hzeroK : inst.toAddGroupWithOne.toAddGroup.toSubNegMonoid.toAddMonoid.toAddZeroClass.toZero
+      = (inferInstance : Zero ℕ) := h4.trans (h5.trans h6)
+  -- 把 hneg 的环加法/环零换成原生，交给 nat_no_neg_one（值级转换，避免 simp 的原生 ℕ 语义）
+  have hL : @HAdd.hAdd ℕ ℕ ℕ (@instHAdd ℕ @instAddNat) (-1) 1
+      = @HAdd.hAdd ℕ ℕ ℕ
+          (@instHAdd ℕ inst.toAddGroupWithOne.toAddGroup.toAddZeroClass.toAddZero.toAdd) (-1) 1 := by
+    exact congrArg (fun add : Add ℕ => @HAdd.hAdd ℕ ℕ ℕ (@instHAdd ℕ add) (-1) 1) haddK.symm
+  have hR : (inst.toAddGroupWithOne.toAddGroup.toSubNegMonoid.toAddMonoid.toAddZeroClass.toZero : Zero ℕ).zero
+      = @OfNat.ofNat ℕ 0 (instOfNatNat 0) := by
+    rw [hzeroK]
+    rfl
+  have hneg' : @HAdd.hAdd ℕ ℕ ℕ (@instHAdd ℕ @instAddNat) (-1) 1
+      = @OfNat.ofNat ℕ 0 (instOfNatNat 0) := by
+    have hh : @HAdd.hAdd ℕ ℕ ℕ
+        (@instHAdd ℕ inst.toAddGroupWithOne.toAddGroup.toAddZeroClass.toAddZero.toAdd) (-1) 1
+        = (inst.toAddGroupWithOne.toAddGroup.toSubNegMonoid.toAddMonoid.toAddZeroClass.toZero : Zero ℕ).zero := by
+      -- hneg 的 RHS `@OfNat.ofNat ℕ 0 (Zero.toOfNat0 ...)` 定义上 = 环零实例的 .zero
+      exact hneg
+    exact hL.trans (hh.trans hR)
+  exact nat_no_neg_one ⟨(-1 : ℕ), hneg'⟩
 
 /- ------------------------------------------------------------------ -/
 /- 极小扩张：Z                                                         -/
@@ -122,10 +150,12 @@ noncomputable def natToInt_minimal : IsMinimal natModel demandRing natToInt := b
     apply ringHom_nat_unique
   constructor
   · refine ⟨{ hom := Int.castRingHom F.target.carrier,
-               over := ?_,
+               over_prop := ?_,
                pres := by rfl }⟩
     intro n
-    simp only [Biframed.forget_toFun]
+    -- forgetHom 是恒等（Biframed CS CR 实例）；toFun 就是同态应用；
+    -- natToInt.emb = Nat.castRingHom ℤ（reducible 展开）
+    change (Int.castRingHom F.target.carrier) ((Nat.castRingHom ℤ) n) = Framework.toFun F.emb n
     rw [hFemb]
     show (Int.castRingHom F.target.carrier) ((Nat.castRingHom ℤ) n) =
       (Nat.castRingHom F.target.carrier) n

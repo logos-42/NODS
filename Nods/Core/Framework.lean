@@ -129,6 +129,7 @@ instance (T : Theory) : Refinement T T where
   forgetStr := fun s => s
 
 /-- 强化的复合：T'' → T' → T。 -/
+@[instance_reducible]
 def Refinement.trans (T T' T'' : Theory) [Refinement T T'] [Refinement T' T''] :
     Refinement T T'' where
   forgetStr := fun s => (Refinement.forgetStr (T := T) (T' := T') (Refinement.forgetStr s))

@@ -72,7 +72,7 @@ structure Extension (S : Model T) (D : Demand T T') where
 /-- 扩张之间的态射：保嵌入（在 S 上一致）且保见证。 -/
 structure ExtHom (S : Model T) (D : Demand T T') (E F : Extension S D) where
   hom : Framework.Hom (T := T') E.target F.target
-  over : ∀ x : S.carrier,
+  over_prop : ∀ x : S.carrier,
     Framework.toFun (Biframed.forgetHom hom) (Framework.toFun E.emb x) = Framework.toFun F.emb x
   pres : D.mapExtra hom E.extra = F.extra
 
@@ -96,16 +96,16 @@ theorem ext {E F : Extension S D} {f g : ExtHom S D E F}
 /-- 恒等态射。 -/
 def id (E : Extension S D) : ExtHom S D E E where
   hom := Framework.id (T := T') E.target
-  over := by
+  over_prop := by
     intro x
-    simp [Biframed.forget_toFun, Framework.id_apply]
+    rw [Biframed.forget_id, Framework.id_apply]
   pres := D.mapExtra_id E.target E.extra
 
-/-- 复合。注意 `over` 的证明是"沿 S 的嵌入走一圈"，
+/-- 复合。注意 `over_prop` 的证明是"沿 S 的嵌入走一圈"，
     这正是扩张范畴（comma 范畴 S ↓ Mod T'）的复合。 -/
 def comp (g : ExtHom S D E F) (h : ExtHom S D F G) : ExtHom S D E G where
   hom := Framework.comp g.hom h.hom
-  over := by
+  over_prop := by
     intro x
     calc
       Framework.toFun (Biframed.forgetHom (Framework.comp g.hom h.hom))
@@ -117,8 +117,8 @@ def comp (g : ExtHom S D E F) (h : ExtHom S D F G) : ExtHom S D E G where
             (Framework.toFun (Biframed.forgetHom g.hom) (Framework.toFun E.emb x)) := by
             rw [Framework.comp_apply]
       _ = Framework.toFun (Biframed.forgetHom h.hom) (Framework.toFun F.emb x) := by
-            rw [g.over x]
-      _ = Framework.toFun G.emb x := h.over x
+            rw [g.over_prop x]
+      _ = Framework.toFun G.emb x := h.over_prop x
   pres := by
     rw [D.mapExtra_comp, g.pres, h.pres]
 
