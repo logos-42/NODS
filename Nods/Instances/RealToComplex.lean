@@ -151,28 +151,42 @@ noncomputable def realToComplex_minimal :
   letI : CommRing (Model.forget CR CR F.target).carrier := F.target.str
   letI : NonAssocSemiring (Model.forget CR CR F.target).carrier :=
     SemiringLike.toNonAssocSemiring (T := CR) (Model.forget CR CR F.target).str
+  -- v4.35：`complexLift` 的 `e : ℝ →+* A` 与 `F.emb`（Framework.Hom）在无期望类型时
+  -- 不互认；用内联 ascription `(F.emb : ℝ →+* F.target.carrier)`（与 have 桥接同机制）。
+  -- 诊断结论：toFun/forgetHom/emb 的折叠均正常，唯一坏点是 Hom↔RingHom 的 Eq 侧类型统一。
   constructor
-  · refine ⟨{ hom := complexLift F.emb F.extra F.ax,
+  · refine ⟨{ hom := complexLift (F.emb : ℝ →+* F.target.carrier) F.extra F.ax,
                over_prop := ?_,
                pres := ?_ }⟩
     · intro r
-      simp only [Biframed.forget_toFun]
-      simpa using complexLift_ofReal F.emb F.extra F.ax r
-    · exact complexLift_I F.emb F.extra F.ax
+      -- forgetHom（恒等）与 toFun（即函数本体）折叠后即 complexLift_ofReal 的语句
+      exact complexLift_ofReal (F.emb : ℝ →+* F.target.carrier) F.extra F.ax r
+    · exact complexLift_I (F.emb : ℝ →+* F.target.carrier) F.extra F.ax
   · intro f g
     apply ExtHom.ext
     intro z
-    have hf : f.hom = complexLift F.emb F.extra F.ax := by
+    have hf : f.hom = complexLift (F.emb : ℝ →+* F.target.carrier) F.extra F.ax := by
       apply complexLift_unique
       · intro r
-        have := f.over r
-        simpa [Biframed.forget_toFun] using this
+        have h5 := f.over_prop r
+        -- forget_toFun 作为等式项拆掉 forgetHom，余下的折叠交给 exact 的 defeq
+        have h7 : Framework.toFun (Biframed.forgetHom f.hom)
+            (Framework.toFun realToComplex.emb r)
+            = Framework.toFun f.hom (Framework.toFun realToComplex.emb r) :=
+          Biframed.forget_toFun f.hom _
+        rw [h7] at h5
+        exact h5
       · exact f.pres
-    have hg : g.hom = complexLift F.emb F.extra F.ax := by
+    have hg : g.hom = complexLift (F.emb : ℝ →+* F.target.carrier) F.extra F.ax := by
       apply complexLift_unique
       · intro r
-        have := g.over r
-        simpa [Biframed.forget_toFun] using this
+        have h5 := g.over_prop r
+        have h7 : Framework.toFun (Biframed.forgetHom g.hom)
+            (Framework.toFun realToComplex.emb r)
+            = Framework.toFun g.hom (Framework.toFun realToComplex.emb r) :=
+          Biframed.forget_toFun g.hom _
+        rw [h7] at h5
+        exact h5
       · exact g.pres
     rw [hf, hg]
 

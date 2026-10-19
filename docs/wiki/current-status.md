@@ -2,7 +2,7 @@
 title: NODS — New Object Discovery System 当前状态
 source: session
 created: 2026-09-04
-last_confirmed: 2026-10-18
+last_confirmed: 2026-10-19
 schema_version: 2
 audience: internal
 stage: current
@@ -71,11 +71,10 @@ compiled_from: [src-code-core-001, src-code-instances-001, src-code-theories-001
 
 ## 构建状态（2026-09-07 · lake build v4.21.0）
 
-> ⚠️ **2026-10-18：工具链迁移中 → v4.35.0（最新稳定版），废弃 v4.21.0。**
-> `lean-toolchain` 已切 `leanprover/lean4:v4.35.0`；本地物化依赖（mathlib 等 9 包）
-> 将由 NavierStokesAndEuler 项目（同 rev `56a00585` = "bump to v4.35.0"）的
-> 已编译物化替换后重新 `lake build` 验证。**本批构建状态 = 待验证**（迁移完成前
-> 以下 v4.21.0 的"全绿"记录不代表 v4.35.0 状态）。
+> ✅ **2026-10-19：v4.35.0 迁移完成，`lake build` 全绿（9070 jobs，0 error 0 sorry）。**
+> 四个实例文件的 v4.35 API 适配已修（IntToRat / RatToReal / RealToComplex，
+> 核心层与理论层零改动）；根因与修法见 `log.md` [2026-10-19] 条目。
+> 剩余样式级警告（letI 建议、module 导入建议）不阻塞。
 
 > ✅ **`lake build` 全绿（0 警告 0 sorry）。** 6 个核心层 + 4 个实例（N→Z、Z→Q、Q→R、R→C）全部编译通过。
 > 修复路线：(1) `LOF` 从弃用的 `LinearOrderedField` 重建成自定义结构

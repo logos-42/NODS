@@ -195,7 +195,13 @@ theorem lofLinearOrder_eq_rat (s : LOF ℚ) (h : s.toField = (inferInstance : Fi
 theorem rat_gap : ¬ HasSolution ratModel demandComplete := by
   rintro ⟨s', hstr, _e, hax⟩
   have horder := lofLinearOrder_eq_rat s' hstr
-  exact rat_not_dedekind_complete (by simpa [horder] using hax.1)
+  have h1 := hax.1
+  -- v4.35：simpa 缝合不了 s' 派生 Preorder 与原生 Rat.instPreorder（implicit 透明度）。
+  -- hax.1 的 Preorder 是 `s'.toLinearOrder` 经 DistribLattice 派生链，先把它存进 have，
+  -- 沿 horder 把 `s'.toLinearOrder` 改写为原生 `Rat.linearOrder`（实例参数位，rw 动机安全）；
+  -- `Rat.instPreorder := inferInstance` 即该派生链，改写后直接对上。
+  rw [horder] at h1
+  exact rat_not_dedekind_complete h1
 
 /- ------------------------------------------------------------------ -/
 /- 扩张：R                                                             -/

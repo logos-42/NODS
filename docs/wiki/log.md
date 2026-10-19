@@ -1,5 +1,35 @@
 # Wiki 日志
 
+## [2026-10-19] 工具链迁移完成 | v4.35.0 构建全绿（0 error 0 sorry）
+
+- **结果**：`lake build` 9070 jobs **全部通过**，0 sorry；v4.21.0 → v4.35.0 迁移完成。
+  剩余均为样式级警告（`linter.style.haveILetI` 的 `let` 建议、`module` 导入建议、
+  两处 unused simp args），不阻塞构建。
+- **探针诊断的核心结论**（与 leo 的探针观察一致：继承链的 toMul 打印与 rw 模式不匹配）：
+  v4.35 扁平化 algebra 层后，`frameworkOfSemiringLike` 的 `Hom`（tactic block 定义）
+  在 rw/simp 的**动机检查（implicit 透明度）**下不再折叠为 `→+*`，打印出的目标看似
+  匹配模式、实际重查类型失败；`Framework.toFun` 的折叠在无期望类型引导的 `Eq` 两侧
+  类型统一里同样失效（`exact` 有期望类型时正常）。四实例文件各修法：
+  - `IntToRat.lean`：`charZero_of_emb_inj` 的 `simpa only [Int.castRingHom]` 改为
+    「`have h1 := F.emb_inj` + `rw [hFemb] at h1` + `exact h1`」（探针 Z2）；
+    `intToRat_minimal` 的 over_prop 改为「`congrArg` 搬 `F.emb` + `rw` + `show` +
+    `map_intCast`」（探针 M2），弃用 `simp only [Biframed.forget_toFun]`（no progress）。
+  - `RatToReal.lean`：`rat_gap` 的 `simpa [horder]` 缝合不了 `s'.toLinearOrder` 派生
+    Preorder 与原生 `Rat.instPreorder`；改为 `have h1 := hax.1` + `rw [horder] at h1`
+    （DedekindComplete 的 Preorder 只在实例参数位，rw 动机安全；
+    `Rat.instPreorder := inferInstance` 即同一条 DistribLattice 派生链，改写后直接对上）。
+  - `RealToComplex.lean`：`realToComplex_minimal` 的字段名 `.over` → `.over_prop`；
+    `complexLift F.emb` 应用类型不匹配 → 内联 ascription
+    `(F.emb : ℝ →+* F.target.carrier)`（与 `have hemb := F.emb` 同机制，无期望类型时
+    Hom↔RingHom 不互认）；over_prop/唯一性用 `Biframed.forget_toFun` 等式项拆 forgetHom、
+    余下折叠交 `exact` 的 defeq。
+  - `IntToRat.lean` 的 `int_gap`（继承链对齐）在迁移中已修复：v4.35 里 Field 的
+    `toMul`/`toOne` 走 `GroupWithZero` 侧链（`toDivisionSemiring` 直接给 GroupWithZero），
+    与 `Semiring` 侧链 rfl 相等；对齐引理沿 `hstr` + `Field.toSemifield` 展开。
+- **方法论沉淀**：v4.35 下修这类错误的通用配方——①先探针隔离「哪一段 defeq 失效」
+  （逐段 `have … := rfl`）；②rw/simp 动机检查失效时改用「等式项 + trans/congrArg/show」；
+  Hom↔RingHom 跨类型用**内联 ascription** 或 `have` 桥接（有期望类型时 defeq 可过）。
+
 ## [2026-10-18] 工具链 | 迁移 v4.35.0（进行中）：废弃 v4.21.0
 
 - **leo 指令**：NODS 改为最新版（v4.35.0，stable）运行编译，废弃旧版。
