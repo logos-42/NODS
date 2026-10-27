@@ -1,5 +1,29 @@
 # Wiki 日志
 
+## [2026-10-27] PU-12 宇宙上线 | 229 服务器 GPU 连续运行跑通
+
+- **需求（leo）**：把 PU-12 宇宙放进 229 服务器 `/work/liuyuanjie/`，持续运行、GPU 运行，看发展情况。
+- **真相先说清**：上一轮（同日）只把 `scripts`/`run.sh`/`status.sh` 落到 `/work/liuyuanjie/pu12/`，
+  **从未真跑过** —— 无 `pu12.pid`、`logs/` 空、无 `status.json`。缺的不是部署骨架，是 torch。
+- **环境阻塞与通路（可复用的做法）**：容器 `test_liuyuaniie_luoyan` 是裸 `cuda118:base`（py3.10，无 pip 模块、无 torch），
+  出网 ≈100 KB/s：`pypi.org` 直接读超时、`download.pytorch.org` 12 分钟只下 12 MB、`mirrors.aliyun.com` ≈5 KB/s。
+  ⟹ **本机（代理 5.3 MB/s）下 wheel → `scp`（实测 20 MB/s 到该内网）→ 远端离线装**：
+  `torch-2.7.1+cu118` + 11 个 `nvidia-*-cu11` wheel（合计 2.7 GB），12 个文件 md5 两端逐个一致；
+  `pip install --no-deps --target /work/liuyuanjie/pylibs`（4.7 GB，落数据盘，容器重启不丢）。
+  小依赖（filelock/sympy/networkx/jinja2/fsspec/numpy）走阿里镜像装同目录。
+  **坑**：我本地把 wheel 改名成 `torch_cu118.whl`，pip 报 `Invalid wheel filename (wrong number of parts)` —— 传过去必须用原始文件名。
+- **代码修两处（都是上线才暴露）**：
+  1. `band_omega()` 在 CPU、`spread` 在 CUDA ⟹ 首次真跑必崩（`Expected all tensors to be on the same device`）。
+     GPU 分支此前从未被执行（历史只做 CPU 冒烟）。修：`.float().to(device)`。
+  2. 成熟判据原本是全系综**同一个常数** `mature` ⟹ 16384 个宇宙严格同步，`dims_mean` 是阶梯函数，
+     文档里「各阶段都有宇宙」不成立。新增 `--mature-jitter`（每宇宙阈值 `mature·(1±j)`，默认 0 = 逐位不变）。
+- **实测（B=16384, P=64, mature=3000, jitter=0.6, dwell=500, dt=0.05, GPU3）**：
+  235 拍/秒；GPU3 利用率 50%、876 MiB 且 `--query-compute-apps` 有本进程；
+  `energy_err ≤ 1.8e-15`、`E ≡ 147456`（=B·9 束）恒定；稳态 `dims_mean ≈ 6.6`、`dims_hist` 铺满 1…11；
+  重生计数随拍数线性累加；提案网 loss→5e-8、接受率 1.0（它只是在学规则，不参与物理）。
+- **值守**：`run.sh`（`setsid` 自脱离，PPID=1）+ `watchdog.sh`（60 s 巡检，5 分钟内重启 ≥3 次即放弃写日志）。
+- **门禁**：`wiki_check.py` / `wiki_lint.py --strict=v2` / `raw_manifest_check.py` 全绿后提交。
+
 ## [2026-10-27] PU-12 宇宙模型 | 振动坐标系 × 张力计数法 × 隐数
 
 - **需求（leo）**：用本仓数学造一个私有宇宙 —— 12 个频率带（按对数量级切分，上限 `10^41 Hz`）、

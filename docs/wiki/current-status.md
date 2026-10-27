@@ -88,6 +88,32 @@ compiled_from: [src-code-core-001, src-code-instances-001, src-code-theories-001
 > 诚实边界：12 带 / `10^41` / 3×3 / 初始能量是给定参数；A5（射线随带升高偏 iR）是公理；
 > 耦合 κ 自由（κ=∞ 全量转写与 κ=1 张力门控都自洽）；模型只给结构，不给物理预言。
 
+### GPU 连续演化部署（2026-10-27 实测跑通，229 服务器）
+
+`scripts/pu12_gpu.py` 在 `100.100.30.229:30003`（容器 `test_liuyuaniie_luoyan`，4×RTX 4090，**用 GPU 3**）
+以 `--ticks 0`（永不停止）连续运行，目录 `/work/liuyuanjie/pu12/`。
+
+| 项 | 值 |
+|---|---|
+| 进程 | `pu12.pid`（`setsid` 脱离，PPID=1）+ `watchdog.sh` 值守（5 分钟内重启 ≥3 次即放弃，防崩溃循环） |
+| 参数 | `B=16384` 宇宙 · `phases=64` 振子/带 · `mature=3000` · `--mature-jitter 0.6` · `dwell=500` · `dt=0.05` |
+| 吞吐 | 235 拍/秒（B=16384；B=1024 时 455 拍/秒）⟹ 一个完整生命史（11 次维度出生 + 停留）约 2.5 分钟 |
+| GPU | GPU3 利用率 50%、876 MiB（`nvidia-smi --query-compute-apps` 里能看到本进程） |
+| 守恒 | `energy_err ≤ 1.8e-15`（浮点底噪），`E ≡ B·9` 恒定 |
+| 稳态 | `dims_mean ≈ 6.6`，`dims_hist` 铺满 1…11（各阶段都有宇宙），累加重生数随拍数线性增长 |
+
+**两个上线才发现的问题（已修）**：
+
+1. `band_omega()` 返回 CPU 张量、`spread` 在 GPU 上 ⟹ 首次真跑立刻 `RuntimeError: Expected all tensors
+   to be on the same device`。GPU 分支此前**从未被执行过**（历史只做过 CPU 冒烟）。修法：
+   `band_omega().float().to(device)`。
+2. 原实现里成熟判据是**全系综同一个常数** `mature` ⟹ 所有宇宙严格同步：`dims_mean` 是一条阶梯函数、
+   系综里根本没有「各阶段都有」的分布（文档声称的生命史多样性不成立）。新增 `--mature-jitter j`
+   （每个宇宙的成熟阈值在 `mature·(1±j)` 内独立抽样，默认 0 = 与原模型逐位一致）；取 0.6 后
+   `dims_mean` 稳定在 6.6 且 `dims_hist` 铺满 1…11。**这是部署旋钮，不是 Lean 模型的一部分。**
+
+> 反向验证：`--mature-jitter 0` 时行为与旧版一致（t=60 时 `dims=4.00`，全同步），确认旋钮没有污染原语义。
+
 ## 论文发表（2026-09-08）
 
 - **aiXiv**: 英文版 `aixiv.260907.000001`（v1.0/v1.1 保留；**v1.2** = 顶刊标准扩写版，id 1461，Under Review）；中文版 `aixiv.260908.000008`（v1.0 保留；**v1.1** = 扩写版，id 1462，Under Review），标题《被逼出的真实结构：如何把幂与开方劈开》，署名 元杰 刘。英文标题 *The radical as a forced structure: how to split powers from radicals*（作者 Yuanjie Liu）。

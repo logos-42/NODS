@@ -46,7 +46,8 @@ def band_omega():
 class PU12:
     def __init__(self, B: int, device: str, seed: int = 0, phases: int = 64,
                  inject: float = 0.0, mature: int = 1, respawn: bool = True,
-                 dwell: int = 500, kappa_lo: float = 0.2, kappa_hi: float = 0.8):
+                 dwell: int = 500, kappa_lo: float = 0.2, kappa_hi: float = 0.8,
+                 mature_jitter: float = 0.0):
         g = torch.Generator().manual_seed(seed)
         self.B, self.device, self.P = B, device, phases
         self.mature, self.dwell, self.respawn = mature, dwell, respawn
@@ -66,10 +67,17 @@ class PU12:
         # 每个宇宙的耦合 κ（异质 ⟹ 发展速度不同，系综才有分布）
         self.kappa = (kappa_lo + (kappa_hi - kappa_lo) * torch.rand(B, generator=g)).to(device).double()
 
+        # 每个宇宙的成熟阈值（jitter=0 时退化为全局常数 mature，与原模型逐位一致）
+        if mature_jitter > 0:
+            j = 1.0 + mature_jitter * (2 * torch.rand(B, generator=g) - 1)
+            self.mature_i = torch.clamp((mature * j).round(), min=1).to(device).long()
+        else:
+            self.mature_i = torch.full((B,), int(mature), dtype=torch.long, device=device)
+
         # 相位振子：θ[b,k,p]，带内频率有微小离散（走离相）
         self.theta = (2 * math.pi * torch.rand(B, N_BANDS, phases, generator=g)).to(device).float()
         spread = (0.95 + 0.1 * torch.rand(B, N_BANDS, phases, generator=g)).to(device).float()
-        self.omega = band_omega().float().view(1, N_BANDS, 1) * spread
+        self.omega = band_omega().float().to(device).view(1, N_BANDS, 1) * spread
 
     # ---------------- 结构读数 ----------------
     def cells(self):
@@ -122,7 +130,7 @@ class PU12:
                                  torch.zeros(self.B, 1, dtype=torch.bool, device=self.device)], dim=1)
         ready = (self.cells() >= CELLS) & unborn_next          # (B, 12) 逐格的「可生」掩码
         self.hold = torch.where(ready, self.hold + 1, torch.zeros_like(self.hold))
-        matured = ready & (self.hold >= self.mature)
+        matured = ready & (self.hold >= self.mature_i.unsqueeze(1))
         fr = torch.argmax((matured).double(), dim=1)
         fr = torch.where(matured.any(dim=1), fr, torch.full_like(fr, -1))
         if bool(matured.any()):
@@ -215,6 +223,8 @@ def main() -> int:
     ap.add_argument("--ticks", type=int, default=0, help="0 = 一直跑")
     ap.add_argument("--dt", type=float, default=0.05)
     ap.add_argument("--mature", type=int, default=3000, help="满格后多少拍才允许生下一维")
+    ap.add_argument("--mature-jitter", type=float, default=0.0,
+                    help="每个宇宙成熟阈值的相对抖动 (±j)；0 = 原模型（全系综同步）")
     ap.add_argument("--dwell", type=int, default=500)
     ap.add_argument("--inject", type=float, default=0.0)
     ap.add_argument("--phases", type=int, default=64)
@@ -233,7 +243,8 @@ def main() -> int:
         print(f"[info] gpu = {torch.cuda.get_device_name(0)} | B={args.B} P={args.phases}", flush=True)
 
     u = PU12(args.B, dev, seed=args.seed, phases=args.phases, inject=args.inject,
-             mature=args.mature, respawn=not args.no_respawn, dwell=args.dwell)
+             mature=args.mature, respawn=not args.no_respawn, dwell=args.dwell,
+             mature_jitter=args.mature_jitter)
     net = Proposal().to(dev)
     opt = torch.optim.Adam(net.parameters(), lr=1e-3)
     ce = torch.nn.CrossEntropyLoss()
