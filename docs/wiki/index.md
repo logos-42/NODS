@@ -17,6 +17,10 @@
 - [github-and-raw-strategy.md](./github-and-raw-strategy.md) — Git 与 raw 分工
 - [log.md](./log.md) — 变更日志
 
+## 模型页
+
+- [private-universe.md](./private-universe.md) — **PU-12 私有宇宙模型**：12 频率带 × 12 维（3 子 × 3 亚隐数格）× 振动坐标系 + 张力计数法（Lean + 可执行实现）
+
 ## 新对象候选页
 
 - [tension-counting.md](./tension-counting.md) — **张力计数法 TCM-0**：数字自身张力的极简公理（candidate gap，未证发现）

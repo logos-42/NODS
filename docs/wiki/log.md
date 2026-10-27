@@ -1,5 +1,52 @@
 # Wiki 日志
 
+## [2026-10-27] PU-12 宇宙模型 | 振动坐标系 × 张力计数法 × 隐数
+
+- **需求（leo）**：用本仓数学造一个私有宇宙 —— 12 个频率带（按对数量级切分，上限 `10^41 Hz`）、
+  频率越高能量越纯粹；12 个维度，每维 3 子维度 + 3 亚维度；初始能量授予，后续从周围结构维度内生获得。
+  leo 追加口径：**用振动坐标系和张力计数法来构造，隐数是子维度和亚维度的数学**。
+- **新文件 `Nods/Theories/Universe.lean`**（已接主链 `Nods.lean`，`lake env lean` 通过，0 sorry 0 warning）：
+  - 阶梯：`bandHi k = 10^41/10^(5k)`、`bandLo k = bandHi (k+1)`；`bandHi_strictAnti`；
+    `bandLo_eleven`（地板 `1/10^19`）；**`band_ratio`：相邻带比值恰为 `10^5`**；
+    `no_band_below_floor` / `no_band_above_ceiling`（**阶梯封闭**，12 条不是截断）。
+  - 振动/能量：`omega k = 2π·bandHi k`（`step_phase_advance` 的连续读法）、`quantumE = ℏω`；
+    `omega_strictAnti` / `quantumE_strictAnti` / `quantumE_ratio`。
+  - 纯度：`spectralPurity`（阶梯位置）与 `quantumPurity`（`ε/E`）**两条独立定义**都严格反单调，
+    `purity_agree` 证两版一致 ⟹「频率越高能量越纯粹」是定理。
+  - TCM：`countTension`（K/L = 剖面第二/三分量的加法同态）= 一个具体的 `AddTension`，四条公理全证；
+    `countTension_collapse_form` **直接调用仓库已证的 `AtomicReading.collapse`**；
+    `countTension_collapse` 取「+条数差」支；`structReading`（share = 两边条数的较小者）+
+    `struct_tension`：**宇宙张力 = 隐数条数差**。
+  - 流动：`exch` + `sum_exch`（量子数守恒）、`energy_exch`（`ΔE = q(ε_j − ε_i)`，与 `band_ratio` 合起来
+    ⟹ 跨带交换整数化：1 个高带量子 = `10^5` 个低带量子，能量精确相等）、
+    `energy_up_of_upconvert`（上转换 ⟹ 能量/纯度严格上升）、`tension_zero_iff`（平衡 ⟺ 条数相等）。
+- **新文件 `scripts/universe_model.py`**（精确 `Fraction` 算术，无浮点）：30/30 检查通过，跑出
+  `docs/models/pu12/{report.md,trace.json}` + `docs/figures/pu12_ladder.png`（已登记 raw manifest `src-fig-pu12`）。
+  - **定阶（为什么 5 个数量级）**：均匀 12 带 + 必须覆盖宇宙视界频率 `f_H = 1/T_U = 2.30e-18 Hz` +
+    整数 decade ⟹ `41 − 12m ≤ log10 f_H = −17.64` ⟹ `m ≥ 4.89` ⟹ `m = 5`（唯一最小解）⟹
+    地板 `10^-19`、`r = 10^5`。`m = 4` 覆盖不到视界（差 11 个数量级），`m = 6` 会有 13 个数量级的潜伏带。
+  - **结构**：维度 = 隐数空间三轴 `σ₁σ₂σ₃`（3 子维度）× 隐数三射线 `S/R/iR`（3 亚维度）= **9 个隐数格**，
+    `size = 已点亮格数`。亚维度 = 隐数（HIBS A1/A2/A3）。
+  - **动力学**：`E₀ = 9ε₀`（恰好一隐数格一量子）；每代 `q = τ(父, 新生) = 9 − 0 = 9`；
+    跨一带 1 个量子 → `10^5` 个量子（能量精确守恒）；新生维度原子出生（整副 3×3 格）⟹ 与父维度 `τ = 0` 不回流。
+    结果：`E ≡ 9ε₀` 恒定、`N` 每代精确 ×`10^5`、纯度 `Π = 1/N`（`1 → 10^-55`）、每代内生获得 `9ε₀`，
+    11 代走完 12 维后因地板封闭而终止。
+  - **消融 5 组**：κ=1 张力门控（仍长满 12 维，N=9.9e6）、单位流量、非原子出生（τ 塌到 1）、
+    反向全量（纯度 `10^-55 → 1`）、反向张力门控（**卡在第 2 维**：`τ ≤ 9 ≪ r = 10^5`，凑不出一次「10^5 合 1」）。
+- **诚实边界**：12 带 / `10^41` / 3×3 / 初始能量是给定参数；推导结论是 5 数量级 / 地板 / `r = 10^5`；
+  A5（射线随带升高偏 iR）是公理，机制解释（相位闭合需更深开方）是动机非证明；耦合 κ 是自由参数；
+  模型只给结构，不给物理预言。
+- **门禁**：`wiki_check.py` / `wiki_lint.py --strict=v2` / `raw_manifest_check.py` / `lake build Nods` 全绿后提交。
+- **GPU 连续演化（同日部署）**：`scripts/pu12_gpu.py` — 12 带 × 12 维 × 每带 64 个相位振子（振动坐标），
+  束（1 束 = ε₀，任意带同值）守恒 ⟹ 能量精确守恒、量子数 `Σb_k·10^5k`；`τ = 条数差` 门控 + 成熟时间
+  `--mature` 把维度出生摊到可观察尺度；κ 异质 + 生命史重生让系综长期保持各阶段都有宇宙；
+  提案网 12→64→3→12（3 维 = 隐数空间三维）只提案、规则接受，接受率是学习曲线（不参与物理）。
+  部署：`100.100.30.229:30003` 容器 `test_liuyuaniie_luoyan`（4×RTX 4090，用 GPU 3），
+  `/work/liuyuanjie/pu12/`（`run.sh` / `status.sh` / `logs/`）；`deploy/pu12/` 存引导与启动脚本。
+  容器是裸 `cuda118:base`：`bootstrap.pypa.io` 与 `pypi.org/pypi/*/json` 在该容器内卡死，
+  改从本机 scp pip wheel（解包后 `PYTHONPATH` 跑 pip）+ `download.pytorch.org/whl/cu118` 装 torch 才通。
+
+
 ## [2026-10-19] 工具链迁移完成 | v4.35.0 构建全绿（0 error 0 sorry）
 
 - **结果**：`lake build` 9070 jobs **全部通过**，0 sorry；v4.21.0 → v4.35.0 迁移完成。

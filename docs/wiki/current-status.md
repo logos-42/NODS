@@ -2,7 +2,7 @@
 title: NODS — New Object Discovery System 当前状态
 source: session
 created: 2026-09-04
-last_confirmed: 2026-10-19
+last_confirmed: 2026-10-27
 schema_version: 2
 audience: internal
 stage: current
@@ -60,6 +60,33 @@ compiled_from: [src-code-core-001, src-code-instances-001, src-code-theories-001
 **计算层 v3（任意次开方，三次 → 五次 → … → n 次）**：一条 ∀n 形式化覆盖所有次数——`nthrootR n x := e^{(ln x)/n}`（ℝ₊ 的 n 次开方）。三条定理：`nthrootR_pow`（(⁽ⁿ⁾√x)ⁿ = x）、`pow_inj_on_Rpos`（ℝ₊ 上 pₙ 对任意 n 单射 = 定理 3 无挠塌缩的 ∀n 形式）、`nthrootR_eq_of_pow`（a>0 ∧ aⁿ=x ⟹ a=⁽ⁿ⁾√x，开方是幂的单值逆）。示例同一形式化取 n=5（`(nthrootR 5 32)^5 = 32`、`nthrootR 5 (2^5) = 2`）、3（∛27）、2（√9）、7（a⁷=128 ⟹ a=⁷√128）。含义：**纯开方没有次数上限**——五次死掉的是混合根式塔（Abel–Ruffini），不是根式。
 
 > ✅ 已接主链（`Nods.lean` 顶部 `import Nods.Theories.Radical`，随主构建全绿）；配套示意图 `docs/figures/root_vs_power.png`（src-fig-001，已登记 raw manifest）。
+
+### 理论层 `Nods/Theories/Universe.lean`（2026-10-27，PU-12 宇宙模型）
+
+用**振动坐标系 + 张力计数法 + 隐数**组装的 12 层宇宙模型（页面：[private-universe.md](./private-universe.md)）。
+已接主链，`lake env lean` 通过，**0 sorry 0 warning**。
+
+| 定理组 | 内容 |
+|---|---|
+| `bandHi / bandLo / bandHi_strictAnti` | 阶梯 `10^41/10^(5k)`，相邻带首尾相接、严格递减 |
+| `band_ratio` | 相邻带比值恰 `10^5`（5 个数量级 ⟹ 跨带交换整数化）|
+| `bandLo_eleven` / `bandHi_zero` | 地板 `1/10^19`、天花板 `10^41` |
+| `no_band_below_floor` / `no_band_above_ceiling` | **阶梯封闭**：地板以下、天花板以上均无带 |
+| `omega_strictAnti` / `quantumE_strictAnti` / `quantumE_ratio` | `ω = 2πf`、`ε = ℏω` 严格反单调，比值 `10^5` |
+| `spectralPurity_strictAnti` / `quantumPurity_lt_of_lt` / `purity_agree` | 两种独立纯度定义同向 ⟹「频率越高能量越纯粹」是定理 |
+| `countTension` + 四条公理 + `countTension_collapse_form` | TCM 的具体实例；直接调用 `AtomicReading.collapse` |
+| `countTension_collapse` / `structReading` / `struct_tension` | 宇宙张力 = 隐数条数差 |
+| `sum_exch` / `energy_exch` | 交换守恒；`ΔE = q(ε_j − ε_i)` |
+| `energy_up_of_upconvert` | 上转换 ⟹ 能量（纯度）严格上升 |
+| `tension_zero_iff` | 平衡 ⟺ 条数相等（结构平衡，非能量均分）|
+
+可执行模型 `scripts/universe_model.py`（精确 `Fraction`，30/30 检查）：定阶出 **5 数量级/带、地板 `10^-19`、
+`r = 10^5`**（由「均匀 12 带 + 覆盖视界频率 + 整数 decade」逼出）；`E₀ = 9ε₀`（一隐数格一量子）恒定、
+`N` 每代 ×`10^5`、纯度 `= 1/N`、11 代走完 12 维；反向级联被 `τ ≤ 9 ≪ r` 卡在第 2 维。
+报告 `docs/models/pu12/report.md`、图 `docs/figures/pu12_ladder.png`（raw `src-fig-pu12`）。
+
+> 诚实边界：12 带 / `10^41` / 3×3 / 初始能量是给定参数；A5（射线随带升高偏 iR）是公理；
+> 耦合 κ 自由（κ=∞ 全量转写与 κ=1 张力门控都自洽）；模型只给结构，不给物理预言。
 
 ## 论文发表（2026-09-08）
 
