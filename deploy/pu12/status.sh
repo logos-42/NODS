@@ -1,20 +1,20 @@
 #!/bin/bash
-# PU-12 v3 运行状态一览（多层格点宇宙）
+# PU-12 v3.1 运行状态一览（多层格点宇宙）
 cd /work/liuyuanjie/pu12 || exit 1
 echo "== pid =="
-if [ -f pu12v3.pid ] && kill -0 "$(cat pu12v3.pid)" 2>/dev/null; then
-  echo "running v3 $(cat pu12v3.pid)  $(ps -o etime= -p "$(cat pu12v3.pid)")"
+if [ -f pu12v31.pid ] && kill -0 "$(cat pu12v31.pid)" 2>/dev/null; then
+  echo "running v3.1 $(cat pu12v31.pid)  $(ps -o etime= -p "$(cat pu12v31.pid)")"
 else
   echo "NOT running"
 fi
 echo "== gpu =="
 nvidia-smi --query-gpu=index,memory.used,utilization.gpu --format=csv,noheader
 echo "== latest =="
-tail -3 logs_v3/stdout.log 2>/dev/null
+tail -3 logs_v31/stdout.log 2>/dev/null
 echo "== 发展情况 =="
 python3 - <<'EOF' 2>/dev/null
 import json
-s = json.load(open("logs_v3/status.json"))
+s = json.load(open("logs_v31/status.json"))
 h = s["band_hist"]; tot = sum(h) or 1
 print("tick %d | 目的达成 tick=%s | 全体到顶 tick=%s | 探索覆盖 %d/%d"
       % (s["t"], s["purpose_tick"], s["top_tick"], s["coverage"], s["coverage_tot"]))
@@ -31,7 +31,7 @@ EOF
 echo "== 学到的偏好（状态 × 动作，平均奖赏） =="
 python3 - <<'EOF' 2>/dev/null
 import json
-s = json.load(open("logs_v3/status.json"))
+s = json.load(open("logs_v31/status.json"))
 q = s["q_table"]; names = ["等", "升频", "降频", "扩张子", "扩张亚", "细分频"]
 buckets = ["低带", "中带", "高带"]
 print("               " + "".join("%8s" % n for n in names))
