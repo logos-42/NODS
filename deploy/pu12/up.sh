@@ -1,15 +1,14 @@
 #!/bin/bash
-# 一条命令拉起 PU-12（模拟 + 看门狗），幂等：已在跑就不重复起。
-# 容器重启后用这个恢复：bash /work/liuyuanjie/pu12/up.sh
+# 一条命令拉起 PU-12 v3（多层格点宇宙 + 看门狗），幂等。容器重启后用这个恢复。
 cd /work/liuyuanjie/pu12 || exit 1
-mkdir -p logs
+mkdir -p logs_v3
 
-bash run.sh
+bash run_v3.sh
 
-if ! ps -eo cmd | grep -q "[w]atchdog.sh"; then
-  (setsid nohup bash watchdog.sh > logs/watchdog.boot.log 2>&1 < /dev/null &)
+if ! ps -eo cmd | grep -q "[w]atchdog_v3.sh"; then
+  (setsid nohup bash watchdog_v3.sh > logs_v3/watchdog.boot.log 2>&1 < /dev/null &)
   sleep 1
-  echo "watchdog started"
+  echo "watchdog v3 started"
 else
-  echo "watchdog already running"
+  echo "watchdog v3 already running"
 fi
