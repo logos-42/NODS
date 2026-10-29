@@ -1,5 +1,14 @@
 # Wiki 日志
 
+## [2026-10-29] PU-12 v3.3 | 持续迁移实验(GPU,不间断) + 目标奖励对称化 + push
+
+- **push**：v3.3（频率上限 10^81 / 实体×100 / 镜像 benchmark / wiki）已提交并推到 `origin/master`（`b2713ca`）。
+- **目标奖励对称化**：`_reward_goal` 原只对「升频靠近目标」给 +1、降频(下潜)给 -0.5，导致低于当前位置的目标带永远够不到。改为对称：低于目标→升频 +1、高于目标→降频 +1、方向错→-0.3，使高/低目标都可及，迁移测试才公平。`run()` 现支持可选传入持久 `u/L/gen`（供实验复用）。
+- **镜像 benchmark 刷新**（对称奖励重测，B=1024）：`benchmark_score = 0.62`（M1=1.0 目的达成、M1-ctrl 随机失败、M2 能量守恒、M3 策略最优 0.55、M4 少样本 `fewshot_speedup=0.40` 仍为负迁移、M5 结构 0.18）。报告 `logs_mirror/benchmark.json`。
+- **持续迁移实验**（`scripts/pu12_v33_experiment.py`）：持久宇宙 Q 不重置，轮换迁移目标（兼容高带 18/15/12 在前，挑战低带 8/5/10 在后），每 2 小时对一新目标做热/冷启动少样本探针，写 `logs_experiment/experiment.jsonl`，检验「深度/训练时间更长能否改善迁移」。
+- **部署到 GPU2 不间断跑**：原 CPU 实验停止，改在 **GPU2**（`CUDA_VISIBLE_DEVICES=2`，B=4096，`DEVICE=cuda`）运行（pid 16777 + `watchdog_experiment.sh`），不设立停止时间；v3.3 主程序仍在 GPU3。首条探针约 2h 后产出。
+- **commit 门禁**：wiki_check / wiki_lint / raw_manifest_check 绿后提交（本次含实验脚本、部署脚本、奖励修复、wiki）。未 commit 前不 push。
+
 ## [2026-10-29] PU-12 v3.3 | 频率上限 10^81 + 实体×100 + 镜像 benchmark
 
 - **需求（leo）**：频率上限抬高 + 跑 3.3（空间更大、实体×100）+ 附带小任务/镜像版 benchmark 测量模型内部智能。

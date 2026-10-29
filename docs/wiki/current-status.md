@@ -188,9 +188,15 @@ compiled_from: [src-code-core-001, src-code-instances-001, src-code-theories-001
 | M4 少样本塑性 | `fewshot_speedup=0.50`（warm 33842 > cold 17025 拍） | **负迁移**：先训「冲顶」再改「停中部带」互相干扰（灾难性干扰），无正迁移 |
 | M5 序列可预测性 | 动作流熵接近最大（结构分 0.18） | 动作流不是干净的「语言」，结构弱 |
 
-**benchmark_score = 0.63**（0=无结构/随机，1=全通过）。结论（诚实）：模型在**指定任务上学习能力强、内部物理完美自洽**，
+**benchmark_score = 0.62**（对称奖励重测；初版 0.63）。结论（诚实）：模型在**指定任务上学习能力强、内部物理完美自洽**，
 但**未表现出可迁移 / 通用的智能**——目标切换产生灾难性干扰，动作序列也无语言级结构。这是对照测量的诚实结果，非缺陷判定。
 报告 `logs_mirror/benchmark.json`（服务器 `/work/liuyuanjie/pu12/`）。
+
+**持续迁移实验（2026-10-29 起，不间断）**：为验证「负迁移是否源于深度 / 训练时间不足」，新增 `scripts/pu12_v33_experiment.py`——
+持久宇宙（Q 表不重置，递归深度与训练时间持续累积）不断轮换迁移性目标（兼容高带 18/15/12 在前，挑战低带 8/5/10 在后），
+**每 2 小时**对一个新的不同目标做少样本迁移探针（热启动 vs 冷启动，记 `fewshot_speedup`），时间序列写入 `logs_experiment/experiment.jsonl`。
+已在 **GPU2**（B=4096，`CUDA_VISIBLE_DEVICES=2`，`DEVICE=cuda`）不间断运行（pid 16777 + `watchdog_experiment.sh`）；v3.3 主程序仍在 GPU3。
+首条探针约 2h 后产出，用于观察更长 benchmark 下迁移能力是否随深度提升。部署 `run_experiment.sh` / `watchdog_experiment.sh` / `up_experiment.sh`。
 
 > 诚实边界：探针是 v3.3 同构智能体的**代理任务**（非字面 LLM 文本 / 代码生成）；M4 的「负迁移」是强化学习单目标训练的
 > 预期现象，不是模型 bug；B=1.6M 下吞吐约 2–3 ticks/s，目的达成需极长时间，但 v3.3 是 `--ticks 0` 连续演化（如 v3.2），看发展即可。

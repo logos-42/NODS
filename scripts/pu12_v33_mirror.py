@@ -63,19 +63,24 @@ def _reward_top(up_ok, up_fail, down_ok, exp_sub, exp_subs, ref_fine, u, top_don
     return rew
 
 
-def _reward_goal(up_ok, up_fail, down_ok, exp_sub, exp_subs, ref_fine, u, goal_k, achieved):
-    # 新目标：全体到达带 goal_k（且尽量停在附近）。升频到 goal_k 给正奖；越过/下坠给负。
+def _reward_goal(up_ok, up_fail, dn, exp_sub, exp_subs, ref_fine, u, goal_k, achieved):
+    # 新目标：全体到达带 goal_k（且尽量停在附近）。**对称**：低于目标→升频(+1)，高于目标→降频(+1)，
+    # 方向错（到顶还升 / 低于目标还降）→ 惩罚。这样高目标(需爬升)与低目标(需下潜)都可及，
+    # 才能公平测「迁移到不同目标」的少样本能力。
     at_goal = u.band == goal_k
     wait_rew = torch.where(u.g >= CELLS - 1e-9, torch.full_like(u.e, -0.05),
                            torch.full_like(u.e, -0.02))
     if not achieved:
-        # 还没全员到 goal_k：满格且未到 → 升频 +1；满格越过 goal_k → 轻微负（别冲过头）；未满 → 等待
-        rew = torch.where(up_ok & (u.band < goal_k), torch.full_like(u.e, 1.0),
-                          torch.where(up_ok & (u.band >= goal_k), torch.full_like(u.e, -0.1),
-                                      torch.where(up_fail, torch.full_like(u.e, -0.3),
-                                                  torch.where(exp_sub | exp_subs, torch.full_like(u.e, 0.4),
-                                                              torch.where(ref_fine, torch.full_like(u.e, 0.2),
-                                                                          wait_rew)))))
+        climb = up_ok & (u.band < goal_k)        # 升频且未到目标（朝目标爬升）
+        descend = dn & (u.band > goal_k)         # 降频且高于目标（朝目标下潜）
+        wrong_up = up_fail & (u.band >= goal_k)  # 到顶/目标之上还升频
+        wrong_down = dn & (u.band <= goal_k)     # 低于目标还降频
+        rew = torch.where(climb, torch.full_like(u.e, 1.0),
+                 torch.where(descend, torch.full_like(u.e, 1.0),
+                   torch.where(wrong_up, torch.full_like(u.e, -0.3),
+                     torch.where(wrong_down, torch.full_like(u.e, -0.3),
+                       torch.where(exp_sub | exp_subs, torch.full_like(u.e, 0.4),
+                         torch.where(ref_fine, torch.full_like(u.e, 0.2), wait_rew))))))
         return rew
     # 已达成：停在区间 [goal_k-1, goal_k] 给正，远离给负
     rew = torch.where(at_goal | (u.band == goal_k - 1), torch.full_like(u.e, 0.15),
@@ -86,8 +91,19 @@ def _reward_goal(up_ok, up_fail, down_ok, exp_sub, exp_subs, ref_fine, u, goal_k
     return rew
 
 
-def run(u, L, gen, n_ticks, mode, goal_k=None, learn=True, record=False):
-    """通用训练/评估驱动。mode='top' 或 'goal'。返回 (acts_list, ticks_run, purpose_tick)。"""
+def run(u=None, L=None, gen=None, n_ticks=0, mode="top", goal_k=None, learn=True,
+        record=False, B=1024, device="cpu", seed=0):
+    """通用训练/评估驱动。mode='top' 或 'goal'。返回 (acts_list, ticks_run, purpose_tick)。
+
+    u/L/gen 可省略：省略时按 B/device/seed 新建（供对照 benchmark 一次性使用）；
+    传入持久 u/L 则在其上继续训练（供持续迁移实验复用，Q 不重置 → 深度/训练时间累积）。
+    """
+    if u is None:
+        u = Lattice(B, device, seed, PHASES, RATE, DEPTH0, WINDOW)
+    if L is None:
+        L = Learners(B, device)
+    if gen is None:
+        gen = torch.Generator().manual_seed(seed + 1)
     top_done = purpose_done = False
     achieved = False
     ever_goal = torch.zeros(u.B, dtype=torch.bool, device=u.device)
@@ -130,7 +146,7 @@ def run(u, L, gen, n_ticks, mode, goal_k=None, learn=True, record=False):
                     purpose_done = True; u.purpose_tick = u.t
         else:
             ever_goal = ever_goal | (u.band == goal_k)
-            rew = _reward_goal(up_ok, up_fail, down_ok, exp_sub, exp_subs, ref_fine, u, goal_k, achieved)
+            rew = _reward_goal(up_ok, up_fail, dn, exp_sub, exp_subs, ref_fine, u, goal_k, achieved)
             if not achieved and bool(ever_goal.all()):
                 achieved = True; u.purpose_tick = u.t; purpose_done = True
 
