@@ -6,8 +6,8 @@
 
 | 文件 | 说明 |
 |---|---|
-| `forced-objects.tex` | 英文版《Where the Ladder Must Stand》副题 A test for forced mathematical objects（19 页） |
-| `forced-objects-zh.tex` | 中文版《台阶何处不可不立》副题「一个关于被迫对象的检验、三种裁决，和一次失败的测量」（11 页） |
+| `forced-objects.tex` | 英文版《Where the Ladder Must Stand》（无副题，18 页） |
+| `forced-objects-zh.tex` | 中文版《台阶何处不可不立》（无副题，11 页） |
 | `forced-objects.pdf` / `-zh.pdf` | tectonic 编译产物，双版 0 错误、0 未定义引用 |
 | `nods.bib` | 参考文献；数系/范畴/模型论/形式化 10 条 DOI 已核，AI-discovery 4 条只到卷页，Benacerraf/Shapiro 为通行书目待核 |
 | `aixiv_meta.json` | 投稿元数据（标题、摘要、分类、关键词、许可） |
@@ -48,6 +48,16 @@ cd paper/forced-objects && tectonic forced-objects-zh.tex
 1. **固定版本**：给仓库打 tag，把 commit hash 写进论文的数据可用性；`lake-manifest.json` 里 Mathlib 现在是 `path` 依赖、无 rev，必须改成 pin 到具体 commit。
 2. **能构建**：加一个 Lean CI job（现在只有 wiki-lint），并让外部读者能 `lake build` 成功（现在依赖 vendored `.lake/`）。
 3. **划清 artifact 边界**：仓库里混着 PU-12 模拟（含内网地址与部署记录），与本文无关且会损害可信度；投稿 artifact 应只含 `Nods/Core`、`Nods/Instances`、`Nods/Theories/{Algebraic,Radical,TensionReading,TensionAbstract,TensionCarriers,Vibration}` 与 `paper/forced-objects`。
+
+## 发表（2026-10-31）
+
+- **aiXiv EN 首发**：`aixiv.261031.000002`（Under Review，公开；v1.0 → **v1.1** 去掉副题）——
+  https://aixiv.science/papers/aixiv.261031.000002
+- 标题 *Where the Ladder Must Stand*（**只用主标题，无副题**；v1.1 起）；分类
+  `Formal Sciences > Mathematics > Logic`；CC-BY-4.0；8 关键词。
+- **只发英文版**：中文版只留仓库（aiXiv 无删除端点）。
+- 摘要与 PDF 逐字一致：`aixiv_meta.json` 的 abstract 由 `forced-objects.tex` 的 abstract 反解析生成；
+  改摘要必须同时改 tex 并重编译，否则记录与 PDF 分叉。
 
 ## 投稿去向（第七轮结论）
 

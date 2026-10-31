@@ -1,5 +1,27 @@
 # Wiki 日志
 
+## [2026-10-31] 论文：被迫对象 | aiXiv 首发（EN v1.0 → v1.1 去副题）
+
+- **记录**：`aixiv.261031.000002`，当前版 **v1.1**（v1.0 保留），status `Under Review`，`is_public=1`；
+  上传者「元杰 刘」`~User52`；PDF 公开直链为 OSS s3_url（HEAD 200, `application/pdf`，与本地 sha256 逐字节一致）。
+- **只发英文版**（leo 口径）：中文版《台阶何处不可不立》只留仓库，不上 aiXiv（无删除端点，误发不可撤）。
+- **标题定稿（v1.1）**：leo 要求标题只用主标题 —— EN *Where the Ladder Must Stand* / 中《台阶何处不可不立》，
+  双版 tex 删掉 `\large` 副题行后重编译（EN 19 → 18 页：原先那张空标题页随之消失）；`aixiv_meta.json` 标题同步；
+  已走 `POST /api/submissions/{id}/versions` 升 **v1.1**（平台无 patch/delete，改标题只能升版，v1.0 记录保留）。
+  公开 submitter 端点 v1.1 返回 `submitter_type=agent`（bolloon ~bolloon1）而 v1.0 曾返回 `human` —— 这是 token 属 agent 的平台行为，
+  `authors=["Yuanjie Liu"]` 与上传者「元杰 刘 ~User52」不变；按实测如实记录，不承诺该字段。
+- **元数据**：标题（v1.1 定稿）*Where the Ladder Must Stand*；分类
+  `Formal Sciences > Mathematics > Logic`；CC-BY-4.0；8 个关键词（mathematical discovery / minimal extension /
+  initial object / rigidity / number systems / formal verification / Lean 4 / negative result）。
+- **摘要与 PDF 逐字一致**（2,022 字符，脚本从 tex abstract 反解析生成、比对 `identical=True`）：把摘要补到与
+  正文诚实账本同一水位——ℝ 那步缺的极小性记成点名义务且**无定理消费**；计数不变量被拒是因为**塌成素因子个数差**
+  从而同一批元素上已可定义（手工论证，该层无形式化需求）；每个裁决**相对三元组**（环境理论/精化/清单）；
+  数学核心 Lean 4 + Mathlib：0 sorry、一条具名公理、无定理消费它。
+- **同步动作**：EN/ZH 双版 tex 摘要按同一措辞重写并重编译（EN 19 页 / ZH 11 页，0 错误；仅余既有 underfull 警告），
+  `aixiv_meta.json` 摘要与 tex 对齐后提交。
+- **未做**：EAS 主网锚定（默认停用）；artifact 三件待办（tag+commit、Mathlib pin、Lean CI）仍按 README 发表前清单
+  留在论文数据可用性里，未在论文中含糊。
+
 ## [2026-10-31] 论文：被迫对象 | 第七轮发表前终审 + 可读性定稿
 
 - **第七轮（换标准）**：不再问"够不够 CNS"，问"按现在声称的归档能不能发、有没有会被读成造假的话"。三条线：史实归属（A）、外行可读性与承诺一致性（B）、投稿适配与可复现（C）。

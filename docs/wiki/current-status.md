@@ -218,6 +218,23 @@ compiled_from: [src-code-core-001, src-code-instances-001, src-code-theories-001
 - **诚实账本**：一条具名公理 O1（ℝ 初始性，**无定理消费**）；`native_decide` 只支撑本文不报告的
   `Tension.lean` 数值核对；塔前三步仅在"同一条定理的实例"意义上声称新意。
 
+## 论文发表（2026-10-31 · 被迫对象）
+
+- **aiXiv EN 首发**：`aixiv.261031.000002`，`Under Review`，公开（`is_public=1`）；**v1.0 → v1.1**（去掉副题，标题只用主标题）。
+  上传者「元杰 刘」`~User52`。标题 *Where the Ladder Must Stand*（中文《台阶何处不可不立》）；
+  分类 `Formal Sciences > Mathematics > Logic`；CC-BY-4.0；8 关键词；PDF 公开直链 = 此次上传的 OSS s3_url（HEAD 200）。
+- **只发英文版**：中文版《台阶何处不可不立》不上 aiXiv（平台只有 versions 写端点，发出去撤不回）。
+- **摘要口径**（与 PDF 逐字一致，2,022 字符）：三问 + 三裁决 + 一次失败测量，并把诚实账本写进摘要 ——
+  ℝ 那步缺的极小性 = 点名义务且**无定理消费**；计数不变量被拒因**塌成素因子个数差**、同一批元素上已可定义
+  （手工论证，该层无形式化需求）；每个裁决**相对三元组**（环境理论/精化/清单）；数学核心 Lean 4 + Mathlib：
+  0 sorry、一条具名公理、无定理消费它。
+- **同步**：EN/ZH 双版 tex 摘要按同一措辞重写并重编译；去掉副题后 EN 18 页（原 19 页，空标题页消失）/ ZH 11 页，
+  双版 0 错误，`aixiv_meta.json` 与 tex 对齐。
+- **v1.1**（去副题）：`POST /api/submissions/aixiv.261031.000002/versions` 升版，标题 *Where the Ladder Must Stand*，
+  PDF 与本地 sha256 逐字节一致（18 页）；记录页 https://aixiv.science/papers/aixiv.261031.000002
+- **仍欠**（README 发表前清单，未在论文里含糊）：仓库 tag + commit hash 写进数据可用性、Mathlib pin、Lean CI、
+  artifact 边界（剔 PU-12 无关内容）。
+
 ## 论文发表（2026-09-08）
 
 - **aiXiv**: 英文版 `aixiv.260907.000001`（v1.0/v1.1 保留；**v1.2** = 顶刊标准扩写版，id 1461，Under Review）；中文版 `aixiv.260908.000008`（v1.0 保留；**v1.1** = 扩写版，id 1462，Under Review），标题《被逼出的真实结构：如何把幂与开方劈开》，署名 元杰 刘。英文标题 *The radical as a forced structure: how to split powers from radicals*（作者 Yuanjie Liu）。

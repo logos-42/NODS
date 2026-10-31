@@ -98,6 +98,18 @@ pointed at unknown mathematical structures.
   - IPFS: EN v1.1 `QmVgDR916EHoNFb3rg3W4EdDNkmR1hRLDJarJqyhGZcLGj`; ZH v1.0 `QmRnfwEUo3LE7qpzu5AnAwvmLomdoUNpAvwocnrtzac3Ed`
   - Source: `paper/radical/` (zh + en, jsfds template)
 
+### 2026-10-31 — Forced objects (en)
+
+- **Where the Ladder Must Stand** (Yuanjie Liu) — test for forced mathematical objects:
+  three yes/no questions for "was this object forced?", run on the author's own programme:
+  three tower steps pass Q1–Q2, the ℚ→ℝ step is a *named obligation* that no theorem
+  consumes, a counting invariant is refused as already definable on the same elements, and the
+  novelty measurement is reported as a failure. Lean 4 + Mathlib: no `sorry`, one named axiom
+  (`O1`), no theorem consuming it.
+  - aiXiv preprint: `aixiv.261031.000002` (v1.1, Under Review; titles as published — no subtitle) —
+    https://aixiv.science/papers/aixiv.261031.000002
+  - Source: `paper/forced-objects/` (en + zh; the Chinese version stays repo-only, not on aiXiv)
+
 ## Getting started
 
 ```bash

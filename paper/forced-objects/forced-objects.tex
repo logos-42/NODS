@@ -33,8 +33,7 @@
 
 \begin{document}
 
-\title{Where the Ladder Must Stand\\
-\large A test for forced mathematical objects, three verdicts, and one measurement that failed}
+\title{Where the Ladder Must Stand}
 
 \author{Yuan-Jie Liu}
 \email{yuanjieliu65@gmail.com}
@@ -45,24 +44,30 @@
 Mathematicians often say that an object \emph{had to} exist: you cannot subtract
 in the natural numbers, so the integers appear; you cannot solve $x^2+1=0$ in the
 reals, so the complex numbers appear.  The same objects are also called
-inventions, and both descriptions are usually offered without a test.  We propose
-one, in the form of questions that can be answered yes or no, and we checked the
-answers in a proof assistant.  Question~1: can the old system meet the demand
-without changing what its elements are?  Question~2: among all the ways of
-extending it, is there a smallest one, determined up to a unique relabelling?
+inventions, and both descriptions are usually offered without a test.  This paper
+proposes one, in the form of three questions that can be answered yes or no, and
+reports what happened when the test was turned on the author's own work.
+Question~1: can the demand be met on the same elements?  Question~2: among all
+extensions, is there a smallest one, determined up to a unique relabelling?
 Question~3: is the result new, judged against a catalogue of known objects?  If
 Question~2 is answered yes, the object is pinned down: any two smallest
-extensions are the same up to a relabelling, and the relabelling is unique.  We
-then ran the test on our own work.  Three steps of the number tower pass
-Questions~1 and~2.  The step from the rationals to the reals does not: we assert
-its missing property as a named obligation instead of proving it.  A counting
-invariant proposed inside our programme fails Question~1 outright, because it is
-already definable on the same carrier.  Question~3 is where the test broke: our
-implementation of ``is it new?'' compared the sizes of carriers, and the integers,
-the rationals and the complex numbers all have the same size, so the test refused
-everything.  We report that failure, since it is the clearest evidence that the
-test has teeth.  What survives is two working questions, one unimplemented third,
-and a short list of things this approach cannot do.
+extensions are the same up to a relabelling, and the relabelling is unique.
+Three steps of the number tower pass Questions~1 and~2.  The step from the
+rationals to the reals does not: its missing minimality is recorded as a named
+obligation rather than proved, and no theorem depends on it.  A counting
+invariant proposed inside the same programme is refused, because it collapses to
+a difference of prime-factor counts and is therefore already definable on the
+same elements; the refusal is argued by hand, since that layer contains no
+formal demand.  Question~3 broke: the implementation of ``is it new?'' compared
+the sizes of carriers, and the integers, the rationals and the complex numbers
+all have the same size, so the test refused everything it was meant to admit.
+The failure is reported at the same length as the successes, because it is the
+clearest evidence that the test has teeth.  What survives is two working
+questions, one specified but unimplemented third, and a short list of what this
+approach cannot do, including the fact that every verdict is relative to a
+stated triple of ambient theory, refinement and catalogue.  The mathematical
+core is formalised in Lean~4 with Mathlib: no \texttt{sorry}, one named axiom,
+and no theorem that consumes it.
 \end{abstract}
 
 \maketitle
