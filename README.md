@@ -65,15 +65,21 @@ pointed at unknown mathematical structures.
 ## Status
 
 - All 6 core layers and all four instances — N→Z, Z→Q, Q→R, R→C — are
-  formalized, and `lake build` passes (Lean v4.21.0 / mathlib).
+  formalized, and `lake build` passes (Lean v4.35.0 / mathlib).
+  A reproducible build against a pinned Mathlib revision is in
+  `lakefile.pinned.toml` (CI: `.github/workflows/lean.yml`); artifact scope is
+  in `artifact/SCOPE.md`.
 - The classical chain N → Z → Q → R → C is fully reconstructed, with a machine
   proof that each step is a *gap* in the previous structure (a failed demand),
   not just an invented symbol.
 - One documented obligation remains: `real_initiality_obligation` (**O1**) — the
   uniqueness of the ordered-field homomorphism R → K into any complete
   Archimedean ordered field K. It is recorded as an `axiom` (the ~80-line
-  Dedekind-cut analysis is deferred to v0.2); in v0.1 `IsCutGenerated` stands in
-  for it. See `docs/wiki/current-status.md` for details.
+  Dedekind-cut analysis is deferred). No theorem consumes the axiom, and the
+  weaker statement that is proved is `real_cut_generated` (every real is the
+  least upper bound of the rationals below it). There is no `IsCutGenerated`
+  predicate in the development; an earlier draft said there was. See
+  `docs/wiki/current-status.md` for details.
 
 ## Publications (2026-09-07)
 

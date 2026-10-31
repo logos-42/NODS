@@ -161,4 +161,27 @@ theorem renaming_kills_objective (L : Library T') (M : Model T')
     simp [noveltyAgainst, h]
   exact Snapshot.objective_eq_zero_of_novelty_zero x (by simpa [hx] using hv)
 
+/-! ### 两个分数不等价：形式化见证
+
+设计文档里同时写了加权和与乘积。二者不是同一种东西，但这句话在此之前
+只是散文。下面两条定理把它做成可核查的陈述：存在一个"纯改名"的候选，
+加权和给它正分（`weighted_sum_admits_renaming`），乘积给它零分
+（`product_rejects_renaming`）。这就是"排序 ≠ 准入"的全部内容，
+也是"加权和可以替代闸门"这一读法的反例。 -/
+
+/-- 存在一个新颖性为零、生成力仍为正的评分。
+    即：加权和对纯改名给正分，不能当准入闸门用。 -/
+theorem weighted_sum_admits_renaming :
+    ∃ s : Score, s.novelty = 0 ∧ 0 < s.generativity := by
+  refine ⟨{ coverage := 1, relationDensity := 1, closureGain := 1,
+            minimality := 1, novelty := 0 }, rfl, ?_⟩
+  dsimp [Score.generativity]
+  norm_num
+
+/-- 同一快照（新颖性 0、其余 1）的乘积为零。
+    即：闸门拒绝纯改名。 -/
+theorem product_rejects_renaming :
+    (⟨0, 1, 1, 1⟩ : Snapshot).objective = 0 := by
+  simp [Snapshot.objective]
+
 end NODS

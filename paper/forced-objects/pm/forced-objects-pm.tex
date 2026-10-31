@@ -1,0 +1,643 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% forced-objects-pm.tex
+%
+% Philosophia Mathematica submission format: article class, author-year
+% citations, footnotes, British spelling, an objections-and-replies section.
+% Content is the same argument as ../forced-objects.tex (v5), re-addressed to a
+% philosophy-of-mathematics readership.
+%
+% The honesty ledger travels with the paper:
+%   * "checked" = Lean 4 declaration, no `sorry`, one named axiom (O1), and O1
+%     is consumed by no theorem;
+%   * "argued" = prose argument, not formalised;
+%   * "asserted" = written down as an obligation;
+%   * the standard-maps condition (C0) is not formalised and is flagged;
+%   * Question 3 is specified, not implemented, and the first implementation
+%     was refuted by the paper's own examples.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\documentclass[12pt,a4paper]{article}
+
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage[hidelinks]{hyperref}
+\usepackage[authoryear,round]{natbib}
+\usepackage{enumitem}
+\usepackage{microtype}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{obligation}[theorem]{Obligation}
+
+\setlength{\parskip}{0.35em}
+\setlength{\parindent}{0pt}
+
+\title{What makes a mathematical object forced?\\
+\large A test, three verdicts, and one measurement that failed}
+
+\author{Yuanjie Liu\\
+\small Independent researcher\\
+\small \texttt{yuanjieliu65@gmail.com}}
+
+\date{}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+\noindent
+Mathematicians often say that an object \emph{had to} exist: you cannot subtract
+in the natural numbers, so the integers appear; you cannot solve $x^{2}+1=0$ in
+the reals, so the complex numbers appear.  The same objects are also called
+inventions, and both descriptions are usually offered without a test.  This paper
+proposes one, in the form of questions that can be answered yes or no, and reports
+what happened when the test was turned on the author's own work.  Question~1: can
+the demand be met on the same elements?  Question~2: among all extensions, is
+there a smallest one, determined up to a unique relabelling?  Question~3: is the
+result new, judged against a catalogue of known objects?  If Question~2 is
+answered yes, the object is pinned down: any two smallest extensions are the same
+up to a relabelling, and the relabelling is unique.  Three steps of the number
+tower pass Questions~1 and~2; the step from the rationals to the reals does not,
+and is recorded as a named obligation instead; a counting invariant proposed
+inside the same programme is refused, because it is already definable on the same
+elements.  Question~3 broke: the implementation compared the sizes of carriers,
+and the integers, the rationals and the complex numbers all have the same size,
+so the test refused everything.  The paper argues that the first two questions
+are worth keeping, that the third needs to compare structures rather than
+carriers, and that a test which refuses its author's candidates is worth more
+than one which admits them all.
+\end{abstract}
+
+\noindent\textbf{Keywords:} mathematical discovery; minimal extension; initial
+object; rigidity; number systems; formal verification; negative result.
+
+\begin{quote}
+\itshape
+``Whatever can be defined may be questioned.''
+\par
+\vspace{0.4em}
+--- \emph{Galactic Empire} (Isaac Asimov)
+\end{quote}
+
+\section{The puzzle}
+
+\subsection{A sentence with no test}
+
+When mathematicians introduce a number system they usually say something causal:
+\emph{we could not subtract, so we made the integers}.  The sentence is not a
+description of the construction.  It is a claim about necessity, and it is the
+claim that does the philosophical work.  It is also the claim that is easiest to
+abuse.
+
+Consider a program that announces a new number $\alpha$ with $\alpha^{2}=7$.
+Nothing in the announcement is false.  The rationals contain no square root of
+seven, so $\alpha$ does extend them; but the extension is the field everyone
+already knows, with $\alpha$ written in place of $\sqrt{7}$.  A test that asks only
+`was there a solution before?' will certify this as new, and will certify a great
+deal else besides.
+
+The same weakness runs through the standard justifications.  `The natural numbers
+cannot solve $x+1=0$' is true.  It is also true of the one-element set, of a free
+group, and of the field of rational functions.  Each of them contains a solution;
+none of them is the integers.  So the sentence \emph{there was no solution,
+therefore we added one} does not pick out an object.  It picks out a crowd.
+
+\subsection{The literature settles what, not why}
+
+The tower itself is settled mathematics.  The integers can be built as pairs of
+naturals modulo a difference, or as the group completion of the additive monoid;
+the rationals as ordered pairs of integers, or as the fraction field; the reals as
+Dedekind cuts \citep{dedekind} or as equivalence classes of Cauchy sequences; the
+complex numbers as pairs of reals \citep[following Hamilton, 1837]{ebb} or as the
+quotient ring $\mathbb{R}[x]/(x^{2}+1)$.  Any two constructions give isomorphic
+objects; \citet{landau} builds the tower from Peano's axioms with the standard
+uniqueness statements, and \citet{ebb} survey several constructions of each system
+together with their equivalence.
+
+That literature settles \emph{what} the objects are, and it leaves the causal
+sentence untouched.  Mathematicians do have a name for `had to exist' --- the
+object is \emph{initial}, or \emph{free}, or \emph{universal}, in the relevant
+category --- and the standard fact that an initial object is determined up to a
+unique isomorphism is in \citet{MacLane1971}.  Model theory supplies a parallel
+notion: when a model completion exists it is unique up to equivalence, and the
+comparison embeddings are elementary and unique over the base model
+\citep{EklofSabbagh1971,Hodges1993}.  So the ingredients are old, and this paper claims no new
+mathematics for them.
+
+Programs that propose mathematics have a long history, from Lenat's \textsc{AM}
+\citep{lenat1976} to recent systems that use search or learning to generate
+conjectures and constructions \citep{davies2021,raayoni2021,romera2024}.  Their
+pattern is consistent: generate candidates, then decide which ones are worth
+keeping.  The decision is made by a human, by a heuristic of interestingness, or by
+a checker that tests truth or performance rather than novelty.  This paper is about
+the decision step, and should be read as complementary to those systems: a
+generator supplies candidates, a criterion decides which of them may be called
+forced.
+
+What is missing, as far as we can tell from the literature cited here, is a
+\emph{test}: a short list of questions that a reader can put to a claim of the
+form `this object had to exist' --- including claims made by a program ---
+together with an honest account of which questions can be settled mechanically
+and which cannot.  The textbook statement is about a fixed category.  A test has
+to survive a change of category, because that is where the abuses live.
+
+\subsection{What this paper does}
+
+The paper builds such a test, states what it can and cannot settle, and then runs
+it on the programme that produced it.  Three results are negative and are
+reported as such: one step of the tower is not certified, one candidate is
+refused, and the third question is not implemented.  The positive content is
+small and is stated in the same breath: two questions work, they are
+construction-invariant, and they are enough to refuse a candidate that a weaker
+test would have published.
+
+The order of the paper follows the argument.  \S\ref{sec:senses} distinguishes
+four things that `forced' can mean and says which one is tested.
+\S\ref{sec:test} states the test.  \S\ref{sec:theorem} explains why the second
+question settles the object.  \S\ref{sec:verdicts} reports the three verdicts.
+\S\ref{sec:failure} reports the measurement that failed.
+\S\ref{sec:objections} answers six objections.  \S\ref{sec:conclusion} concludes.
+
+\section{Four senses of `forced'}
+\label{sec:senses}
+
+The word carries at least four different claims, and a paper that does not say
+which one it means can be attacked from any direction.
+
+\begin{enumerate}[label=(\roman*),leftmargin=2.2em]
+\item \emph{Metaphysical}: the object could not have failed to exist.
+\item \emph{Conceptual}: the object is already contained in the concept we
+      started from.
+\item \emph{Practical}: no working alternative exists, given the state of the
+      field.
+\item \emph{Determined}: every acceptable answer is the same object up to a
+      unique relabelling.
+\end{enumerate}
+
+This paper tests (iv) and nothing else.  (i) is not touched: we have no argument
+that the integers could not have failed to exist, and we doubt that a formal test
+could supply one.  (ii) is not touched either; our demands are data, not
+concepts, and a demand can be met in a way that tells us nothing about the
+concept that motivated it.  (iii) is a claim about a community, and it changes
+when the community changes; it is not the kind of thing a proof can settle.
+
+The fourth sense is weaker than the first three, and it is the only one that can
+be settled by reading a proof.  It is also the one that Benacerraf's argument
+leaves standing.  \citet{benacerraf1965} observed that if numbers are sets, then the
+natural number $4$ could be the von Neumann $4$ or the Zermelo $4$, and nothing in
+arithmetic tells us which; so either the identification is arbitrary or numbers
+are not objects at all.  Structuralism replies that numbers are positions in a
+structure rather than objects with an inner nature \citep{shapiro1997}.  If that is
+right, then `the same position' is exactly determination up to relabelling, and
+nothing stronger is on offer.
+
+We therefore do not claim to have shown that the integers had to exist.  We claim
+to have shown that, given the demand and the company it keeps, nothing else could
+have answered it.  That is not a hedge; it changes what counts as a refutation.  A
+reader who wants metaphysical necessity will find the test silent, and should.  A
+reader who wants to know whether a program's `discovery' is a renaming will find
+it decisive.
+
+\section{The test}
+\label{sec:test}
+
+\subsection{Three pieces of data}
+
+Before any question can be asked, three things must be fixed.
+
+\begin{enumerate}[label=(\alph*),leftmargin=2.2em]
+\item An \emph{ambient theory}: what the new object is allowed to carry.
+\item A \emph{reading} of the old structure inside the new one.
+\item A \emph{demand}: a constant to add, a property to impose, or both.
+\end{enumerate}
+
+`Minimal extension' is not an absolute notion, and the reason is easy to see.
+Given only a system and a missing solution, one may always take a trivial
+extension (throw in a formal symbol and nothing else) or a chaotic one (throw in a
+proper class of symbols), and there is no order between them that would single
+out a winner.  A minimum becomes definable only once (a)--(c) are fixed.
+
+The first step of the tower shows why (a) matters, and it is worth stating slowly.
+The demand is `$x+1=0$ must become solvable'.  If we are allowed to stay among
+structures where addition is only a semigroup operation, we may add a formal
+$\varepsilon$ with $\varepsilon+1=0$ and stop.  The result solves the equation and
+is not the integers: its addition is not a group operation.  If instead we first
+agree to work among commutative rings, the same demand produces the integers, and
+produces nothing else.  The difference is not in the demand; it is in the company
+the demand is allowed to keep.  Changing the ambient theory changes the object,
+and the change of theory is the real content of the step.
+
+\subsection{Question 1: can the demand be met on the same elements?}
+
+The question is about the elements, not about the solution.  The wording is doing
+work.  Both the natural numbers and the integers are countable, so any ring
+structure on the integers can be carried over to the natural numbers by a
+bijection.  The statement `the natural numbers admit no ring structure' is
+therefore \emph{false}, and an early version of our own formalisation asserted it.
+The true statement keeps the old structure fixed: no ring structure on
+$\mathbb{N}$ whose addition and multiplication extend the usual ones solves
+$x+1=0$.  The episode is worth recording because the test caught its author.
+
+A gap, then, is not `this carrier admits no such structure'.  It is `this carrier,
+with the structure it already has, cannot support the required one'.  The
+distinction is the formal counterpart of a platitude: you cannot solve an
+equation by changing what the symbols mean.
+
+\subsection{Question 2: is the extension the smallest one?}
+
+Among all extensions that meet the demand, is there one that maps into every
+other, and does exactly one such map exist?  When the answer is yes we call the
+extension \emph{minimal}.  The name is traditional --- `the minimal field
+containing a root' --- but the property is not smallness; it is universality, and
+universality is what makes the object determined.  The next section states what
+follows from it.
+
+Two clarifications, because `smallest' invites misreading.  First, the comparison
+is between \emph{extensions}, not between carriers: a smaller carrier is neither
+necessary nor sufficient.  Second, `smallest' is relative to the triple fixed
+above; the same system and the same demand can have different smallest extensions
+under different ambient theories, and that is a finding rather than a defect.
+
+\subsection{Question 3: is it new?}
+
+New relative to what is already known, not relative to the system's own state,
+which can always be arranged to report novelty.  In practice this means an
+explicit catalogue of known objects, supplied from outside.  The requirement is
+not stylistic.  Whether an object is new is a fact about what is already known,
+and a system that computes novelty from its own state will always find itself
+original.
+
+\S\ref{sec:failure} reports what happened when this question was implemented.  The
+short version is that the implementation was wrong in a way that only the
+examples revealed, and that the test as a whole is therefore a two-question test
+with a third question specified and unimplemented.  We prefer to say that at the
+outset rather than let a reader discover it.
+
+\section{Why the second question settles the object}
+\label{sec:theorem}
+
+\subsection{The statement}
+
+If an extension is smallest in the sense above, then:
+
+\begin{enumerate}[label=(\arabic*),leftmargin=2.2em]
+\item it maps into every other extension, and the map is unique;
+\item any two smallest extensions are the same up to a relabelling of their
+      elements, and that relabelling is itself unique;
+\item the smallest extension has no symmetries of its own beyond the identity.
+\end{enumerate}
+
+None of this mentions rings, order, or completeness.  The three statements use
+four properties of the surrounding category --- an identity map, a composition, an
+underlying-function map, and the fact that maps agreeing on every value are equal
+--- and nothing else.  That is why one argument covers the integers, the
+rationals and the complex numbers at once, and why it can be checked once rather
+than three times.
+
+\subsection{What the theorem is worth}
+
+We should be plain about this, because the alternative is to let a reader
+discover it.  Once you \emph{define} `smallest' as `maps into everything,
+uniquely', the first and third statements are restatements of the definition, and
+the proof is four lines.  The content is not the proof.  The content is that this
+is the right definition to have chosen: it is the only one on the table that does
+not depend on how the object is constructed.  Two people who build the complex
+numbers differently --- as pairs of reals, as a quotient ring, as a matrix algebra
+--- get the same answer to Question~2, and their constructions are related by a
+relabelling that is itself unique.  That is what it means for the object, rather
+than the construction, to be determined.
+
+A philosophical reader may object that this is precisely the structuralist
+commonplace, and that a four-line proof of a commonplace is not worth a paper.  The
+objection is right about the proof and wrong about the use.  What the four lines
+buy is \emph{transfer}: because the statement is parameterised by the ambient
+theory and the reading, the same receipt covers every step of the tower, and the
+receipt can be checked by machine.  The interest lies in what the receipt refuses,
+not in how hard it was to obtain.
+
+\subsection{Pinning the witness}
+
+For the step from the reals to the complex numbers, the demand is `add a constant
+$j$ with $j\cdot j=-1$'.  The extension $(\mathbb{C},i)$ is smallest, and it has
+no symmetry beyond the identity.  Now drop the constant from the demand and ask
+only that \emph{some} square root of $-1$ exists.  The same field is still an
+extension, but it is no longer smallest: the comparison is no longer unique.
+Identity and complex conjugation are two distinct maps over $\mathbb{R}$, and both
+are allowed; pinning $i$ is what removes the second one.
+
+The moral is general.  Finding a solution and pinning it down are different
+achievements, and only the second produces an object.  A test that accepts the
+unpinned version will accept a field with a symmetry group, which is exactly the
+ambiguity it was supposed to remove.
+
+\subsection{What the theorem does not settle}
+
+The demand `the order is complete' behaves differently from `$j^{2}=-1$', and the
+difference is worth stating in words rather than symbols.  An equation like
+$j^{2}=-1$ is preserved by every ring map: if $j$ satisfies it, so does the image
+of $j$.  A condition like `every bounded non-empty set has a least upper bound' is
+not preserved by ring maps, and it has no term model: there is no expression you
+can write down, quotient by a relation, and be done.  What follows is that the
+smallest extension cannot be \emph{computed} the way the complex numbers can.  It
+does not follow that no smallest extension exists.
+
+An earlier draft of this paper drew the stronger conclusion.  It was wrong, and
+the correction matters for how the fourth step of the tower is reported: the
+asymmetry is about computation and about proof debt, not about a metaphysical
+difference between adjoining a root and completing an order.
+
+\section{Three verdicts}
+\label{sec:verdicts}
+
+We ran the test on four steps of the number tower and on two further pieces of the
+same programme.  Table~\ref{tab:verdicts} gives the summary; the text explains the
+interesting rows.
+
+\begin{table}[t]
+\centering
+\small
+\begin{tabular}{@{}lccc@{}}
+\toprule
+Case & Same elements & Smallest & New \\
+\midrule
+$\mathbb{N}\to\mathbb{Z}$ & proved & proved & not used \\
+$\mathbb{Z}\to\mathbb{Q}$ & proved & proved & not used \\
+$\mathbb{Q}\to\mathbb{R}$ & proved & \emph{asserted} & not used \\
+$\mathbb{R}\to\mathbb{C}$ & proved & proved & not used \\
+counting invariant & \emph{fails} (argued) & --- & --- \\
+\bottomrule
+\end{tabular}
+\caption{What passed, what did not, and what could not be judged.  `Proved' means
+machine-checked modulo the standard-maps condition discussed in
+\S\ref{sec:objections}; `asserted' means written down as an obligation and not
+proved; `argued' means a prose argument, not a formalised verdict.  No entry in
+the `New' column was produced by an implementation.}
+\label{tab:verdicts}
+\end{table}
+
+\subsection{Three steps that pass}
+
+The integers are the smallest extension of the naturals once we agree to work
+among commutative rings; the rationals are the smallest extension of the integers
+once we agree to work among fields; and $(\mathbb{C},i)$ is the smallest extension
+of the reals once we pin the square root of $-1$.  The underlying facts are
+classical \citep{ebb}; the formulation as a smallest extension, with the old
+structure pinned, is our packaging.  What the test adds is that the three are
+instances of one statement, and that in each case the answer does not depend on
+the construction.  For the integers, the side condition that the extension really
+contains the old system also gives characteristic zero for free, which is a
+pleasant sign that the definition is carrying its weight.
+
+\subsection{One step we could not certify}
+
+For the step from the rationals to the reals we prove the failure --- the rationals
+are not complete --- and we prove that every real is generated by a cut of
+rationals below it.  We do not prove that the reals are the smallest complete
+ordered field over the rationals.  That statement is written down as a named
+obligation in the formal development.
+
+We think the obligation is true and provable; a page of standard argument about
+complete ordered fields should do it.  We did not do it.  Nothing in the
+development consumes the obligation, so nothing collapses if it is later proved or
+refuted; what would change is the status of the fourth row of
+Table~\ref{tab:verdicts}, which is exactly what should change.
+
+\subsection{One candidate we refused}
+
+The programme also proposed an invariant of integers, meant to capture the
+`tension' between two numbers: count the primes dividing one but not the other,
+subtract the count in the opposite direction, and call the result $\tau(a,b)$.  The
+proposal was that the surface $\tau=0$ organises arithmetic, and that $\tau$ is a
+new object in its own right.
+
+The axiomatic part worked out cleanly.  Under four natural assumptions the
+invariant is unique up to sign and equals a difference of counts,
+\begin{equation}
+\tau(a,b) = \omega(a) - \omega(b),
+\end{equation}
+where $\omega(n)$ is the number of distinct prime factors of $n$.  That is the
+whole content: $\tau$ knows how many prime factors each side has and never which
+ones.  Since $\omega$ is a century-old function and the formula is definable on the
+same elements, the test returns \emph{refused} at Question~1.  There is no new
+object here; there is a theorem about $\omega$, and a clear statement of why the
+construction cannot say more.
+
+Two qualifications.  The refusal is argued by hand: the counting part of the
+development contains no demand and no catalogue, so `Question~1 returns refused'
+is a mathematical observation, not a machine-checked verdict.  And the refusal
+does not go through Question~3: the first draft said the novelty score was zero
+there, which neither follows from Question~1 nor is available, since no catalogue
+exists.
+
+The episode is still the most useful thing in the paper.  It is the case where the
+test said no to us, and it came with a reason: the invariant collapses to a count,
+and counts are already on the same elements.  A weaker test would have produced a
+paper claiming a discovery.
+
+\section{The measurement that failed}
+\label{sec:failure}
+
+Question~3 is the one we could not deliver, and the failure is instructive enough
+to describe in detail.
+
+\subsection{Two scores}
+
+The design had two scores.  One was a weighted average of five qualities ---
+coverage, relatedness, closure gain, minimality, novelty --- meant to \emph{rank}
+candidates.  The other was a product of four --- novelty, consistency,
+generativity, compression --- meant to \emph{admit} them.  The distinction is real:
+a weighted average gives a high mark to a candidate whose novelty is zero but whose
+other qualities are excellent, which is precisely the $\sqrt{7}$ story; a product
+gives it zero.
+
+The claim that the two scores are not interchangeable is machine-checked in the
+only form available: there is a score with novelty zero and generativity $4/5$,
+and a snapshot with the same entries whose product is zero.  We stress what this
+does and does not show.  It shows that the two formulas are not interchangeable.
+It does not model renaming at all: no catalogue, no candidate, and no map between
+objects appears in those two statements.  The $\sqrt{7}$ story remains an
+argument, not a theorem.
+
+\subsection{Why the implementation failed}
+
+Modelling renaming is where the implementation failed.  To decide whether a
+candidate was new, the code compared the \emph{sizes} of carriers: if a
+candidate's carrier had the same cardinality as a known object's carrier, it was
+called a renaming.  The integers, the rationals and the complex numbers are all
+countably infinite.  One countable object in the catalogue therefore makes all
+three renamings of it, and the gate assigns all three a novelty of zero.  The gate
+refuses exactly the objects the rest of the paper certifies.
+
+We did not patch this.  Comparing sizes can only produce false refusals, never
+false admissions, so the risk runs in the opposite direction from the one our
+first draft described.  A correct comparison is between structures, not carriers,
+which requires the catalogue to carry its own maps; that is a specification, and
+we have not implemented it.
+
+\subsection{What follows}
+
+Three consequences, stated plainly.  First, no admission decision in this paper
+uses Question~3, and the trace distributed with the code prints novelty values
+that were entered by hand.  Second, the product structure and the zero-factor
+lemmas survive, because they are statements about a product; what fails is the
+\emph{measurement} of one factor.  Third, the failure is evidence for the test
+rather than against it: the example that was supposed to demonstrate the gate
+demolished it, and the demolition was visible only because the gate had been
+applied to objects whose status we already knew.
+
+\section{Objections and replies}
+\label{sec:objections}
+
+\subsection{`Your verdicts are relative to chosen data, so they are arbitrary'}
+
+Two parts of the objection should be separated.  The first is true and is stated
+in the paper: every verdict is relative to the ambient theory, the reading, and
+(for Question~3) the catalogue.  Change any of them and the verdict can change.
+The second part --- that relativity makes the verdict arbitrary --- does not
+follow.  The data are published, so a reader can recompute the verdict with
+different data and see whether it changes.  A relative verdict that anyone can
+recheck is a different thing from an arbitrary one.
+
+There is also a point of substance behind the relativity.  Changing the ambient
+theory changes the object: the same demand for subtraction produces the integers
+among rings and a semiring monster among semirings.  That is not a defect of the
+test; it is the phenomenon the test was built to expose.  A test that gave the
+same answer under every ambient theory would be insensitive to precisely the
+choice that does the work.
+
+\subsection{`A degenerate framework makes every object smallest'}
+
+This is the most serious objection, and the paper concedes it.  The four
+properties that the main argument uses do not say that the maps between
+structures are the structure-preserving ones.  A degenerate choice --- one map
+between any two structures --- satisfies all four, and in that setting every
+object is both smallest and largest, so the test says nothing about anything.
+
+The paper therefore states a precondition, called C0: the framework is the
+standard one of the theory at hand.  It is not provable inside the framework,
+because `being the standard maps' is a schema rather than a sentence; it is
+checkable in each instance, and in our instances it holds by construction, since
+the maps are defined to be the structure-preserving ones.  Every statement that
+needs C0 is marked as such.
+
+A test with a stated precondition is better than a test with an unstated one.  But
+the objection does have a residue: the general theorem is less general than its
+statement suggests, because its content lives in the instances rather than in the
+abstraction.  We accept that description.
+
+\subsection{`Benacerraf already showed that determination is all you get'}
+
+Correct, and the paper says so.  If numbers are positions in a structure, then
+determination up to a unique relabelling is the most that could be on offer, and
+the test is not adding a metaphysical result.  What it adds is a procedure: given
+a candidate and a catalogue, a reader can decide whether the word `discovery' is
+warranted, and can be shown the step where the decision is made.
+
+Whether that is philosophy is a fair question.  Our answer is that it is the part
+of the philosophy that can be done with a proof rather than a intuition, and that
+the two refusals reported here --- one by proof, one by argument --- are the kind
+of result the procedure produces.  A reader who wants the metaphysics will not find
+it, and we have tried not to pretend otherwise.
+
+\subsection{`Your main theorem is a definition'}
+
+Yes.  The paper says so in the section that states it, and repeats it in the
+conclusion.  The theorem is worth stating because it is the receipt that the
+definition is well posed, and because the receipt transfers across theories.  It is
+not worth stating as a discovery, and we do not.
+
+The objection would bite if the paper's contribution were the theorem.  It is not:
+the contribution is the triple of questions, the two refusals, and the report of
+the failure.  A reader who judges the paper by the length of its main proof will
+judge it correctly and will not want to read it.
+
+\subsection{`One refusal of your own candidate is not evidence'}
+
+It is not much evidence, and the paper says that too.  A single refusal, argued by
+hand, of a candidate the author was already prepared to abandon, is close to the
+weakest form of evidence a test can produce.  What would count as stronger: a
+candidate proposed by someone else and believed by them, refused by the test; an
+independent user applying the test to a case neither of us chose; or a repaired,
+structure-comparing gate that still refuses an object the test ought to admit.
+
+None of these exists yet.  We list them because a reader is entitled to know what
+would change our mind, and because the list is short enough to be a research
+programme rather than a wish.
+
+\subsection{`Machine-checking here is decoration'}
+
+Some of it is, and the paper tries to say which parts.  The development is in
+Lean~4 \citep{lean} with Mathlib \citep{mathlib}.  The main theorem's proof is
+short enough that checking it adds little; the four failures are textbook; the
+two-score separation is arithmetic.  Three things were not decoration.  The proof
+assistant forced the definition of `gap' to be stated in a form that is not false,
+which is how the ring-structure error was found.  It made the four-line nature of
+the main argument visible, so that the paper could not pretend otherwise.  And it
+turned a claim about two scoring formulas into a statement a reader can check in a
+minute.  A tool whose main contribution is to make the author's mistakes visible is
+worth its cost in a paper of this kind.
+
+\section{Conclusion}
+\label{sec:conclusion}
+
+The practical lesson is about the order in which to explain an object.  The usual
+order is: here is the object, here are the properties that make it necessary.  The
+order that survived the test is the reverse.  First the failure that cannot be
+repaired in place.  Then the company the repair is allowed to keep, because the
+same failure repaired in different company gives different objects.  Then the
+smallest repair, which is determined once the company is fixed.  Whatever is left
+over after those three steps is not forced, and should be called a construction.
+
+The second lesson is that a negative result is cheap and worth publishing.  The
+counting invariant was, for a while, the centrepiece of a different paper.  Running
+it through Question~1 took an afternoon and produced a theorem about $\omega$
+instead.  That is a better outcome than a paper claiming a discovery, and it cost
+less.
+
+The third lesson is about what a test can be.  This one is two questions and a
+failure.  It does not generate candidates, it does not decide its own questions,
+and it cannot certify the fourth step of the tower.  What it can do is stop a
+particular kind of sentence --- `there was no solution, therefore I discovered an
+object' --- from being uttered without a receipt.  On the evidence of this paper,
+that is enough to refuse one candidate and to expose one measurement, and not
+enough to claim more.
+
+\appendix
+
+\section{What is checked, argued, and assumed}
+
+\begin{table}[h]
+\centering
+\small
+\begin{tabular}{@{}p{0.34\linewidth}p{0.14\linewidth}p{0.42\linewidth}@{}}
+\toprule
+Claim & Status & Note \\
+\midrule
+Uniqueness and rigidity of minimal extensions & checked & modulo C0 \\
+Four failures of the tower & checked & natural, integer, rational, real \\
+$\mathbb{Z}$, $\mathbb{Q}$, $(\mathbb{C},i)$ are minimal & checked & modulo C0 \\
+Characteristic zero of the field extension & checked & follows from injectivity \\
+Two-score separation & checked & arithmetic, not a model of renaming \\
+Counting collapse to $\omega(a)-\omega(b)$ & checked & four axioms \\
+Refusal of the counting invariant & argued & no demand, no catalogue instance \\
+Real is the smallest complete ordered field over $\mathbb{Q}$ & asserted & obligation, consumed by nothing \\
+Preservation of equations vs closure conditions & argued & about the language, not inside it \\
+Novelty gate & refuted & carrier counting; repair specified, not built \\
+\bottomrule
+\end{tabular}
+\caption{The status of every substantive claim.  `Checked' means a Lean~4
+declaration with no \texttt{sorry} and no named axiom beyond the obligation
+above; `argued' means prose; `asserted' means written down and not proved;
+`refuted' means the implementation was shown wrong by the paper's own examples.}
+\end{table}
+
+\bibliographystyle{plainnat}
+\bibliography{../nods}
+
+\end{document}

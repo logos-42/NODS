@@ -2,7 +2,7 @@
 title: NODS — New Object Discovery System 当前状态
 source: session
 created: 2026-09-04
-last_confirmed: 2026-10-29
+last_confirmed: 2026-10-31
 schema_version: 2
 audience: internal
 stage: current
@@ -200,6 +200,23 @@ compiled_from: [src-code-core-001, src-code-instances-001, src-code-theories-001
 
 > 诚实边界：探针是 v3.3 同构智能体的**代理任务**（非字面 LLM 文本 / 代码生成）；M4 的「负迁移」是强化学习单目标训练的
 > 预期现象，不是模型 bug；B=1.6M 下吞吐约 2–3 ticks/s，目的达成需极长时间，但 v3.3 是 `--ticks 0` 连续演化（如 v3.2），看发展即可。
+
+## 论文（设计稿）`paper/forced-objects/`（2026-10-31）
+
+- **对象**：NODS **本身的设计**（不是 Radical 续篇）。英《What makes a mathematical object forced?》
+  / 中《数学对象什么时候是"被迫"的？》，REVTeX 4.2 + ctex，双版 0 错误 0 未定义引用（EN 19 页 / ZH 11 页；v5 经第七轮终审：2 处史实改正、三级证据、两处不实表述删改、新增"被迫"四义与相对性）。
+- **判据口径**：两条件**可用**（同一载体不可解、最小扩张唯一到改名）+ 第三问"是否新"**只给规格未实现**；
+  前提 C0（语架须为标准映射）未形式化，相关陈述标 "modulo C0"。
+- **三次自我否决（正文如实写）**：① "ℕ 上不存在环结构"是假命题（可数搬运），缺口改由 `HasSolution`
+  的强化等式承担；② 计数不变量 τ=ω(a)−ω(b) 被判"同一载体可定义"→ 拒绝（手工论证，该层无
+  `Demand`/`HasSolution` 实例）；③ 闸门按载体等势判新颖性 ⟹ ℤ/ℚ/ℂ 互相判成改名、闸门自拒。
+- **新增 Lean**：`Nods/Core/Score.lean` 的 `weighted_sum_admits_renaming` 与
+  `product_rejects_renaming`（"加权和 ≠ 乘积闸门"可核；边界：只是均值/乘积算术，不含改名模型）。
+- **六轮攻防**：`paper/forced-objects/adversarial-review-cns.md`（R1 意义 / R2 形式化查出 3 处事实错误 /
+  R3 内部一致 / R4 交叉审 / R5 可证伪性 / R6 编辑终审）。终审判定：CNS 定位下 Reject，正确归档为
+  形式化数学 / 数学哲学；正文"讨论"已主动声明投稿定位。
+- **诚实账本**：一条具名公理 O1（ℝ 初始性，**无定理消费**）；`native_decide` 只支撑本文不报告的
+  `Tension.lean` 数值核对；塔前三步仅在"同一条定理的实例"意义上声称新意。
 
 ## 论文发表（2026-09-08）
 

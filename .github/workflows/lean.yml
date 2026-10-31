@@ -1,0 +1,55 @@
+name: lean-build
+
+on:
+  push:
+    paths:
+      - "Nods/**"
+      - "Nods.lean"
+      - "lakefile.pinned.toml"
+      - "lean-toolchain"
+      - ".github/workflows/lean.yml"
+  pull_request:
+    paths:
+      - "Nods/**"
+      - "Nods.lean"
+      - "lakefile.pinned.toml"
+      - "lean-toolchain"
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install elan
+        run: |
+          curl -sSfL https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh \
+            | sh -s -- -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+
+      - name: Use the pinned lakefile
+        run: |
+          cp lakefile.pinned.toml lakefile.toml
+          rm -f lake-manifest.json
+
+      - name: Cache .lake
+        uses: actions/cache@v4
+        with:
+          path: .lake
+          key: lake-${{ hashFiles('lakefile.pinned.toml', 'lean-toolchain') }}
+
+      - name: Resolve dependencies at the pinned revision
+        run: lake update
+
+      - name: Fetch Mathlib oleans
+        run: lake exe cache get
+
+      - name: Build
+        run: lake build Nods
+
+      - name: Trust base
+        run: |
+          echo "declarations that are axioms or rely on native_decide:"
+          grep -rn "^axiom " Nods/ || true
+          grep -rn "native_decide" Nods/ || true
