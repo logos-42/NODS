@@ -49,6 +49,9 @@ def main() -> int:
                     help="探针里冷/热启动各自最多训练多少拍去够到目标")
     ap.add_argument("--seed", type=int, default=0)
     ap.add_argument("--out", default="logs_experiment")
+    ap.add_argument("--reset-n", action="store_true",
+                    help="每段结束重置访问计数 N（保留 Q/知识）；Q-learning 步长与 UCB 探索随访问次数衰减会「冻结」，"
+                         "重置 N 恢复探索与学习率，使持久宇宙能持续跟踪不同目标带（非平稳 RL 标准做法）")
     ap.add_argument("--heartbeat-segments", type=int, default=20,
                     help="每多少个迁移段打印一次心跳")
     args = ap.parse_args()
@@ -144,6 +147,11 @@ def main() -> int:
                       f"warm={warm_ticks}({'Y' if warm_reached else 'N'}) cold={cold_ticks}({'Y' if cold_reached else 'N'}) "
                       f"speedup={('%.3f'%speedup) if speedup is not None else 'N/A'}{trend} "
                       f"m3={m3:.2f} phys={phys} score={score:.2f}", flush=True)
+
+            # 防冻结：保留 Q（知识持续累积），但每段重置访问计数 -> 恢复探索与学习率，
+            # 让持久宇宙能在轮换目标后仍爬到高带（否则 1/(n+1) 步长衰减到 0 会把 Q 冻在某个低带）。
+            if args.reset_n:
+                L.N.zero_(); L.total.fill_(1.0)
     except KeyboardInterrupt:
         print("\n[experiment] 收到中断，写入已完成行并退出（下次可从同状态续跑需另存 checkpoint，本实验默认不存）", flush=True)
     finally:

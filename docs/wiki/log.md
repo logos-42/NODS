@@ -1,5 +1,19 @@
 # Wiki 日志
 
+## [2026-10-31] PU-12 v3.3 | 迁移实验根因(学习冻结) + 变体 v2(加大 seg + 重置 N, GPU2)
+
+- **42h 实验结论**：GPU2 持续迁移实验（B=4096, seg=30000）跑了 21 次探针、累计 67M 深度 ticks，`fewshot_speedup` 均值 0.49、**无上升趋势**（首 0.317→末 0.306）→ 负迁移稳定存在、不随深度改善。分组：goal 18 最轻(0.72)，goal 5 最重(0.33)；热启动几乎总顶满 60000 拍上限，冷启动仅 1.8–4.4 万拍。
+- **根因定位**：持久 Q 在目标轮换后被「降频先验」锁死在 band≈9。B=4096 验证：第一轮 band 能完整跟踪目标(18→16.5…5→4.9)，第二轮 goal 18 只到 9.48。机理是 Q-learning 步长 `1/(n+1)` 与 UCB 探索随访问次数衰减→**Q 冻结**；冻结后连续 180k 拍 goal 18 也只能拉回 14.8。故「加深/加时间」反而冻结，非能力不足。
+- **修复与变体 v2**：实验脚本新增可选 `--reset-n`（每段结束重置访问计数 N、保留 Q）——非平稳 RL 标准做法。实测 B=4096 每轮 band 均完整跟踪（第二轮 18→16.8、5→4.0）。已用 `logs_experiment_v2`、pid 33716、GPU2、B=4096、**seg=60000**、probe-train=90000、`--reset-n` 重启，无限循环+看门狗不间断；v3.3 主程序（pid 15335, GPU3）不受影响。首探针约 2h 后。
+- 部署脚本 run/watchdog/up_experiment 支持 OUT/PIDF/RESET 覆盖，可并行不同变体。
+
+## [2026-10-31] 仓库卫生 | .gitignore 补 Python 缓存（`__pycache__/` `*.pyc`）
+
+- **现象**：`scripts/__pycache__/` 下两个 .pyc（`pu12_v33.cpython-312.pyc`、`pu12_v33_mirror.cpython-312.pyc`）长期显示为未跟踪脏项；原 `.gitignore` 只忽略 `.obsidian/`、`raw*` 与 `.lake/`，没有 Python 缓存规则。
+- **改动**：`.gitignore` 追加 `__pycache__/`、`*.pyc`（Python 缓存）与 `.DS_Store`、`._*`（macOS 元数据）四条（仅忽略规则，不动任何代码或脚本行为）。
+- **未做**：本批**未 commit** —— 运行环境当前无法执行 shell（`git status` / `lake build` / 三个门禁脚本均无产出），`wiki_check.py` / `wiki_lint.py --strict=v2` / `raw_manifest_check.py` 未能跑；按 commit 门禁，未跑门禁即不提交。
+- **影响面**：零。不涉及 Lean 源码、定理、可执行模型。
+
 ## [2026-10-29] PU-12 v3.3 | 持续迁移实验(GPU,不间断) + 目标奖励对称化 + push
 
 - **push**：v3.3（频率上限 10^81 / 实体×100 / 镜像 benchmark / wiki）已提交并推到 `origin/master`（`b2713ca`）。
