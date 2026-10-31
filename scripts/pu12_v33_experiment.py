@@ -22,6 +22,7 @@
 from __future__ import annotations
 
 import argparse
+import copy
 import json
 import os
 import sys
@@ -100,6 +101,12 @@ def main() -> int:
                 # 选一个「不同的」探针目标：序列里下一个，与刚训的 goal 不同
                 probe_goal = sched[seg_idx % len(sched)]
 
+                # 受控对照：在 warm 改变状态之前，克隆持久宇宙的完整起点状态
+                u_snapshot = copy.deepcopy(u)
+                u_snapshot.purpose_tick = -1
+                u_snapshot.top_tick = -1
+                warm_start_band_mean = float(u.band.double().mean())
+
                 # 热启动：在持久 Q 上继续训练到 probe_goal
                 warm_before = u.t
                 _, warm_ticks, warm_purpose = run(u, L, gen, args.probe_train_ticks,
@@ -116,21 +123,34 @@ def main() -> int:
                 cold_reached = cold_purpose is not None
                 cold_ticks = cold_ticks if cold_reached else args.probe_train_ticks
 
+                # 受控冷启动：从与 warm 完全相同的起点状态(copy.deepcopy)出发、仅 Q 为空 —— 只差「学到的知识」
+                L_cold2 = Learners(args.B, dev)
+                g_cold2 = torch.Generator().manual_seed(args.seed + 300 + seg_idx)
+                _, cold_ctrl_ticks, cold_ctrl_purpose = run(u_snapshot, L_cold2, g_cold2, args.probe_train_ticks,
+                                                            "goal", goal_k=probe_goal, learn=True)
+                cold_ctrl_reached = cold_ctrl_purpose is not None
+                cold_ctrl_ticks = cold_ctrl_ticks if cold_ctrl_reached else args.probe_train_ticks
+                speedup_ctrl = (cold_ctrl_ticks / warm_ticks) if (warm_reached and cold_ctrl_reached and warm_ticks > 0) else None
+
                 speedup = (cold_ticks / warm_ticks) if (warm_reached and cold_reached and warm_ticks > 0) else None
                 m3 = probe_policy_optimality(L)["optimal_agreement"]
                 phys = probe_physics(u)["energy_conserved"]
-                plasticity = max(0.0, min(1.0, (speedup - 1) / 4.0)) if speedup is not None else 0.0
-                score = 0.5 * m3 + 0.5 * plasticity if speedup is not None else 0.5 * m3
+                # 主指标改用「受控」speedup（起点相同、只差 Q），这才是真·迁移
+                plasticity = max(0.0, min(1.0, (speedup_ctrl - 1) / 4.0)) if speedup_ctrl is not None else 0.0
+                score = 0.5 * m3 + 0.5 * plasticity if speedup_ctrl is not None else 0.5 * m3
 
                 if first_speedup is None:
-                    first_speedup = speedup
+                    first_speedup = speedup_ctrl if speedup_ctrl is not None else speedup
 
                 row = {
                     "wall_s": round(elapsed, 1), "seg_idx": seg_idx, "depth_ticks": int(u.t),
                     "train_goal": goal, "probe_goal": probe_goal,
                     "warm_ticks": warm_ticks, "warm_reached": warm_reached,
+                    "warm_start_band_mean": round(warm_start_band_mean, 3),
                     "cold_ticks": cold_ticks, "cold_reached": cold_reached,
                     "fewshot_speedup": (round(speedup, 3) if speedup is not None else None),
+                    "cold_ctrl_ticks": cold_ctrl_ticks, "cold_ctrl_reached": cold_ctrl_reached,
+                    "fewshot_speedup_ctrl": (round(speedup_ctrl, 3) if speedup_ctrl is not None else None),
                     "first_speedup": (round(first_speedup, 3) if first_speedup is not None else None),
                     "m3_optimal_agreement": round(m3, 3),
                     "energy_conserved": phys,
@@ -141,11 +161,13 @@ def main() -> int:
                 rows_written += 1
                 status.write_text(json.dumps(row, ensure_ascii=False, indent=1))
                 trend = ""
-                if speedup is not None and first_speedup is not None:
-                    trend = " ↑提升" if speedup > first_speedup else (" ↓下降" if speedup < first_speedup else " →持平")
+                if speedup_ctrl is not None and first_speedup is not None:
+                    trend = " ↑提升" if speedup_ctrl > first_speedup else (" ↓下降" if speedup_ctrl < first_speedup else " →持平")
                 print(f"[PROBE] wall={elapsed/3600:.1f}h depth={u.t} probe_goal={probe_goal} "
-                      f"warm={warm_ticks}({'Y' if warm_reached else 'N'}) cold={cold_ticks}({'Y' if cold_reached else 'N'}) "
-                      f"speedup={('%.3f'%speedup) if speedup is not None else 'N/A'}{trend} "
+                      f"warm={warm_ticks}(start_band={warm_start_band_mean:.1f}) "
+                      f"cold_scratch={cold_ticks} cold_ctrl={cold_ctrl_ticks} "
+                      f"speedup_scratch={('%.2f'%speedup) if speedup is not None else 'N/A'} "
+                      f"speedup_ctrl={('%.3f'%speedup_ctrl) if speedup_ctrl is not None else 'N/A'}{trend} "
                       f"m3={m3:.2f} phys={phys} score={score:.2f}", flush=True)
 
             # 防冻结：保留 Q（知识持续累积），但每段重置访问计数 -> 恢复探索与学习率，

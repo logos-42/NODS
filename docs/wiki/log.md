@@ -6,6 +6,7 @@
 - **根因定位**：持久 Q 在目标轮换后被「降频先验」锁死在 band≈9。B=4096 验证：第一轮 band 能完整跟踪目标(18→16.5…5→4.9)，第二轮 goal 18 只到 9.48。机理是 Q-learning 步长 `1/(n+1)` 与 UCB 探索随访问次数衰减→**Q 冻结**；冻结后连续 180k 拍 goal 18 也只能拉回 14.8。故「加深/加时间」反而冻结，非能力不足。
 - **修复与变体 v2**：实验脚本新增可选 `--reset-n`（每段结束重置访问计数 N、保留 Q）——非平稳 RL 标准做法。实测 B=4096 每轮 band 均完整跟踪（第二轮 18→16.8、5→4.0）。已用 `logs_experiment_v2`、pid 33716、GPU2、B=4096、**seg=60000**、probe-train=90000、`--reset-n` 重启，无限循环+看门狗不间断；v3.3 主程序（pid 15335, GPU3）不受影响。首探针约 2h 后。
 - 部署脚本 run/watchdog/up_experiment 支持 OUT/PIDF/RESET 覆盖，可并行不同变体。
+- **受控探针 v3（真·迁移）**：v2 首探针 speedup=17.66 被起点位置污染（warm 从持久宇宙当前位置≈16 出发、cold 从零爬到 15），非纯知识迁移。已加「受控 cold」：warm 前 `copy.deepcopy(u)` 抓完整起点状态，cold 从同一状态、仅 Q 为空出发，得 `fewshot_speedup_ctrl`（起点相同只差 Q）。以 `logs_experiment_v3`、pid 35021 重启（seg=60000、reset-n、GPU2），主指标改用 ctrl。
 
 ## [2026-10-31] 仓库卫生 | .gitignore 补 Python 缓存（`__pycache__/` `*.pyc`）
 
