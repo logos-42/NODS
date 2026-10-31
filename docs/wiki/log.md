@@ -1,5 +1,20 @@
 # Wiki 日志
 
+## [2026-10-31] 论文：被迫对象 | v1.2 —— 删掉"三条边界"与 artifact 待办
+
+- **指令**：artifact 三件（tag + commit 写入可用性 / Mathlib pin + CI / artifact 边界）已完成，删掉待办清单与正文里的
+  "三条边界"段，发下一版（leo：删除这三项，发下一版）。
+- **正文改写（EN/ZH 双版「数据与代码」）**：不再列三条限制（无可执行模型+手填分数 / 仓库含无关工作 / Mathlib 未 pin 且
+  不宣称一条命令可构建——后两条此时已与正文另一句"build pins Mathlib in lakefile.pinned.toml"自相矛盾）；改为只写实的：
+  tag `paper-forced-objects-v1.2`、Lean 源码停在 commit `f671974`（此后未改）、Mathlib 按 revision 钉在
+  `lakefile.pinned.toml`、CI 用同一 pinned 文件跑 `lake update → cache get → build Nods`（该 job 在 720ae3b 上实测 2m55s 绿）、
+  artifact 边界 = `artifact/SCOPE.md` 白名单 + `export_artifact.sh`（出现 `pu12`/`deploy` 即失败退出）。
+- **删的是重复，不是事实**：`Nods/Chain.lean` 轨迹里分数手填一事仍写在表注与讨论各一次（删掉的只是 Data 段的第三遍）。
+- **成稿**：EN 18 页 / ZH 11 页，双版 0 错误；aiXiv **v1.2**（v1.0/v1.1 保留，均 Under Review、公开），线上 PDF 与本地 sha256 逐字节一致。
+- **修 CI 红**：`paper/forced-objects/pm/forced-objects-pm.pdf` 未登记 → 补 `src-paper-fo-pm-pdf`；`untracked_raw_check` 转绿
+  （此前 Wiki Lint 在 720ae3b 与 23771a1 两次红都是这一条）。
+- **未动**：`pm/` 投稿格式版（13 页）仍保留副题与旧措辞——那是 Philosophia Mathematica 投稿线，另线负责。
+
 ## [2026-10-31] 论文：被迫对象 | aiXiv 首发（EN v1.0 → v1.1 去副题）
 
 - **记录**：`aixiv.261031.000002`，当前版 **v1.1**（v1.0 保留），status `Under Review`，`is_public=1`；

@@ -232,8 +232,13 @@ compiled_from: [src-code-core-001, src-code-instances-001, src-code-theories-001
   双版 0 错误，`aixiv_meta.json` 与 tex 对齐。
 - **v1.1**（去副题）：`POST /api/submissions/aixiv.261031.000002/versions` 升版，标题 *Where the Ladder Must Stand*，
   PDF 与本地 sha256 逐字节一致（18 页）；记录页 https://aixiv.science/papers/aixiv.261031.000002
-- **仍欠**（README 发表前清单，未在论文里含糊）：仓库 tag + commit hash 写进数据可用性、Mathlib pin、Lean CI、
-  artifact 边界（剔 PU-12 无关内容）。
+- **v1.2**（删"三条边界"）：EN/ZH「数据与代码」重写为**只陈述已就绪的事实**——tag `paper-forced-objects-v1.2`、
+  Lean 源码停在 commit `f671974`、Mathlib 按 revision 钉在 `lakefile.pinned.toml`、CI 用同一 pinned 文件 build、
+  artifact 白名单 `artifact/SCOPE.md` + `export_artifact.sh`；三条限制（无可执行模型 / 仓库含无关工作 / 未 pin 且不宣称
+  一条命令可构建）删除，其中后两条与正文另一句自相矛盾。手填分数仍在表注与讨论各写一次。EN 18 / ZH 11 页，0 错误。
+- **CI**：`pm/forced-objects-pm.pdf` 补登记 `src-paper-fo-pm-pdf`，`untracked_raw_check` 转绿（此前 Wiki Lint 两连红即此条）。
+- **artifact 层已就绪**（v1.2 起不再作为待办列出）：tag `paper-forced-objects-v1.2`；`lakefile.pinned.toml` 钉 Mathlib
+  `56a0058`；`.github/workflows/lean.yml` 用同一 pinned 文件 build；`artifact/SCOPE.md` + `scripts/export_artifact.sh` 划边界。
 
 ## 论文发表（2026-09-08）
 

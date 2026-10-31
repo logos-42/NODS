@@ -106,7 +106,7 @@ pointed at unknown mathematical structures.
   consumes, a counting invariant is refused as already definable on the same elements, and the
   novelty measurement is reported as a failure. Lean 4 + Mathlib: no `sorry`, one named axiom
   (`O1`), no theorem consuming it.
-  - aiXiv preprint: `aixiv.261031.000002` (v1.1, Under Review; titles as published — no subtitle) —
+  - aiXiv preprint: `aixiv.261031.000002` (v1.2, Under Review; main title only — no subtitle) —
     https://aixiv.science/papers/aixiv.261031.000002
   - Source: `paper/forced-objects/` (en + zh; the Chinese version stays repo-only, not on aiXiv)
 

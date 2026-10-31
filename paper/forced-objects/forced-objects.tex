@@ -700,17 +700,17 @@ condition, and the initiality of the reals.
 
 \paragraph{Data and code.}
 The Lean development and the seven-round self-audit of this manuscript are in the
-repository, tagged \lean{paper-forced-objects-v1.1} (commit \lean{720ae3b}), and the
-build pins Mathlib in
-\lean{lakefile.pinned.toml}; every declaration named in the text can be located by its identifier,
-and the audit records which claims were withdrawn or downgraded, and why.  Three
-limits on that availability are stated rather than glossed.  There is no separate
-executable model for the counting or vibration layers: those are Lean
-definitions, and the trace in \lean{Nods/Chain.lean} is a Lean file whose scores
-were entered by hand, not a program that computes them.  The repository also
-contains unrelated work (a simulation study) that is not part of this paper, and
-we have not pinned the Mathlib revision, so we do not advertise a one-command
-buildable artifact.
+repository, tagged \lean{paper-forced-objects-v1.2}; the Lean sources are those of
+commit \lean{f671974}, unchanged since then.  The build
+pins Mathlib by git revision in \lean{lakefile.pinned.toml}, and the same pinned file
+drives the Lean CI job: on every push that touches the sources it resolves the
+dependencies at that revision, fetches the Mathlib oleans and builds \lean{Nods}, so
+the development is built from a clean checkout along a path a reader can repeat.  The
+artifact is scoped rather than implied: \lean{artifact/SCOPE.md} lists exactly the
+paths that belong to this paper and \lean{scripts/export_artifact.sh} copies them out,
+so work elsewhere in the repository is not shipped with the paper.  Every declaration
+named in the text can be located by its identifier, and the audit records which claims
+were withdrawn or downgraded, and why.
 
 \begin{acknowledgments}
 The development was carried out in Lean~4 with Mathlib, and thanks are due to the

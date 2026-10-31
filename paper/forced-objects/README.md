@@ -39,19 +39,17 @@ cd paper/forced-objects && tectonic forced-objects-zh.tex
 - 前提 C0（语架必须是标准映射）未形式化，需要它的陈述标"modulo C0"。
 - 第三问（是否新）只给规格未实现，第一版实现被本文自己的例子推翻。
 - 一条具名公理 O1 + `native_decide`（后者只支撑本文不报告的数值核对）。
-- 数据可用性已改实话：计数/振动是 Lean 定义，轨迹里分数手填，仓库另含无关工作，Mathlib 未 pin。
+- 数据可用性：计数/振动是 Lean 定义；`Nods/Chain.lean` 的轨迹里分数手填（表注与讨论已写明）；artifact 边界见 `artifact/SCOPE.md`；Mathlib 按 revision 钉在 `lakefile.pinned.toml`。
 
-## 发表前清单
+## artifact 层
 
-文本层与 artifact 层均已就绪：
-
-1. **固定版本**：tag `paper-forced-objects-v1.1`，commit hash 写进三份稿件的数据可用性；`lakefile.pinned.toml` 把 Mathlib 钉在 `56a0058`（本机物化 HEAD）。
-2. **能构建**：`.github/workflows/lean.yml` 用 pinned lakefile 跑 `lake update → cache get → build Nods`，并打印 axiom / `native_decide` 清单。
-3. **artifact 边界**：`artifact/SCOPE.md` 给白名单，`scripts/export_artifact.sh` 导出并自检——出现 `pu12` 或 `deploy` 直接失败退出；根 README 不随 artifact 分发。
+文本层与 artifact 层均已就绪：tag `paper-forced-objects-v1.2`，Mathlib 按 revision 钉在 `lakefile.pinned.toml`，
+Lean CI（`.github/workflows/lean.yml`）用同一个 pinned 文件跑 `lake update → cache get → build Nods`，
+artifact 白名单在 `artifact/SCOPE.md`、导出脚本遇 `pu12`/`deploy` 直接失败。细则看各自文件。
 
 ## 发表（2026-10-31）
 
-- **aiXiv EN 首发**：`aixiv.261031.000002`（Under Review，公开；v1.0 → **v1.1** 去掉副题）——
+- **aiXiv EN**：`aixiv.261031.000002`（Under Review，公开；v1.0 → **v1.1** 去掉副题 → **v1.2** 删掉"三条边界"段）——
   https://aixiv.science/papers/aixiv.261031.000002
 - 标题 *Where the Ladder Must Stand*（**只用主标题，无副题**；v1.1 起）；分类
   `Formal Sciences > Mathematics > Logic`；CC-BY-4.0；8 关键词。

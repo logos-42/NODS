@@ -23,3 +23,4 @@ src-code-vibration-002,NODS,NODS,code,VibrationGeometry.lean,(repo)/Nods/Theorie
 src-fig-pu12,NODS,NODS,figure,pu12_ladder.png,(repo)/docs/figures/pu12_ladder.png,new,docs/wiki/private-universe.md,12 带对数阶梯 + 逐代量子数/能量曲线; 由 scripts/universe_model.py 自动生成
 src-paper-fo-en-pdf,NODS,NODS,pdf,forced-objects.pdf,(repo)/paper/forced-objects/forced-objects.pdf,new,docs/wiki/current-status.md,被迫对象论文 英文版 PDF《Where the Ladder Must Stand》(forced-objects.tex 编译; aiXiv aixiv.261031.000002)
 src-paper-fo-zh-pdf,NODS,NODS,pdf,forced-objects-zh.pdf,(repo)/paper/forced-objects/forced-objects-zh.pdf,new,,被迫对象论文 中文版 PDF《台阶何处不可不立》(forced-objects-zh.tex 编译; 只留仓库不上 aiXiv)
+src-paper-fo-pm-pdf,NODS,NODS,pdf,forced-objects-pm.pdf,(repo)/paper/forced-objects/pm/forced-objects-pm.pdf,new,,被迫对象论文 Philosophia Mathematica 投稿格式版 PDF（forced-objects-pm.tex 编译，13 页）
