@@ -6,8 +6,8 @@
 
 | 文件 | 说明 |
 |---|---|
-| `forced-objects.tex` | 英文版《What makes a mathematical object forced? A test, three verdicts, and one measurement that failed》（19 页） |
-| `forced-objects-zh.tex` | 中文版《数学对象什么时候是"被迫"的？一个检验、三种裁决，和一次失败的测量》（11 页） |
+| `forced-objects.tex` | 英文版《Where the Ladder Must Stand》副题 A test for forced mathematical objects（19 页） |
+| `forced-objects-zh.tex` | 中文版《台阶何处不可不立》副题「一个关于被迫对象的检验、三种裁决，和一次失败的测量」（11 页） |
 | `forced-objects.pdf` / `-zh.pdf` | tectonic 编译产物，双版 0 错误、0 未定义引用 |
 | `nods.bib` | 参考文献；数系/范畴/模型论/形式化 10 条 DOI 已核，AI-discovery 4 条只到卷页，Benacerraf/Shapiro 为通行书目待核 |
 | `aixiv_meta.json` | 投稿元数据（标题、摘要、分类、关键词、许可） |

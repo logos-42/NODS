@@ -203,8 +203,8 @@ compiled_from: [src-code-core-001, src-code-instances-001, src-code-theories-001
 
 ## 论文（设计稿）`paper/forced-objects/`（2026-10-31）
 
-- **对象**：NODS **本身的设计**（不是 Radical 续篇）。英《What makes a mathematical object forced?》
-  / 中《数学对象什么时候是"被迫"的？》，REVTeX 4.2 + ctex，双版 0 错误 0 未定义引用（EN 19 页 / ZH 11 页；v5 经第七轮终审：2 处史实改正、三级证据、两处不实表述删改、新增"被迫"四义与相对性）。
+- **对象**：NODS **本身的设计**（不是 Radical 续篇）。英《Where the Ladder Must Stand》
+  / 中《台阶何处不可不立》，REVTeX 4.2 + ctex，双版 0 错误 0 未定义引用（EN 19 页 / ZH 11 页；v5 经第七轮终审：2 处史实改正、三级证据、两处不实表述删改、新增"被迫"四义与相对性）。
 - **判据口径**：两条件**可用**（同一载体不可解、最小扩张唯一到改名）+ 第三问"是否新"**只给规格未实现**；
   前提 C0（语架须为标准映射）未形式化，相关陈述标 "modulo C0"。
 - **三次自我否决（正文如实写）**：① "ℕ 上不存在环结构"是假命题（可数搬运），缺口改由 `HasSolution`
