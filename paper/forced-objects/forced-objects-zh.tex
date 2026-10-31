@@ -502,7 +502,8 @@ $\tau(a,b)=\omega(a)-\omega(b)$，其中 $\omega(n)$ 是 $n$ 的相异素因子�
 假设：标准映射前提（C0），以及实数的初始性。
 
 \paragraph{数据与代码。}
-Lean 开发与本文的七轮自审都在仓库里，打了 tag \lean{paper-forced-objects-v1.1}；
+Lean 开发与本文的七轮自审都在仓库里，打了 tag \lean{paper-forced-objects-v1.1}
+（commit \lean{720ae3b}）；
 构建把 Mathlib 钉在 \lean{lakefile.pinned.toml} 里；文中点名的每个声明都能按标识符定位，
 审计记录写明哪些声称被撤回或降级、以及为什么。有三条边界要照直说。
 计数层与振动层没有单独的可执行模型：它们是 Lean 定义；\lean{Nods/Chain.lean} 里那份轨迹是

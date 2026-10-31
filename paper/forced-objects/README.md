@@ -43,11 +43,11 @@ cd paper/forced-objects && tectonic forced-objects-zh.tex
 
 ## 发表前清单
 
-文本层已就绪（第七轮把 2 处事实错误、4 处归引过宽、2 处会被读成不实的表述全部改掉）。**artifact 层还差三件**，投稿前必须补：
+文本层与 artifact 层均已就绪：
 
-1. **固定版本**：给仓库打 tag，把 commit hash 写进论文的数据可用性；`lake-manifest.json` 里 Mathlib 现在是 `path` 依赖、无 rev，必须改成 pin 到具体 commit。
-2. **能构建**：加一个 Lean CI job（现在只有 wiki-lint），并让外部读者能 `lake build` 成功（现在依赖 vendored `.lake/`）。
-3. **划清 artifact 边界**：仓库里混着 PU-12 模拟（含内网地址与部署记录），与本文无关且会损害可信度；投稿 artifact 应只含 `Nods/Core`、`Nods/Instances`、`Nods/Theories/{Algebraic,Radical,TensionReading,TensionAbstract,TensionCarriers,Vibration}` 与 `paper/forced-objects`。
+1. **固定版本**：tag `paper-forced-objects-v1.1`，commit hash 写进三份稿件的数据可用性；`lakefile.pinned.toml` 把 Mathlib 钉在 `56a0058`（本机物化 HEAD）。
+2. **能构建**：`.github/workflows/lean.yml` 用 pinned lakefile 跑 `lake update → cache get → build Nods`，并打印 axiom / `native_decide` 清单。
+3. **artifact 边界**：`artifact/SCOPE.md` 给白名单，`scripts/export_artifact.sh` 导出并自检——出现 `pu12` 或 `deploy` 直接失败退出；根 README 不随 artifact 分发。
 
 ## 发表（2026-10-31）
 

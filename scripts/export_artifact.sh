@@ -21,8 +21,6 @@ PATHS=(
   Nods/Theories/TensionCarriers.lean
   Nods/Theories/Vibration.lean
   paper/forced-objects
-  artifact/SCOPE.md
-  README.md
   LICENSE
 )
 
@@ -37,6 +35,15 @@ for p in "${PATHS[@]}"; do
   mkdir -p "$OUT/$(dirname "$p")"
   cp -R "$ROOT/$p" "$OUT/$p"
 done
+
+# 边界说明放在 artifact 根，避免 artifact/artifact 嵌套
+cp "$ROOT/artifact/SCOPE.md" "$OUT/SCOPE.md"
+
+# 边界自检：PU-12 模拟与部署脚本不得进入
+if find "$OUT" -iname '*pu12*' -o -iname '*deploy*' | grep -q .; then
+  echo "artifact boundary violated: PU-12 or deploy content found" >&2
+  exit 1
+fi
 
 # 不带走构建产物与临时文件
 find "$OUT" -name '.DS_Store' -delete 2>/dev/null || true
