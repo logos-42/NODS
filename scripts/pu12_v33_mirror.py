@@ -92,7 +92,7 @@ def _reward_goal(up_ok, up_fail, dn, exp_sub, exp_subs, ref_fine, u, goal_k, ach
 
 
 def run(u=None, L=None, gen=None, n_ticks=0, mode="top", goal_k=None, learn=True,
-        record=False, B=1024, device="cpu", seed=0):
+        greedy=False, record=False, B=1024, device="cpu", seed=0):
     """通用训练/评估驱动。mode='top' 或 'goal'。返回 (acts_list, ticks_run, purpose_tick)。
 
     u/L/gen 可省略：省略时按 B/device/seed 新建（供对照 benchmark 一次性使用）；
@@ -112,7 +112,7 @@ def run(u=None, L=None, gen=None, n_ticks=0, mode="top", goal_k=None, learn=True
     while i < n_ticks and not purpose_done:
         u.advance_phase(DT)
         s = Learners.state(u, achieved if mode == "goal" else top_done)
-        a = L.act(u, s, EXPLORE, learn, i)
+        a = L.act(u, s, EXPLORE, learn, i, greedy=greedy)
 
         full = u.g >= CELLS - 1e-9
         can_move = torch.ones_like(u.band, dtype=torch.bool)

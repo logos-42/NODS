@@ -1,5 +1,16 @@
 # Wiki 日志
 
+## [2026-11-03] 方向 B | B1/B2/B3 三路并行（GPU0/1/2）+ greedy 评估基础设施
+
+- **方向 B「换问法」落地**：新增 `scripts/pu12_v33_b.py`（`--mode b1|b2|b3`）：
+  - **b1 换指标**：持久宇宙 + 轮换目标（每段重置 N），记录每段 regret / 适应拍数；每 20 段做一次**固定起点（band=9）greedy 评估**，算 ACC。
+  - **b2 换表征**：同 b1，但状态从绝对 band 改为 goal-relative（`clip(band−goal,±9)*4+full+2·achieved`，monkeypatch `Learners.state`），Q goal-invariant，检验方向依赖负迁移是否消失。
+  - **b3 换范式**：随机探索学转移模型 `T(band,action→band')`，再用模型选「朝目标移动」动作，零样本到达未见目标。
+- **基础设施**：`Learners.act` 增 `greedy` 参数（纯 argmax，不探索不更新，默认关）；`run()` 透传 `greedy`。默认行为不变，不影响 v3.3 主程序与既有实验。
+- **评估协议**：greedy、固定起点 band=9、评估用 L 的 `deepcopy`（不污染训练）——消除上一版「起点位置」污染。
+- **并行部署**：b1→GPU0、b2→GPU1、b3→GPU2（与 v3 共享；b3 计算较满），B=4096。
+- **早期结果**：b3 转移模型 120/120 全对（up_ok/dn_ok=1.0），零样本到「下降」目标 1–4 拍即达（1D 链规划平凡，符合预期，不构成智能证据）；b1/b2 首次 greedy 评估约 25–30 分钟后出。
+
 ## [2026-10-31] 论文：被迫对象 | v1.2 —— 删掉"三条边界"与 artifact 待办
 
 - **指令**：artifact 三件（tag + commit 写入可用性 / Mathlib pin + CI / artifact 边界）已完成，删掉待办清单与正文里的

@@ -235,8 +235,12 @@ class Learners:
         k = min(1.0, t / self.anneal)
         return self.c0 + (self.c_final - self.c0) * k
 
-    def act(self, u: Lattice, s: torch.Tensor, explore: float, learn: bool, t: int) -> torch.Tensor:
+    def act(self, u: Lattice, s: torch.Tensor, explore: float, learn: bool, t: int,
+            greedy: bool = False) -> torch.Tensor:
         if not learn:
+            if greedy:  # 纯 argmax 评估（不探索、不更新），用于确定性评测
+                idx = torch.arange(u.B, device=u.device)
+                return self.Q[idx, s].argmax(dim=1)
             return torch.randint(0, N_ACT, (u.B,), device=u.device)
         idx = torch.arange(u.B, device=u.device)
         q = self.Q[idx, s]
