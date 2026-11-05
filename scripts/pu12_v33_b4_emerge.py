@@ -154,7 +154,7 @@ class NeuralLearners(Learners):
         if n == 0:
             return
         B = self.ring["band"].shape[1]
-        idx = torch.randint(0, n * B, (self.her_batch,), device=self.device)
+        idx = torch.randint(0, n * B, (self.her_batch,))  # CPU 索引（ring 在 CPU）
         t, e = idx // B, idx % B
         band = self.ring["band"][t, e].long().to(self.device)
         act = self.ring["act"][t, e].long().to(self.device)
@@ -172,8 +172,7 @@ class NeuralLearners(Learners):
         exp_sub = (act == 3) & (full == 1)
         exp_subs = (act == 4) & (full == 1)
         ref_fine = (act == 5) & (full == 1)
-        shim = _ShimU(band, torch.where(full == 1, float(CELLS), 0.0).to(self.device),
-                      self.device)
+        shim = _ShimU(band, (full * CELLS).double(), self.device)
         r = mirror._reward_goal(up_ok, up_fail, dn, exp_sub, exp_subs, ref_fine,
                                 shim, goal_new, False)  # achieved 恒 False（重标注近似）
         s_re = band * 4 + full  # achieved=0
