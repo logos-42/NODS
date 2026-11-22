@@ -1,5 +1,16 @@
 # Wiki 日志
 
+## [2026-11-22] 刘维尔–Specker 组合数 | 搜索 + 组合构造 + Lean 骨架
+
+- **诉求**：把"主动构造的超越数"与"停机判定"组合起来——构造超越数的同时把停机判定写进去。
+- **搜索证据**（明确要求搜索）：① Specker 序列（1949）= 可计算递增有界有理数列、上确界不可计算，nLab 例直接把图灵机停机位 \(\{i\}_j\) 写进 \(\sum 2^{-i}\{i\}\)；② Ω 是 Specker 序列极限（\(\Omega_n=\sum_{p\text{ halts within }n}2^{-|p|}\)，arXiv 2503.18774）；③ MathOverflow："modifying digits on a fixed computable sparse set of positions to impose simple structure" 是合法构造；④ 刘维尔数 \(L=\sum 10^{-n!}\)（1844 首个显式超越数）；⑤ \(e/\pi/C_{10}\) 可计算超越，Ω 不可计算（否则停机可判定）。
+- **硬约束确认**：可计算超越数的位由算法钉死，无余量编码通用停机——"若可计算且编码停机 ⟹ 停机可判定，矛盾"。
+- **组合构造 (A)**：偶数阶乘位放刘维尔骨架 1、奇数阶乘位放停机位 \(h_i\)，位置集不冲突 ⟹ 超越（骨架）+ 不可计算（停机位）+ 左-c.e.。构造 (B)：\(x=L+y\) 反证超越。
+- **Lean 骨架** `Nods/Theories/LiouvilleSpecker.lean`（已接主链）：`SparsePositions`（位置+单射）、`combine`、`extract`；`extract_combine` 证抽取精确还原（标准三项公理）；`combine_incomputable` 证停机位不可计算 ⟹ 组合流不可计算，**显式依赖外部 axiom `extract_computable`**（图灵机可组合性抽象，不假装证明）。
+- **构建**：`lake build Nods` 全绿（9073 jobs）。
+- **诚实账本**：图灵机/停机/可计算性未形式化；构造 (A)(B) 手工；哥德尔延续 `dead` 裁决，未改动。
+- **回写**：`liouville-specker.md`（新页）、`index.md`、`current-status.md`、本条目。
+
 ## [2026-11-22] 哥德尔边界 | 五阶段执行完成 + Lean 机器验证
 
 - **指令**：五阶段全做（P1 论证 / P2 实例化 / P3 主定理 / P4 对照 / P5 回写）。

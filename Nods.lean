@@ -57,6 +57,7 @@ import Nods.Theories.Vibration
 import Nods.Theories.VibrationGeometry
 import Nods.Theories.Universe
 import Nods.Theories.GodelBoundary
+import Nods.Theories.LiouvilleSpecker
 import Nods.Instances.NatToInt
 import Nods.Instances.IntToRat
 import Nods.Instances.RatToReal

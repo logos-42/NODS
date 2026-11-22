@@ -104,6 +104,20 @@ compiled_from: [src-code-core-001, src-code-instances-001, src-code-theories-001
 
 > 结构：`Decision α`（yes/no/consistent）→ `Theory`；`Framework` 同态 = 保 yes/no 函数；`decideDemand` 的 `Extra` = 一个已被决定的句子。
 
+### 理论层 `Nods/Theories/LiouvilleSpecker.lean`（2026-11-22，组合数骨架）
+
+把「刘维尔稀疏骨架」与「Specker 停机位」放在不冲突的位置集上（页面：[liouville-specker.md](./liouville-specker.md)）。
+**诚实边界**：不形式化图灵机/停机/可计算性理论；停机位与"可计算性对抽取封闭"都是外部输入。
+
+| 定理 | 内容 | 公理 |
+|---|---|---|
+| `extract_combine` | `extract P (combine P h) = h`——骨架位与停机位不撞车，抽取精确还原 | 标准三项，无 sorry |
+| `combine_incomputable` | 停机位不可计算 ⟹ 组合流不可计算 | 标准三项 + **外部 axiom `extract_computable`**（显式记账） |
+
+结构：`SparsePositions`（位置映射+单射）→ `combine`（偶数位骨架/奇数位停机）→ `extract`；`powPositions`（\(2^{n+1}\)）为单射实例。
+
+已接主链，`lake build Nods` 全绿（9073 jobs）。
+
 ### GPU 连续演化部署（2026-10-27 实测跑通，229 服务器）
 
 `scripts/pu12_gpu.py` 在 `100.100.30.229:30003`（容器 `test_liuyuaniie_luoyan`，4×RTX 4090，**用 GPU 3**）

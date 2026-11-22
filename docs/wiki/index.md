@@ -29,3 +29,4 @@
 ## 研究计划页
 
 - [godel-boundary-plan.md](./godel-boundary-plan.md) — **哥德尔边界计划**：以超越数为切口重述不完备性（P0 需求重判完成；P1–P5 待执行）
+- [liouville-specker.md](./liouville-specker.md) — **刘维尔–Specker 组合数**：把停机判定写进稀疏位置（搜索证据 + 组合构造 + Lean 骨架）
