@@ -151,4 +151,36 @@ noncomputable def powPositions : SparsePositions where
       exact Nat.pow_lt_pow_right (by norm_num) (by omega)
     exact hmono.injective hab
 
+/- ============================================================
+   §5  接桥：真实停机流 + 判定标准的终极实例化
+   ============================================================ -/
+
+open Nat.Partrec
+open Nat.Partrec.Code
+
+/-- **真实停机流**：第 i 位 = 第 i 个部分递归程序（在输入 0 上）是否停机。
+    用 `classical` 拿到非构造的 Decidable——mathlib 已证停机不可判定
+    （`ComputablePred.halting_problem`），故这个流**存在但算不出来**。
+    这正是 Specker 序列 / Ω 的本质。 -/
+noncomputable def realHaltStream : DigitStream := by
+  classical
+  exact fun i => decide ((eval (Denumerable.ofNat Code i) 0).Dom)
+
+/-- **终极实例化**：把判定标准作用在"由真实停机位构造的组合流"上，
+    两个判定同时判对——超越性为真、停机判定精确等于第 i 台真实程序停不停机。
+
+    这就是"同时判定超越数 + 停机"的完整版：h 不再是自由变量，
+    而是 mathlib 真实的部分递归停机谓词。 -/
+theorem decideStandard_real_halting (P : SparsePositions) (i : ℕ) :
+    DecideStandard P (combine P realHaltStream) i = (true, realHaltStream i) :=
+  decideStandard_sound P realHaltStream i
+
+/- **诚实说明（非定理）**：`realHaltStream` 不可计算。
+    这是 mathlib 的 `ComputablePred.halting_problem` 的直接推论——
+    若该 Bool 流可计算，`(eval c 0).Dom` 就可计算，与停机不可判定矛盾。
+    本文件**不重证**这一步（它涉及 Bool 流可计算性与 `ComputablePred` 的翻译，
+    属困难函数），只在此注明：`realHaltStream` 必须靠 `classical` 非构造给出，
+    这正是 Specker 序列 / Ω 的本质。
+    —— 不把它写成带 `sorry` 的假定理。 -/
+
 end NODS

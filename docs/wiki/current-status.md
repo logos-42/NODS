@@ -114,7 +114,10 @@ compiled_from: [src-code-core-001, src-code-instances-001, src-code-theories-001
 | `extract_combine` | `extract P (combine P h) = h`——骨架位与停机位不撞车，抽取精确还原 | 标准三项，无 sorry |
 | `skeleton_criterion` | 骨架位恒为 1，与停机位无关 | 标准三项，无 sorry |
 | **`decideStandard_sound`** | **判定标准可靠性：`DecideStandard P (combine P h) i = (true, h i)`——超越性与停机两判定同时判对** | **标准三项，无外部假设、无 sorry** |
+| **`decideStandard_real_halting`** | **终极实例化：`DecideStandard P (combine P realHaltStream) i = (true, realHaltStream i)`，h 接上 mathlib 真实停机谓词** | **标准三项，无外部假设、无 sorry** |
 | `combine_incomputable` | 停机位不可计算 ⟹ 组合流不可计算 | 标准三项 + **外部 axiom `extract_computable`**（显式记账） |
+
+> 接桥：`realHaltStream i := decide ((eval (ofNat i) 0).Dom)`（classical 非构造）；mathlib `ComputablePred.halting_problem` 保证其不可计算，本文件不重证该翻译。
 
 结构：`SparsePositions`（位置映射+单射）→ `combine`（偶数位骨架/奇数位停机）→ `extract`；`powPositions`（\(2^{n+1}\)）为单射实例。
 

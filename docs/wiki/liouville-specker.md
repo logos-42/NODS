@@ -75,9 +75,16 @@ x \;=\; \sum_{n\ \text{偶}}10^{-n!}\;+\;\sum_{n\ \text{奇}}10^{-n!}\cdot h_{\,
 | `extract_combine` | `extract P (combine P h) = h`——骨架位与停机位不撞车，抽取可精确还原 | 标准三项 |
 | `skeleton_criterion` | 骨架位 `combine P h (pos 2j)` 恒为 1，与 `h` 无关 | 标准三项 |
 | **`decideStandard_sound`** | **`DecideStandard P (combine P h) i = (true, h i)`——判定标准可靠性，两个判定同时成立** | **标准三项，无外部假设、无 sorry** |
+| **`decideStandard_real_halting`** | **终极实例化：`DecideStandard P (combine P realHaltStream) i = (true, realHaltStream i)`——h 从自由变量接上 mathlib 真实停机谓词** | **标准三项，无外部假设、无 sorry** |
 | `combine_incomputable` | 停机位不可计算 ⟹ 组合流不可计算（逆否：可计算性对抽取封闭） | 标准三项 **+ 外部假设 `NODS.extract_computable`** |
 
-**诚实记账**：`extract_computable`（可计算性对抽取封闭）是显式 `axiom`，留成外部输入；只有 `combine_incomputable` 依赖它。**判定标准本身（`decideStandard_sound`）不依赖它**——判定标准证的是"读出的 = 真实停机位"，这是纯结构事实。
+### 接桥（2026-11-22）：h → 真实停机
+
+- mathlib `Mathlib.Computability.Halting` **已证停机不可判定**（`ComputablePred.halting_problem`，基于 Rice 定理）；`Nat.Partrec.Code` 有 `Denumerable` 实例，`eval c 0 : ℕ →. ℕ` 给停机命题 `(eval c 0).Dom`。
+- `realHaltStream i := decide ((eval (ofNat i) 0).Dom)`——用 `classical` 拿非构造 Decidable（**没有** Decidable 实例正是停机不可判定的体现）。
+- `decideStandard_real_halting = decideStandard_sound P realHaltStream i`——**判定标准对真实停机问题成立**。
+
+**诚实记账**：`extract_computable` 是显式 `axiom`，只被 `combine_incomputable` 依赖；**判定标准与终极定理都不依赖它**。`realHaltStream` 不可计算是 mathlib 定理的直接推论（Bool 流可计算性与 `ComputablePred` 的翻译属困难函数），本文件以注释注明、**不写带 sorry 的假定理**。
 
 `lake build Nods` 全绿（9073 jobs）。
 

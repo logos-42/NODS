@@ -1,5 +1,15 @@
 # Wiki 日志
 
+## [2026-11-22] 刘维尔–Specker | 接桥：判定标准对真实停机问题成立
+
+- **问题**：上一版判定标准 `decideStandard_sound` 里 `h` 是自由变量（外部停机位），未接到真实停机。
+- **查证**：mathlib 已有 `Mathlib.Computability.Halting`（Rice 定理证 `ComputablePred.halting_problem`），`Nat.Partrec.Code` 有 `Denumerable` 实例、`eval : Code → ℕ →. ℕ`。探针确认停机命题 `(eval c 0).Dom` **无 Decidable 实例**（否则停机可判定）。
+- **接桥**：`realHaltStream i := decide ((eval (ofNat i) 0).Dom)`（classical 非构造 Bool 流）；`decideStandard_real_halting : DecideStandard P (combine P realHaltStream) i = (true, realHaltStream i)` —— **h 不再是自由变量，判定标准对真实停机问题成立**。
+- **公理审计**：`realHaltStream` / `decideStandard_real_halting` / `decideStandard_sound` 均只 `[propext, Classical.choice, Quot.sound]`，无外部假设、无 sorry。
+- **纪律**：曾起草一个含 `sorry` 的 `realHaltStream_not_computable`，**主动撤回**——改为注释注明（Bool 流可计算性翻译属困难函数），不写假定理。
+- **构建**：`lake build Nods` 全绿（9073 jobs）。
+- **回写**：`liouville-specker.md`（接桥节）、`current-status.md`、本条目。
+
 ## [2026-11-22] 刘维尔–Specker | 补判定标准（一个入口两个判定，编码层证可靠）
 
 - **用户澄清**：不要求程序能跑、不逐位构造完整超越数；要的是**判定标准**——一个入口同时判"超越 + 停机"，且在编码层真实证明它判对。
