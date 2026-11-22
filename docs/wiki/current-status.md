@@ -123,6 +123,18 @@ compiled_from: [src-code-core-001, src-code-instances-001, src-code-theories-001
 
 已接主链，`lake build Nods` 全绿（9073 jobs）。
 
+### 理论层 `Nods/Theories/GrowthCriterion.lean`（2026-11-22，双增长率判定）
+
+用两种增长率判停机（页面：[growth-criterion.md](./growth-criterion.md)）。哥德尔翻译 = `Denumerable.ofNat Code c`（编号 c → 程序）。
+
+| 定理 | 内容 | 公理 |
+|---|---|---|
+| `growthCriterion_halts_of_true` | 准则判 true ⟹ 真停机（`evaln_sound`） | 标准三项，0 sorry |
+| `growthCriterion_true_of_halts` | rate 是模数 + 停机 ⟹ 判 true | 标准三项，0 sorry |
+| `growthCriterion_correct` | rate 是停机模数 ⟹ 准则精确判定停机（双向） | 标准三项，0 sorry |
+
+`SlowRate = ℕ → ℕ`、`slowRate c = 2^(c+1)`（可计算慢增长）；`IsHaltingModulus rate`（快增长=停机模数，外部输入）。基于 mathlib `evaln`（有界可计算求值）+ `evaln_mono`/`evaln_complete`。已接主链，`lake build Nods` 全绿（9074 jobs）。
+
 ### GPU 连续演化部署（2026-10-27 实测跑通，229 服务器）
 
 `scripts/pu12_gpu.py` 在 `100.100.30.229:30003`（容器 `test_liuyuaniie_luoyan`，4×RTX 4090，**用 GPU 3**）

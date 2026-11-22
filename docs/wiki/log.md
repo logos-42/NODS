@@ -1,5 +1,16 @@
 # Wiki 日志
 
+## [2026-11-22] 双增长率判定准则 | 用增长速率判停机（编码层完成）
+
+- **诉求**：构造两种不同速率增长的判定准则，在超越数内构造哥德尔式判定命题（词→命题），通过增长判定停机，问"可以完成吗"。
+- **搜索确认**：① Specker 序列收敛模数（增长率）不可计算、知道它即可判停机（"failure of predictability rather than speed"）；② Busy Beaver \(BB(n)\) 支配所有可计算函数、知道 \(BB(n)\) 即判 n 状态机停机（Radó，从停机归约）。
+- **对位**：慢增长 = `SlowRate`、`evaln k` 的界、可计算（超越数骨架）；快增长 = `IsHaltingModulus rate`（停机模数，外部输入、不可计算）。
+- **哥德尔翻译**：`Denumerable.ofNat Code c`（编号 c → 部分递归程序）；**增长判定**：`growthCriterion rate c := (evaln (rate c) (ofNat Code c) 0).isSome`。
+- **Lean** `Nods/Theories/GrowthCriterion.lean`（已接主链）：三条定理 `growthCriterion_halts_of_true` / `_true_of_halts` / `_correct`，用 mathlib `evaln_sound` / `evaln_complete` / `Part.dom_iff_mem`；均标准三项公理、0 sorry、无外部假设。
+- **构建**：`lake build Nods` 全绿（9074 jobs）。
+- **诚实边界**：停机模数不构造（外部输入）；"不存在可计算模数"按 `halting_problem` 注释引用不写假定理；与超越数骨架的组合接口是下一步。
+- **回写**：`growth-criterion.md`（新页）、`index.md`、`current-status.md`、manifest、本条目。
+
 ## [2026-11-22] 刘维尔–Specker | 接桥：判定标准对真实停机问题成立
 
 - **问题**：上一版判定标准 `decideStandard_sound` 里 `h` 是自由变量（外部停机位），未接到真实停机。
