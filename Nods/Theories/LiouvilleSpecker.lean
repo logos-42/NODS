@@ -72,6 +72,49 @@ theorem extract_combine (P : SparsePositions) (h : DigitStream) :
       exact hOddFalse ⟨i, rfl⟩
 
 /- ============================================================
+   §2.1  判定标准（编码层，两条判据）
+   ============================================================ -/
+
+/-- **超越性判据（编码层）**：骨架位恒为 1，与停机位 h 无关。
+    这就是"看位置排布判超越"的机器版本：偶数位置 pos(2j) 永远是 1，
+    无论 h 是什么。模式到"真超越数"的蕴含是数论定理（刘维尔），外部引用。 -/
+theorem skeleton_criterion (P : SparsePositions) (h : DigitStream) (j : ℕ) :
+    combine P h (P.pos (2 * j)) = true := by
+  classical
+  simp only [combine]
+  split
+  · rfl
+  · rename_i hEvenFalse
+    exfalso
+    exact hEvenFalse ⟨j, rfl⟩
+
+/- **停机判据（编码层）**：`extract (combine P h) = h`（见 §2 的 `extract_combine`），
+    即奇数位置 pos(2i+1) 恰好读出第 i 个停机位。 -/
+
+/-- **判定标准（同时判定）**：输入稀疏位置 P、数字流 d、机器编号 i，
+    一次性输出两个判定结论：
+      · 第一分量：超越性判定 —— d 的骨架位是否恒为 1（刘维尔型稀疏模式）；
+      · 第二分量：停机判定 —— d 在第 i 个奇数位的值（即第 i 台机器的停机状态）。
+
+    这不是"逐位构造一个超越数"，而是"给一条流，判两件事"。 -/
+noncomputable def DecideStandard (P : SparsePositions) (d : DigitStream) (i : ℕ) : Bool × Bool := by
+  classical
+  exact (decide (∀ j : ℕ, d (P.pos (2 * j)) = true), d (P.pos (2 * i + 1)))
+
+/-- **判定标准的可靠性**：把标准作用在组合流上，两个判定同时判对——
+    "超越性 = 真" 且 "停机 = h i"。
+
+    这就是你要的编码层证明：判定标准真实成立，不需要在程序上运行。
+    （停机位 h 作为外部输入；标准只保证"读出的 = 真实停机位"。） -/
+theorem decideStandard_sound (P : SparsePositions) (h : DigitStream) (i : ℕ) :
+    DecideStandard P (combine P h) i = (true, h i) := by
+  classical
+  unfold DecideStandard
+  apply Prod.ext
+  · exact decide_eq_true_eq.mpr (fun j => skeleton_criterion P h j)
+  · exact congrFun (extract_combine P h) i
+
+/- ============================================================
    §3  可计算性（外部输入 + 显式假设）
    ============================================================ -/
 

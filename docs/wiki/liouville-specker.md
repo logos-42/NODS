@@ -58,14 +58,26 @@ x \;=\; \sum_{n\ \text{偶}}10^{-n!}\;+\;\sum_{n\ \text{奇}}10^{-n!}\cdot h_{\,
 - NODS 定位：`DigitStream`（0/1 流）+ 稀疏位置映射 + 可计算性谓词（外部输入）。组合数不是"发现的新对象"，而是**把两个已知机制放到不冲突的位置上**的结构定理。
 - 诚实边界：图灵机枚举与停机不可判定性不形式化；代码只证结构层面的组合定理。
 
+## 判定标准（编码层，用户口径：说人话版）
+
+不构造完整超越数（不逐位写出 π），只给**一个入口、两个判定**：
+
+> `DecideStandard(P, d, i)` → `(超越性判定, 停机判定)`
+> - 第一分量：`d` 的骨架位是否恒为 1（刘维尔型稀疏模式）→ 判超越；
+> - 第二分量：`d` 在第 `i` 个奇数位的值 → 判第 `i` 台机器停机否。
+
+**可靠性**：作用在组合流上，`DecideStandard(P, combine P h, i) = (true, h i)`——两个判定同时判对。这就是"同时判定"的机器版本，**不要求程序能跑，只要求编码层成立**。
+
 ## Lean 骨架（`Nods/Theories/LiouvilleSpecker.lean`，已接主链）
 
 | 定理 | 内容 | 公理依赖 |
 |---|---|---|
-| `extract_combine` | `extract P (combine P h) = h`——骨架位与停机位不撞车，抽取可精确还原 | `[propext, Classical.choice, Quot.sound]` |
-| `combine_incomputable` | 停机位不可计算 ⟹ 组合流不可计算（逆否：可计算性对抽取封闭） | 上三项 **+ 外部假设 `NODS.extract_computable`** |
+| `extract_combine` | `extract P (combine P h) = h`——骨架位与停机位不撞车，抽取可精确还原 | 标准三项 |
+| `skeleton_criterion` | 骨架位 `combine P h (pos 2j)` 恒为 1，与 `h` 无关 | 标准三项 |
+| **`decideStandard_sound`** | **`DecideStandard P (combine P h) i = (true, h i)`——判定标准可靠性，两个判定同时成立** | **标准三项，无外部假设、无 sorry** |
+| `combine_incomputable` | 停机位不可计算 ⟹ 组合流不可计算（逆否：可计算性对抽取封闭） | 标准三项 **+ 外部假设 `NODS.extract_computable`** |
 
-**诚实记账**：`extract_computable`（可计算性对抽取封闭）是显式 `axiom`，**不是已证定理**——它就是图灵机可组合性的抽象，留成外部输入。`combine_incomputable` 的公理列表里公开含它，没有藏。
+**诚实记账**：`extract_computable`（可计算性对抽取封闭）是显式 `axiom`，留成外部输入；只有 `combine_incomputable` 依赖它。**判定标准本身（`decideStandard_sound`）不依赖它**——判定标准证的是"读出的 = 真实停机位"，这是纯结构事实。
 
 `lake build Nods` 全绿（9073 jobs）。
 

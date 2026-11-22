@@ -1,5 +1,14 @@
 # Wiki 日志
 
+## [2026-11-22] 刘维尔–Specker | 补判定标准（一个入口两个判定，编码层证可靠）
+
+- **用户澄清**：不要求程序能跑、不逐位构造完整超越数；要的是**判定标准**——一个入口同时判"超越 + 停机"，且在编码层真实证明它判对。
+- **修正**：上一轮误加"骨架位恒 1"的性质（dual_criterion），本轮改为判定标准形态：`DecideStandard(P, d, i) = (超越性判定, 停机判定)` 是一个函数，配可靠性定理。
+- **主定理 `decideStandard_sound`**：`DecideStandard P (combine P h) i = (true, h i)`——作用在组合流上，两个判定同时判对。公理审计只 `[propext, Classical.choice, Quot.sound]`，**无外部假设、无 sorry**（判定标准不依赖可计算性外部公理）。
+- **配套**：`skeleton_criterion`（骨架位恒 1，超越性判据）；`extract_combine`（停机判据）。`combine_incomputable` 仍显式依赖外部 axiom `extract_computable`，与判定标准无关。
+- **构建**：`lake build Nods` 全绿（9073 jobs）。
+- **回写**：`liouville-specker.md`（判定标准说人话版 + 定理表）、`current-status.md`、本条目。
+
 ## [2026-11-22] 刘维尔–Specker 组合数 | 搜索 + 组合构造 + Lean 骨架
 
 - **诉求**：把"主动构造的超越数"与"停机判定"组合起来——构造超越数的同时把停机判定写进去。
