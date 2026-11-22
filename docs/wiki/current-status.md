@@ -2,7 +2,7 @@
 title: NODS — New Object Discovery System 当前状态
 source: session
 created: 2026-09-04
-last_confirmed: 2026-10-31
+last_confirmed: 2026-11-22
 schema_version: 2
 audience: internal
 stage: current
@@ -87,6 +87,22 @@ compiled_from: [src-code-core-001, src-code-instances-001, src-code-theories-001
 
 > 诚实边界：12 带 / `10^41` / 3×3 / 初始能量是给定参数；A5（射线随带升高偏 iR）是公理；
 > 耦合 κ 自由（κ=∞ 全量转写与 κ=1 张力门控都自洽）；模型只给结构，不给物理预言。
+
+### 理论层 `Nods/Theories/GodelBoundary.lean`（2026-11-22，哥德尔边界）
+
+把「哥德尔现象」做成 NODS 的 Model/Demand 并机器验证其分类（计划见 [godel-boundary-plan.md](./godel-boundary-plan.md)）。
+**诚实边界**：不形式化哥德尔定理本身（作为外部数学事实输入），只刻画其保证的**结构**。
+
+| 定理 | 内容 |
+|---|---|
+| `no_extHom_plus_minus` | 两个一致补全（+G / ¬G）之间无 `ExtHom`（`IsEmpty`）——嵌入恒等 + `over_prop` 强制同态恒等，而恒等不保 yes |
+| `godel_completion_not_minimal` | `¬ IsMinimal base decideDemand plusExt`——哥德尔补全**不是**被迫对象 |
+| `godel_completion_objective_zero` | 补全与 `base` 载体相同 ⟹ `IsRenamingOf` ⟹ `novelty=0` ⟹ `objective=0`（过不了闸门） |
+| `decided_is_solved` | 已决定的句子（如 e/π 超越性已证）⟹ `HasSolution`（`solved`，不产新对象） |
+
+已接主链（`Nods.lean`），`lake build Nods` 全绿（9072 jobs），四条定理 `#print axioms` 均只含 `[propext, Classical.choice, Quot.sound]`，**0 sorry 0 warning**。
+
+> 结构：`Decision α`（yes/no/consistent）→ `Theory`；`Framework` 同态 = 保 yes/no 函数；`decideDemand` 的 `Extra` = 一个已被决定的句子。
 
 ### GPU 连续演化部署（2026-10-27 实测跑通，229 服务器）
 

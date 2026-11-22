@@ -1,5 +1,29 @@
 # Wiki 日志
 
+## [2026-11-22] 哥德尔边界 | 五阶段执行完成 + Lean 机器验证
+
+- **指令**：五阶段全做（P1 论证 / P2 实例化 / P3 主定理 / P4 对照 / P5 回写）。
+- **P2 落地** `Nods/Theories/GodelBoundary.lean`（已接主链）：`Decision α`（yes/no/consistent）注册成 `Theory`；`Framework` 同态 = 保 yes/no 函数；`decideDemand` 的 `Extra` = 已被决定的句子。**降维度抽象**：不做完整理论范畴/解释同态，直接刻画哥德尔定理保证的结构。
+- **P3 主定理**（0 sorry，仅 `[propext, Classical.choice, Quot.sound]`）：
+  - `no_extHom_plus_minus`：`IsEmpty (ExtHom base decideDemand plusExt minusExt)`——嵌入恒等 + `over_prop` 强制同态在 `godelSent` 上恒等，而恒等不保 yes。
+  - `godel_completion_not_minimal`：`¬ IsMinimal base decideDemand plusExt`。
+  - `godel_completion_objective_zero`：载体相同 ⟹ 改名 ⟹ `novelty=0` ⟹ `objective=0`。
+- **P4**：`decided_is_solved`（已决定 ⟹ `HasSolution`）；对照表写进计划页（e/π 超越性=ZFC 已证=solved；e+π 开放=gap 但非发现；哥德尔句子=gap 但过不了极小性/闸门）。
+- **P1**：三条手工论证落页（ℤ 在 RCF 不可定义 / 超越性需算术语言 / 算术 ⟹ 哥德尔适用），依赖 Tarski / Church–Turing / Gödel–Rosser，未 Lean 形式化。
+- **构建**：依赖链曾断（`.lake/packages/mathlib` 符号链接目标消失），在 `/tmp/nods-verify` 重建 mathlib（v4.35 rev 56a0058，cache 5967 文件）后 `lake build Nods` 全绿（9072 jobs）；工作区 `lakefile.toml` 未改。
+- **诚实账本**：哥德尔定理本身未形式化（外部输入）；P1 未形式化；"e+π 判 gap" 非定理。
+- **回写**：计划页 `stage: current`、ledger 更新；`current-status.md` 新增条目 + `last_confirmed: 2026-11-22`；本条目。
+
+## [2026-11-22] 哥德尔边界计划 | 需求重判 + 研究计划落盘
+
+- **诉求**：用 NODS「改动哥德尔定理」，切口是「超越数本身不在哥德尔定理里面」。
+- **前一轮裁决落账**：`否定哥德尔` 判为 `dead`——定理在自身假设内一致、经百年检验，不存在一致扩张使其为假。按 `Verdict.lean` 的 `IsDead` 语义记录，不推翻。
+- **诉求重构**：不改定理真值，改**表述边界**——用 NODS 的 Refinement 阶梯刻画哥德尔射程从哪层咬合，把哥德尔现象与超越数现象对位。
+- **核心洞察（手工论证，未形式化）**：Tarski 定理说 `Th(ℝ,+,×,<,0,1)` 完备可判定，该语言定义不了 `ℤ`，故定义不了超越性；要说出 `Trans(x)` 必须能量化整数=表达算术=落入哥德尔射程。结论：超越数不是漏洞，是**射程边界的标记物**；这是一次 Refinement（RCF→RCF+ℕ）不是 Extra。
+- **新页** `docs/wiki/godel-boundary-plan.md`（v2/draft）：五阶段计划 P0 需求重判（已完成）→ P1 射程边界论证 → P2 Framework 实例化（困难函数留成义务）→ P3 哥德尔 gap 判定（目标定理 `godel_gap_not_minimal`：F+G 与 F+¬G 不典范等价 ⟹ `IsMinimal` 失败 ⟹ 过不了闸门）→ P4 超越数对照 → P5 回写台账。
+- **诚实账本**：射程论证=手工；Framework=未实现；`godel_gap_not_minimal`=未证；超越数对照=未做。全程以 `dead` 裁决为锚，防「重述边界」漂移成「否定定理」。
+- **回写**：`index.md` 增研究计划页链接；`current-status.md` 的 `last_confirmed` 本批暂不更新（计划页为 draft，非已证结论，待 P3 出定理再同步）。
+
 ## [2026-11-12] 方向 B | 升维世界与 JEPA 消融结果（含两处自我纠错）
 
 - **b9 六配置矩阵**（同世界/起点/探针，60k RL ticks）：
